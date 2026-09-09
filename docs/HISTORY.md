@@ -1583,3 +1583,34 @@ the final commit. No commit or push has been performed at this checkpoint.
   not grant the same exception to other writers. As repository administrator,
   the owner can still deliberately edit or remove repository rules. The stored
   JSON alone is not enforcement; the live GitHub rules are authoritative.
+
+### Completed Publication and Verification
+
+Created `Initial commit`, hash `8cc531d6ae3caa23f831f32692520227c2403c6f`, with
+145 files after scanning the exact staged blobs with Gitleaks. Zero findings;
+the committed tree exactly matched the scanned tree. Dependencies, builds,
+generated reports, handoff bundles, likely secret files, and player saves remained
+excluded. No package/runtime source changes were made for this setup.
+
+The first push attempts did not create a remote branch because Windows quoting
+split a manually specified GitHub CLI credential-helper path. Used the supported
+`gh auth setup-git --hostname github.com` command, then a plain, non-forced
+`git push --set-upstream origin main`. It succeeded without disabling either
+ruleset. GitHub authentication is handled by its credential helper; no token was
+placed in the remote URL, repository files, or this history.
+
+Verified the remote main SHA equals the local commit, main is the default branch,
+and the local upstream is origin/main. GitHub reports main protected and no
+CODEOWNERS errors, with the expected all-files owner present in the published
+file. Read both active rulesets back again, confirming the sole user-specific PR
+bypass and the absence of any history-protection bypass. Effective main rules
+include pull requests, non-fast-forward prevention, and deletion prevention.
+No other-account push, force-push, or branch-deletion probe was attempted; the
+cross-user restriction is established by the live rule configuration, not a claim
+of using another person's credentials.
+
+R04 and R05 are resolved. The public visibility and temporary owner-only direct
+push exception reflect the user's explicit latest choices, replacing the earlier
+private/no-bypass defaults. No subscription upgrade, collaborators, account,
+automatic PR approval, or new gameplay work was introduced. Generated local
+verification records remain in the ignored artifacts/security directory.
