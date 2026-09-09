@@ -1,0 +1,42 @@
+.part-inventory .bench-part {
+  min-height: 91px;
+  gap: 5px;
+  padding: 5px 6px 8px;
+}
+
+.stack-metadata {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 17px;
+  flex-shrink: 0;
+}
+
+.stack-direction {
+  display: grid;
+  place-items: center;
+  width: 13px;
+  height: 17px;
+  color: var(--cp-link);
+}
+
+.stack-count {
+  display: grid;
+  place-items: center;
+  min-width: 23px;
+  height: 17px;
+  padding: 0 3px;
+  border: 1px solid var(--cp-border-strong);
+  border-radius: 3px;
+  background: var(--cp-surface);
+  color: var(--cp-text);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.bench-part[data-count="1"] .stack-count {
+  visibility: hidden;
+}

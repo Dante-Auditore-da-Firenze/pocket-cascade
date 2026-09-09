@@ -1,0 +1,8 @@
+Pocket Cascade is a private development project. No open-source license is
+granted for the original project files by this distribution.
+
+Third-party components remain under their respective licenses. Their notices
+are included in THIRD_PARTY_NOTICES.txt and the Electron/Chromium notice files.
+
+The project owner must approve distribution rights, any player-facing EULA,
+and applicable Steamworks terms before a public commercial release.

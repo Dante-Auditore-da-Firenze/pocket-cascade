@@ -1,0 +1,57 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Pocket Cascade: Play",
+			"type": "shell",
+			"command": "npm",
+			"windows": { "command": "npm.cmd" },
+			"args": [
+				"run",
+				"dev",
+				"--",
+				"--port",
+				"5173"
+			],
+			"isBackground": true,
+			"problemMatcher": []
+		},
+		{
+			"label": "Pocket Cascade: Test Balance",
+			"type": "process",
+			"command": "node",
+			"args": [
+				"node_modules/vitest/vitest.mjs",
+				"run",
+				"tests/balance.test.ts",
+				"tests/gift-variety.test.ts"
+			],
+			"group": "test",
+			"problemMatcher": []
+		},
+		{
+			"label": "Pocket Cascade: Compare Gift Variety",
+			"type": "process",
+			"command": "node",
+			"args": [
+				"--import", "tsx",
+				"scripts/balance-diagnostics.ts",
+				"--gift-variety"
+			],
+			"group": "test",
+			"problemMatcher": []
+		},
+		{
+			"label": "Pocket Cascade: Test Balance Experience",
+			"type": "process",
+			"command": "node",
+			"args": [
+				"node_modules/@playwright/test/cli.js",
+				"test",
+				"tests/browser/gift-variety.spec.ts"
+			],
+			"group": "test",
+			"problemMatcher": []
+		}
+	]
+}

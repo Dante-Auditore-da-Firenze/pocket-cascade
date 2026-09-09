@@ -1,0 +1,9 @@
+title = "Pocket Cascade secret scanning"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Public browser localStorage identifiers, not credentials"
+regexTarget = "secret"
+regexes = ['''^pocket-cascade\.save\.v1(?:\.backup)?$''']

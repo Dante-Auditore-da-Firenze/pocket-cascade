@@ -1,0 +1,41 @@
+appId: com.pocketcascade.game
+productName: Pocket Cascade
+electronDist: node_modules/electron/dist
+directories:
+  output: release
+  buildResources: assets
+asar: true
+asarUnpack:
+  - node_modules/steamworks.js/**/*
+files:
+  - dist/**/*
+  - electron/{main,preload,native-save,export-save,security,steam}.cjs
+  - electron/steam-config.json
+  - package.json
+  - '!**/*.map'
+  - '!**/.env*'
+  - '!**/steam_appid.txt'
+extraResources:
+  - from: .
+    to: legal
+    filter:
+      - LICENSE.txt
+      - THIRD_PARTY_NOTICES.txt
+afterPack: ./electron/after-pack.cjs
+npmRebuild: false
+nodeGypRebuild: false
+forceCodeSigning: false
+publish: null
+win:
+  executableName: Pocket Cascade
+  icon: assets/icon.ico
+  signAndEditExecutable: true
+  target:
+    - target: portable
+      arch:
+        - x64
+    - target: dir
+      arch:
+        - x64
+portable:
+  artifactName: Pocket-Cascade-${version}-win-${arch}-portable.${ext}

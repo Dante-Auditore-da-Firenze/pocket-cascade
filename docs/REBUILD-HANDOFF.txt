@@ -1,0 +1,277 @@
+POCKET CASCADE: TEXT-ONLY REBUILD HANDOFF
+Prepared 2026-09-08. Game candidate: 1.0.0, counted spare icons.
+
+1. WHAT THIS TRANSFER DOES
+
+The reliable way to match this project is to restore its actual files and build
+them, not ask an AI to rewrite the game from its description. Design and history
+explain intent but do not specify every physics detail, control, pixel, or test.
+
+This kit represents source and assets as ordinary text. Use it if full project
+contents are allowed inside .txt files. A file-extension conversion does not grant
+permission to transfer otherwise restricted source or data. If only short written
+notes are permitted, see section 10; an exact reconstruction is not guaranteed.
+
+Three files travel together:
+
+  START-HERE.txt       This guide, including a starter prompt for a coding agent.
+  RESTORE.txt          Dependency-free Node.js restoration utility, as text.
+  PROJECT-SOURCE.txt   Gzip/base64 JSON snapshot with original paths and SHA-256s.
+
+Keep the payload as a complete file. Do not paste the large bundle into a chat or
+ask a model to regenerate it; truncation or changed bytes will fail verification.
+Checksums detect accidental damage, not who authored or approved a transfer.
+
+Included: src, electron, scripts, tests, public, assets, docs, project instructions,
+the development task, package.json, package-lock.json, TypeScript/Vite/test/builder
+configuration, legal/notice files, original full balance report, and selected
+dated release evidence/screenshots. Images are preserved as bytes, not redrawn.
+The bundle contains the full chronological history, including later corrections.
+
+Excluded: node_modules, dist, release executables, browser/native test output,
+developer caches, user-level editor settings/skills/memory, and your playable
+personal save. Source-controlled fixture data and past gameplay screenshots are
+included; they do not restore your current machine. No Git repository is needed.
+
+2. DESTINATION REQUIREMENTS
+
+For the closest supported environment, use Windows x64 and Node.js 24.15.0 with
+npm. The project permits Node >=22.12.0, but matching the recorded runtime reduces
+differences. VS Code is convenient, not required for compilation. Global Copilot
+skills or access to the original chat account are not build dependencies.
+
+The destination needs internet access for npm packages, Electron, and Playwright
+Chromium. npm ci uses the supplied lockfile; do not replace it with npm install
+latest, recreate package.json, run npm update, or use npm audit fix on arrival.
+
+No-internet destination: this kit alone is insufficient. You would also need
+permitted transfers of Node/npm, dependencies or a complete offline cache, Electron,
+Chromium for tests, and packaging tool downloads. Encoding those as text can be
+very large. A short design document cannot replace missing compiler/runtime files.
+The built game itself requires no runtime internet connection for normal play.
+
+3. RESTORE THE FILES
+
+Place the three .txt files together on the destination. In PowerShell, start in
+that transfer folder, not inside an existing project. The restoration target must
+not already exist; the utility refuses to overwrite any existing folder.
+
+Run each command separately:
+
+  node --version
+  npm --version
+  Copy-Item -LiteralPath .\RESTORE.txt -Destination .\restore.cjs
+  node .\restore.cjs restore .\PROJECT-SOURCE.txt .\pocket-cascade
+  node .\restore.cjs verify .\PROJECT-SOURCE.txt .\pocket-cascade
+  Set-Location .\pocket-cascade
+
+The .cjs copy is created on the destination; only the three .txt files cross
+machines. A restore checks the payload, every file's size and hash, and relative
+paths before writing, then checks the written files. A failure is not permission
+to repair source by guessing: first check for a truncated or altered text file.
+
+This verifies the transferred files, not that the new computer can run the game.
+Do the build and runtime checks next. Run the hash check before commands that
+intentionally regenerate assets, notices, reports, or other included files.
+
+4. INSTALL, BUILD, AND CHECK
+
+From the restored project root, run each command separately and stop on errors:
+
+  npm ci
+  npx playwright install chromium
+  node scripts/prepare-desktop.mjs
+  npm run verify
+  npm run test:desktop
+
+npm run verify builds and runs the unit and browser tests. Browser tests start or
+reuse this project's Vite server at http://127.0.0.1:5173. Ensure that port is not
+being used by another project. Native tests require an interactive Windows desktop
+and the preceding production build; they use temporary test saves.
+
+Historical game baseline on the source machine:
+  246 unit tests across 13 files; 60 browser tests; 12 native tests.
+  Two actual Windows executable launches passed after packaging.
+These are prior results, not a new-machine pass or hardware certification.
+The transfer helper has a separate narrow suite:
+
+  node --test scripts/text-handoff.test.cjs
+
+For Windows delivery:
+
+  npm run package:win
+  npm run test:package
+
+Expected outputs:
+  release/Pocket-Cascade-1.0.0-win-x64-portable.exe
+  release/win-unpacked/Pocket Cascade.exe
+
+The whole win-unpacked directory is needed for its application/depot; the main
+unpacked executable alone is not a portable game. Both delivery formats are
+unsigned in the current configuration. npm run test:package uses the ordinary
+player-save location on the destination, not the temporary native-test profile.
+It launches and quits without playing. Back up any pre-existing destination save.
+
+The build can report a deliberate public theme.js script note and Zod annotation
+warnings. Do not remove CSP or the early theme script just to silence those notes.
+See docs/VERIFICATION.md and docs/TESTING.md for the actual evidence and boundaries.
+
+Do not overwrite the included full balance baseline during setup. In particular,
+npm run test:balance -- --quick replaces it with only two runs. Regenerate the full
+report only deliberately after retaining the historical report elsewhere.
+
+5. PLAY AND GENERATE OPTIONAL ASSETS
+
+Browser development:
+  npm run dev
+  Open http://127.0.0.1:5173
+
+If that port is occupied, select another explicitly:
+  npm run dev -- --port 5174 --strictPort
+
+Each host/port has its own browser save. Native play, after building:
+  npm run desktop
+
+The bundle already contains current original assets and reference captures.
+npm run assets:generate regenerates icons; package:win does this automatically.
+npm run assets:steam is optional and needs this project's dev server on port 5173
+in another terminal. It creates real legal-campaign captures and store artwork;
+it does not upload a Steam page or verify commercial readiness.
+
+6. WHICH DOCUMENTS AND INSTRUCTIONS MATTER
+
+Read these restored files in this order before continuing development:
+
+  .github/copilot-instructions.md
+    Project constraints and working practices. No Git initialization, branches,
+    commits, unapproved retuning, or deferred-feature implementation.
+
+  docs/OPEN-ITEMS.md
+    Current statuses and what is actually authorized. P01-P14 and D08 are complete.
+    D01-D07, D09, and D10 remain open. D09 -> D03 -> D01 is the discussion priority.
+
+  docs/HISTORY.md
+    Full chronological requests, rationale, approvals, tests, and reversals.
+    Read the latest entries first, then older entries for context. H011 is the
+    latest game feature delivery; H015 corrects an earlier D09 recommendation.
+    Do not implement an old proposal that a later entry withdrew. Keep appending
+    dated entries to this same history after every substantive exchange.
+
+  docs/DESIGN.md and src/game
+    Implemented rules and controlling source. Preserve actual code/tests rather
+    than substituting the original research concept or a new AI interpretation.
+
+  docs/BALANCE.md and artifacts/balance/report.json / report.md
+    Original full sixteen-run evidence and its limitations. Simulated performance
+    is not measured human playtime, fun, retention, sales, or a selected price.
+
+  docs/TESTING.md and docs/VERIFICATION.md
+    Build/check commands, dated game totals, platform boundaries, and artifact
+    evidence. These own verification claims; older README/history counts may
+    describe an earlier milestone rather than the current code.
+
+  docs/STEAM.md, docs/RELEASE-CHECKLIST.md, docs/STORE.md
+    Native security/save/platform setup, outstanding release gates, and proposed
+    store presentation. Steam AppID is 0 and real Steam/Cloud work is unverified.
+
+  README.md, LICENSE.txt, THIRD_PARTY_NOTICES.txt
+    Overview, commands, and legal-review inputs. The license placeholder is not
+    an approved player EULA or a grant of commercial distribution rights.
+
+Original external research and unavailable chat transcripts are not needed to
+compile. The important project decisions are captured in the included history.
+No global memory files or personal Copilot configuration are required to proceed.
+
+7. CURRENT BEHAVIOR TO PRESERVE
+
+- React 19 / TypeScript / Vite; original Canvas2D cabinet; Matter.js at 120 Hz.
+  Browser, Electron, and balance tests share the authoritative DropSimulation.
+- Eight parts, twelve minimum-payout commissions, five launches per commission,
+  nine aim lanes, 46 sockets. Excess payout is success, not an exact-total failure.
+- Targets: 100, 300, 550, 850, 1300, 1950, 2850, 4200, 6200, 9000, 13500, 20000.
+  Capacity grows from 7 to 18; After Hours allows 20. Max owned parts is 80.
+- Launch conditions stay deterministic across a run. Two split generations, at
+  most four tokens; inherited hit history; 12-second safety collection pays value.
+- Individual part IDs persist. Equivalent spare icons group with a quantity badge;
+  meaningful Fork/Kicker directions remain separate. Actions affect one real copy.
+- Quick Guide, Workshop-credit clarity, visible inventory/capacity, restart and
+  New Workshop confirmation are implemented. No calculated machine suggestions.
+- No mid-run relaxed-target prompt. Initial relaxed Workshop choice and existing
+  loss-only retry bonus remain. Restart adds no reward or new assistance.
+- Music continues through menus; physical impact audio is ephemeral, not saved
+  scoring. Reduced motion is opt-in. Preserve local fonts, CP palette, original
+  art, and Lucide icons. No external runtime assets, analytics, or paid currency.
+- Version-1 validated saves, primary/backup recovery, renderer isolation, sandbox,
+  CSP, trusted-frame IPC, and validated native import/export must remain intact.
+- D09 gift weighting and duplicate pricing are only proposals. D03 theme, D01
+  expanded endgame, and D10 post-level reward dialog are not implemented.
+- H015 withdrew permanent old/new balance profiles and special challenges solely
+  for the current test machine as requirements. No save reset/migration or balance
+  rule change was approved by that discussion. Preserve the actual current game.
+
+8. OPTIONAL: BRING YOUR SAVED WORKSHOP
+
+Source/build state and player progress are separate. This kit deliberately does
+not read or copy the current playable save. Restoring it starts with whatever save
+already exists on the destination, or a fresh workshop if none exists.
+
+To bring a machine, deliberately use Settings -> Export save on the source.
+The exported JSON is text; transfer a copy with a .txt extension if required.
+On the destination, restore the .json extension and use Settings -> Import save.
+Export/back up any destination machine first because import replaces the active
+machine. Do not copy a live save over a running game or assume the project folder
+contains the browser's localStorage or the native AppData save.
+
+Native save location:
+  %APPDATA%\Pocket Cascade\pocket-cascade-save.json
+Browser keys:
+  pocket-cascade.save.v1
+  pocket-cascade.save.v1.backup
+
+Never insert private saves or credentials into the general project handoff unless
+you deliberately choose to share them. No Steam Cloud account transfer is implied.
+
+9. STARTER PROMPT FOR THE DESTINATION CODING AGENT
+
+Use the restored Pocket Cascade project as the source of truth. Do not rewrite
+or scaffold over it. First read .github/copilot-instructions.md, the latest
+docs/HISTORY.md entries, docs/OPEN-ITEMS.md, docs/DESIGN.md, and docs/VERIFICATION.md.
+Read local controlling code before changes. Restore and verify the supplied exact
+files, install with npm ci and the existing lockfile, then build and run the
+documented narrow/full checks as appropriate. Do not initialize Git, create a
+branch, commit, reset a save, upgrade dependencies, invent game rules, or implement
+deferred proposals without explicit approval. D09/D03/D01/D10 are unapproved.
+Honor the H015 correction instead of resurrecting the H013 dual-balance proposal.
+Record only actual new-machine results; historical passes are not fresh evidence.
+Append a dated history entry after each substantive exchange and keep the tracker
+current. Preserve the original full balance report and all unrelated user changes.
+
+10. LIMITS OF A WRITTEN-ONLY RECONSTRUCTION
+
+If source bytes cannot travel, bring all the documents in section 6 as .txt,
+plus the exact dependency/configuration files, tests, complete source listings,
+and assets or their original generators wherever permitted. With only design and
+history prose, a new implementation can aim for the same behavior but cannot be
+promised to match this game's precise physics, saves, UI, artwork, or bugs. There
+is no short prompt that fully replaces the source and regression tests.
+
+Even with exact source, another OS, GPU, fonts, display scaling, or changed toolchain
+can affect rendering. Rebuilt executable hashes may differ due to packaging and
+generated resources. File-hash restoration proves source/asset identity, not a
+bit-reproducible Windows build or physical audio/controller/Steam/Deck validation.
+
+11. REFRESHING THE KIT LATER
+
+From the original/restored project root, after finishing and recording changes:
+
+  node --test scripts/text-handoff.test.cjs
+  node scripts/text-handoff.cjs export
+
+This regenerates handoff/START-HERE.txt, handoff/RESTORE.txt, and
+handoff/PROJECT-SOURCE.txt from the current allowlisted project files. It excludes
+the handoff directory itself. Existing files with these three output names are
+replaced; they are generated snapshots, not the only copy of the source. Keep a
+separate copy of an older kit if you need that exact historical version.
+
+Before an actual transfer, restore the refreshed bundle into a new temporary
+folder and run the verify command. Never treat a stale export as the latest game.

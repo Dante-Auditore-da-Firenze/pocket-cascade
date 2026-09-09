@@ -1,0 +1,58 @@
+.onboarding-bar { background: var(--cp-surface-soft); border-bottom: 1px solid var(--cp-border); }
+.onboarding-inner { max-width: 1640px; min-height: 94px; padding: 12px 28px; margin: auto; display: flex; align-items: center; gap: 16px; }
+.guide-symbol { display: grid; place-items: center; width: 42px; height: 42px; flex-shrink: 0; color: var(--cp-warning); border: 1px solid color-mix(in srgb, var(--cp-warning) 50%, var(--cp-border)); border-radius: 50%; }
+.guide-copy { min-width: 0; }
+.guide-copy .eyebrow { color: var(--cp-warning); font-size: 9px; }
+.guide-copy > strong { display: block; font: 600 23px/1.12 'Barlow Condensed', sans-serif; margin: 3px 0; }
+.guide-copy p { font-size: 12px; color: var(--cp-text-soft); line-height: 1.5; max-width: 610px; }
+.guide-actions { margin-left: auto; display: grid; justify-items: end; gap: 8px; flex-shrink: 0; }
+.guide-actions .text-button { color: var(--cp-text); font-size: 11px; }
+.guide-progress { display: flex; gap: 5px; }
+.guide-progress > span { width: 16px; height: 16px; border: 1px solid var(--cp-border); color: var(--cp-text-muted); border-radius: 50%; display: grid; place-items: center; font-size: 8px; }
+.guide-progress .current { color: var(--cp-warning); border-color: var(--cp-warning); }
+.guide-progress .complete { color: var(--cp-success); border-color: var(--cp-success); }
+.game-app[data-tutorial-step="place"] .bench-part,
+.game-app[data-tutorial-step="launch"] .launch-button,
+.game-app[data-tutorial-step="gift"] .free-reward-section { outline: 2px solid var(--cp-warning); outline-offset: 3px; }
+.game-app[data-tutorial-step="collect"] .score-panel { border-color: var(--cp-warning); }
+.game-app[data-tutorial-step="spend"] .paid-offers { border-left: 2px solid var(--cp-warning); padding-left: 12px; }
+.credits-wallet { display: grid; gap: 8px; padding: 0 0 16px; margin-bottom: 17px; border-bottom: 1px solid var(--cp-border); }
+.wallet-title { display: flex; align-items: center; gap: 7px; font-size: 9px; color: var(--cp-accent); font-weight: 600; }
+.wallet-amount { display: flex; align-items: center; gap: 14px; min-height: 34px; }
+.wallet-amount > span:first-child { font: 600 34px/1 'Barlow Condensed', sans-serif; color: var(--cp-accent); }
+.wallet-change { color: var(--cp-text-muted); font-size: 10px; line-height: 1.5; }
+.wallet-change.earned { color: var(--cp-success); animation: wallet-receipt 750ms ease-out; }
+.wallet-change.spent { color: var(--cp-accent); animation: wallet-receipt 750ms ease-out; }
+.free-reward-section { border-radius: 5px; }
+.free-reward-section .section-heading > span:first-child { display: flex; align-items: center; gap: 6px; color: var(--cp-success); }
+.gift-claimed { display: flex; align-items: center; gap: 10px; padding: 15px 0; color: var(--cp-success); }
+.gift-claimed > span { display: grid; gap: 4px; font-size: 12px; }
+.gift-claimed small { font-size: 10px; color: var(--cp-text-muted); }
+.paid-offers .offer-price { color: var(--cp-accent); }
+.paid-offers .offer-price small, .power-upgrade > span:last-child small { font-size: 8px; color: var(--cp-text-soft); }
+.paid-offers .section-heading { font-size: 9px; }
+.power-upgrade > span:last-child { color: var(--cp-accent); }
+.shop-optional { font-size: 10px; line-height: 1.6; color: var(--cp-text-muted); margin-top: 10px; }
+.accessibility-link { margin-top: 14px; }
+.save-actions { margin-top: 10px; }
+.machine-toolbar { min-height: 36px; }
+.machine-status { display: grid; gap: 5px; min-width: 0; }
+.machine-status > span:first-child { display: flex; align-items: center; gap: 7px; }
+.installation-capacity { display: flex; align-items: center; gap: 5px; font-size: 10px; color: var(--cp-text-soft); }
+.installation-capacity strong { color: var(--cp-text); font-weight: 600; }
+.installation-capacity > span { color: var(--cp-success); margin-left: 5px; font-size: 9px; }
+.installation-capacity.full > span { color: var(--cp-warning); }
+.machine-actions { display: flex; align-items: center; gap: 4px; }
+.machine-actions .icon-button { color: var(--cp-text); border-color: var(--cp-border); }
+.part-inventory { margin: 0 0 17px; padding-bottom: 12px; border-bottom: 1px solid var(--cp-border); }
+.part-inventory .bench-grid { margin-bottom: 6px; max-height: 160px; }
+.part-inventory .empty-bench { min-height: 34px; font-size: 10px; }
+.capacity-notice, .capacity-next { font-size: 10px; line-height: 1.6; margin-top: 8px; }
+.capacity-notice { color: var(--cp-warning); }
+.capacity-next { color: var(--cp-text-soft); }
+.display-mode { display: flex; border: 1px solid var(--cp-border); border-radius: 5px; overflow: hidden; margin-bottom: 14px; }
+.display-mode button { flex: 1; padding: 10px; display: flex; justify-content: center; align-items: center; gap: 7px; font-size: 11px; background: transparent; color: var(--cp-text-muted); }
+.display-mode button[aria-pressed="true"] { background: var(--cp-sheen); color: var(--cp-warning); }
+@keyframes wallet-receipt { from { opacity: .35; transform: translateY(7px); } to { opacity: 1; transform: translateY(0); } }
+@media (max-width: 930px) { .onboarding-inner { padding: 12px 20px; gap: 12px; } .guide-actions { display: none; } .guide-copy p { font-size: 11px; } .onboarding-inner > .icon-button { margin-left: auto; } }
+@media (max-width: 650px) { .onboarding-inner { padding: 12px 16px; align-items: flex-start; gap: 10px; min-height: 112px; } .guide-symbol { width: 29px; height: 29px; margin-top: 5px; } .guide-symbol svg { width: 17px; } .guide-copy > strong { font-size: 22px; } .guide-copy p { font-size: 11px; line-height: 1.5; } .onboarding-inner > .icon-button { width: 26px; height: 28px; } .credits-wallet { padding-bottom: 14px; } }
