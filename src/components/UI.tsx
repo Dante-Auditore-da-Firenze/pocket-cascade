@@ -2,6 +2,8 @@ import { useEffect, useRef, useState, type ButtonHTMLAttributes, type ReactNode 
 import { X, type LucideIcon } from 'lucide-react';
 import { PARTS } from '../game/content';
 import type { PegKind } from '../game/model';
+import { cabinetMaterials, paintMechanism } from '../render/art';
+import { readCabinetPalette } from '../render/palette';
 
 export function formatNumber(value: number): string {
   if (value < 1_000_000) return Math.round(value).toLocaleString('en-US');
@@ -32,8 +34,34 @@ export function IconButton({ icon: Icon, label, className = '', ...props }: Butt
   return <button type="button" className={`icon-button ${className}`} aria-label={label} title={label} {...props}><Icon size={18} strokeWidth={1.7} /></button>;
 }
 
-export function PartSymbol({ kind, small = false }: { kind: PegKind; small?: boolean }) {
-  return <span aria-hidden="true" className={`part-symbol part-${kind} ${small ? 'small' : ''}`}>{PARTS[kind].symbol}</span>;
+export function PartSymbol({ kind, small = false, direction = 1 }: { kind: PegKind; small?: boolean; direction?: -1 | 1 }) {
+  const reference = useRef<HTMLSpanElement>(null);
+  const [image, setImage] = useState('');
+  useEffect(() => {
+    const element = reference.current;
+    if (!element) return;
+    const draw = () => {
+      if (!element.isConnected) return;
+      const canvas = element.ownerDocument.createElement('canvas');
+      canvas.width = 96;
+      canvas.height = 96;
+      const context = canvas.getContext('2d');
+      if (!context) return;
+      const palette = readCabinetPalette(element);
+      context.setTransform(2, 0, 0, 2, 48, 48);
+      paintMechanism(context, { kind, id: 'display', direction }, palette, cabinetMaterials(palette));
+      setImage(canvas.toDataURL('image/png'));
+    };
+    draw();
+    void element.ownerDocument.fonts.ready.then(draw);
+    const observer = new MutationObserver(draw);
+    observer.observe(element.ownerDocument.documentElement, { attributes: true, attributeFilter: ['data-theme', 'data-high-contrast'] });
+    return () => observer.disconnect();
+  }, [kind, direction]);
+  return <span ref={reference} aria-hidden="true" className={`part-symbol part-${kind} ${small ? 'small' : ''}`}>
+    {image && <img src={image} alt="" width="96" height="96" />}
+    <span className={image ? 'visually-hidden' : undefined}>{PARTS[kind].symbol}</span>
+  </span>;
 }
 
 export function Dialog({ title, children, onClose, wide = false }: { title: string; children: ReactNode; onClose: () => void; wide?: boolean }) {

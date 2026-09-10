@@ -9,7 +9,7 @@ open, deferred ideas are not promised listing features.
 
 **Title:** Pocket Cascade
 
-**Short description:** Build a tiny token machine and turn loose change into extraordinary chain reactions. Arrange eight kinds of parts, split and multiply your tokens, and keep improving a little invention of your own. Twelve commissions, a daily machine, and one more cascade after hours.
+**Short description:** Build a tiny machine in a clockwork workshop and turn loose change into extraordinary chain reactions. Arrange eight kinds of parts, split and multiply your tokens, and keep improving your invention. Twelve commissions, a daily machine, and one more cascade after hours.
 
 **About the game:**
 
@@ -37,6 +37,8 @@ feel like yours.
 - Offline play, automatic saves, backup recovery, and save import/export.
 - Original artwork, prominent physical peg/wall impacts, distinct part and payout
 	sounds, and locally synthesized music that continues through menus and pauses.
+- An original clockwork workshop with day/evening scenery, enamel-and-brass
+	mechanisms, and activation motion tied to actual cascades, not time-pressure rules.
 - Adjustable speed and trails, plus separate Accessibility controls for high
 	contrast and reduced motion.
 - Mouse, touch, keyboard, and standard-mapped controller navigation.
@@ -89,6 +91,23 @@ notifications may appear because these images record real play; review each imag
 Existing captures may predate the latest guide, wallet, and cabinet-layout polish.
 Review or refresh them against the intended build before store use; their presence
 does not establish a current-build pass.
+
+The 2026-09-10 clockwork captures were refreshed from legal seed-42 play. Capsule
+compositions now use the actual completed cabinet against the original workshop
+scene instead of abstract coin diagrams. The text-free library hero uses the
+room illustration; title art and screenshots are separate exports. The 512px
+application insignia and 20 achievement variants also match the new theme.
+Editable room sources and an asset provenance record are under
+[assets/workshop/manifest.json](../assets/workshop/manifest.json). No third-party
+web illustrations were used or licensed for this pass; commercial/legal approval
+is still a separate release requirement, not waived by the project's local use.
+
+H028 refreshed these local captures again for the approved board refinement:
+neutral playfield, red housing, a rail-mounted drop head, and steel/red collectors.
+They represent the H028 browser/source-mode snapshot; H030 later replaced the
+bowls with recessed chutes without recapturing these store images. Existing H026
+Windows packages were not regenerated. This is prototype presentation work, not
+a store submission. Refresh the captures before using them to represent H030.
 
 Sizes were checked against Valve's public documentation during this build:
 

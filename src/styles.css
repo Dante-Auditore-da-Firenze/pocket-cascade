@@ -1,22 +1,22 @@
 :root {
   color-scheme: light;
-  --cp-bg: #f7f4ef;
-  --cp-bg-elevated: #fcfbf8;
-  --cp-surface: #ffffff;
-  --cp-surface-soft: #f5f5f5;
-  --cp-border: #dedede;
-  --cp-border-strong: #919191;
-  --cp-text: #242424;
-  --cp-text-muted: #5c5c5c;
-  --cp-text-soft: #6f6f6f;
-  --cp-accent: #b11f4b;
-  --cp-accent-hover: #9a1a41;
-  --cp-accent-soft: rgba(177, 31, 75, 0.08);
+  --cp-bg: #e4e3e5;
+  --cp-bg-elevated: #faf9f6;
+  --cp-surface: #f6f5f2;
+  --cp-surface-soft: #eceaeb;
+  --cp-border: #cdc9cc;
+  --cp-border-strong: #938b91;
+  --cp-text: #333137;
+  --cp-text-muted: #615c63;
+  --cp-text-soft: #655e65;
+  --cp-accent: #b4493b;
+  --cp-accent-hover: #963b30;
+  --cp-accent-soft: rgba(180, 73, 59, 0.08);
   --cp-accent-fg: #ffffff;
-  --cp-success: #16a34a;
+  --cp-success: #167b5e;
   --cp-danger: #dc2626;
-  --cp-warning: #f59e0b;
-  --cp-link: #0078d4;
+  --cp-warning: #956311;
+  --cp-link: #246fb0;
   --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.12);
   --cp-overlay: rgba(255, 255, 255, 0.8);
   --cp-panel: rgba(255, 255, 255, 0.86);
@@ -26,23 +26,23 @@
 }
 html[data-theme="dark"] {
   color-scheme: dark;
-  --cp-bg: #3d3b3a;
-  --cp-bg-elevated: #343231;
-  --cp-surface: #292929;
-  --cp-surface-soft: #2e2e2e;
-  --cp-border: #474747;
-  --cp-border-strong: #5f5f5f;
-  --cp-text: #dedede;
-  --cp-text-muted: #919191;
-  --cp-text-soft: #b0b0b0;
-  --cp-accent: #fd8ea1;
-  --cp-accent-hover: #fb7b91;
-  --cp-accent-soft: rgba(253, 142, 161, 0.14);
+  --cp-bg: #232326;
+  --cp-bg-elevated: #29282c;
+  --cp-surface: #2f2d31;
+  --cp-surface-soft: #373438;
+  --cp-border: #5d565c;
+  --cp-border-strong: #978c95;
+  --cp-text: #eee9e2;
+  --cp-text-muted: #b9b2b5;
+  --cp-text-soft: #cec5c8;
+  --cp-accent: #ee9787;
+  --cp-accent-hover: #f1ad9c;
+  --cp-accent-soft: rgba(238, 151, 135, 0.14);
   --cp-accent-fg: #1a1a1a;
-  --cp-success: #4ade80;
+  --cp-success: #88caaa;
   --cp-danger: #f87171;
-  --cp-warning: #fbbf24;
-  --cp-link: #4da6ff;
+  --cp-warning: #e5be74;
+  --cp-link: #92cbd8;
   --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
   --cp-overlay: rgba(41, 41, 41, 0.88);
   --cp-panel: rgba(41, 41, 41, 0.72);
@@ -79,7 +79,7 @@ button { transition: background 130ms, color 130ms, border-color 130ms, opacity 
 .icon-button { flex-shrink: 0; width: 34px; height: 34px; display: inline-grid; place-items: center; background: transparent; border: 1px solid transparent; border-radius: 5px; color: var(--cp-text-soft); }
 .icon-button:hover:enabled { background: var(--cp-sheen); color: var(--cp-text); border-color: var(--cp-border); }
 .workspace {
-  --cabinet-width: min(850px, 58vmin, max(0px, calc((100dvh - var(--board-height-space)) * 500 / 650)));
+  --cabinet-width: min(850px, max(320px, 58vmin), max(320px, calc((100dvh - var(--board-height-space)) * 500 / 650)));
   --commission-width: clamp(200px, 20vmin, 280px);
   --worktable-width: clamp(260px, 25vmin, 330px);
   display: grid;

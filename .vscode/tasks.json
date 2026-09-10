@@ -5,7 +5,9 @@
 			"label": "Pocket Cascade: Play",
 			"type": "shell",
 			"command": "npm",
-			"windows": { "command": "npm.cmd" },
+			"windows": {
+				"command": "npm.cmd"
+			},
 			"args": [
 				"run",
 				"dev",
@@ -34,7 +36,8 @@
 			"type": "process",
 			"command": "node",
 			"args": [
-				"--import", "tsx",
+				"--import",
+				"tsx",
 				"scripts/balance-diagnostics.ts",
 				"--gift-variety"
 			],
@@ -52,6 +55,80 @@
 			],
 			"group": "test",
 			"problemMatcher": []
+		},
+		{
+			"label": "Pocket Cascade: Test Workshop",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"node_modules/@playwright/test/cli.js",
+				"test",
+				"tests/browser/workshop.spec.ts",
+				"tests/browser/board-presentation.spec.ts"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
+			"label": "Pocket Cascade: Generate Artwork",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"scripts/generate-assets.mjs"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Pocket Cascade: Verify Game",
+			"type": "shell",
+			"command": "npm.cmd",
+			"args": [
+				"run",
+				"verify"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
+			"label": "Pocket Cascade: Capture Store Artwork",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"--import",
+				"tsx",
+				"scripts/store-assets.ts"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Pocket Cascade: Test Desktop",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"node_modules/@playwright/test/cli.js",
+				"test",
+				"--config",
+				"playwright.electron.config.ts"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
+			"label": "Pocket Cascade: Package Windows",
+			"type": "shell",
+			"command": "npm.cmd",
+			"args": [
+				"run",
+				"package:win"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
 		}
 	]
 }

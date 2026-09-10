@@ -1,5 +1,145 @@
 # Candidate Verification
 
+## Recessed Chutes - 2026-09-10
+
+H030 implements the approved collector-only follow-up: three recessed payout
+chutes in a continuous base, angled metal lips, x1/x2/x1 plates beside compact
+counters, and a brass/red center. The rest of the H028 board is unchanged.
+
+- **13 focused browser tests passed** through Pocket Cascade: Test Workshop,
+  covering both workshop and board-presentation files.
+- The new renderer test injects a payout into each receiver in normal/reduced
+  motion, requires other collectors to remain unchanged, checks flap response,
+  return to rest, and a stationary reduced-motion intake. Existing actual UI
+  launches still compare complete payout results with the real simulation.
+- **Production TypeScript/Vite build passed.** Editor diagnostics are clean.
+- Sparse desktop, full-capacity mobile payout, and daylight screenshots were
+  inspected. The active prototype and compiled renderer contain the change.
+- Git diff confirms no changes to game rules, audio, native boundaries,
+  dependencies/lockfile, or original balance reports.
+
+The expanded reduced-motion test initially detected an unnecessary repaint of
+cached chute geometry. Skipping that repaint in reduced-motion mode fixed the
+same focused check; the payout highlight and final value remain available.
+This is a rendering regression check, not a human-enjoyment claim.
+
+Full unit/browser/native suites and packaged executables were not rerun for this
+small pass. Their H028/H026 results below remain dated evidence. Store captures
+still show the H028 bowls; the latest collector screenshots are in the focused
+browser artifacts. No gameplay rebalance, full-board redesign, or publication
+was performed. The live prototype is at **http://127.0.0.1:5173/**.
+
+## Board Refinement - 2026-09-10
+
+Current prototype: neutral-field, red-housing clockwork board with a rail-mounted
+drop head, recessed collectors, clearer mechanisms, and contextual Relay cues.
+H028 authorized implementation of the H027 board proposal, not changes to balance
+or the separate text reviews. This is local development, not a shipped-game claim.
+
+| Check | Result |
+| --- | --- |
+| Focused board/workshop tests | **12 passed**: nine workshop checks plus three new board-presentation cases. |
+| `npm.cmd run verify` | Production TypeScript/Vite build, **255 unit tests across 14 files**, and **74 browser tests** passed. |
+| Optimized full run | H027's fresh seed-42 twelve-commission optimized regression passed as part of the unit suite; no new balance assumptions were added. |
+| Production Electron | **12 native tests passed** against the new built renderer. |
+| Local artwork captures | Five 1920x1080 legal-campaign screenshots, eight capsule/library exports, and twenty achievement variants regenerated with the existing capture task; no store publication. |
+| Scope check | Git diff confirms no changes to src/game, src/audio, electron, manifests/lockfile, or the original balance reports. |
+| Packages | Not rebuilt or launched this pass. Existing H026 portable/unpacked executables retain the earlier board; use the live browser or `npm.cmd run desktop` after the current build for this refinement. |
+
+The new tests sample a neutral field in both lighting modes, locate the ready gold
+token at each of nine aim positions, verify actual-release output, and compare
+quiet/inspected Relay-link pixels. Full 18-part fixtures at desktop/mobile widths
+exercise a real 4x cascade with exact result equality. The field keeps passive
+pegs visible, socket targets and coordinates accessible, and the three original
+collector boundaries. At idle, no decorative link animation competes with the
+parts; real hits still produce limited local feedback.
+
+Sparse, full-capacity, active, daylight, and mobile screenshots were visually
+inspected. The full-capacity fixtures are not claims of affordable earned builds;
+the separate complete campaign test uses legal actions. Earlier contrast,
+reduced-motion, layout, controller, audio, and inventory checks also pass in the
+full suite. The final task output records **74 passed (5.5m)**. No additional
+hardware/performance or exact browser-zoom certification is inferred.
+
+The prototype remains running at **http://127.0.0.1:5173/**. No commit, push,
+remote configuration, copy purge, balance tuning, or save reset was performed.
+D12-D14 and D09 remain open. Older results below are historical checkpoints.
+
+## Optimized Regression - 2026-09-10
+
+H027 adds one full fresh seed-42 optimized campaign test in
+[tests/balance.test.ts](../tests/balance.test.ts). The focused
+**Pocket Cascade: Test Balance** task passed **11 tests across two files**:
+seven balance tests and four inactive gift-experiment tests. The new campaign
+case completed all twelve commissions using the existing legal-play runner and
+checks target completion, nonnegative currency, owned-part diagnostics, capacity,
+bounded tokens, no timeouts, safe integer score, and improving edits.
+
+This is a completion regression, not proof that later repositioning is required
+or that all players/seeds are balanced. D14 tracks that question; the earlier
+frozen-after-six evidence remains relevant. Board/art/color and copy suggestions
+were discussed and recorded only. No runtime code, artwork, saves, dependencies,
+or original balance reports changed. No new full build/browser/native/package
+run is claimed for this test addition; the clockwork totals below remain the
+last complete verification of the runtime, not a count including this new test.
+
+## Clockwork Workshop - 2026-09-10
+
+H026 checkpoint: **Pocket Cascade 1.0.0, clockwork workshop**, Windows x64.
+These packaged executables predate the H028 board refinement above.
+The user delegated theme selection and implementation. Original workshop artwork,
+coordinated cabinet/part rendering, and hit-driven visual motion are delivered;
+there is no claim that the selected theme guarantees sales or human enjoyment.
+
+| Check | Final Outcome |
+| --- | --- |
+| `npm.cmd run verify` | Production TypeScript/Vite build, **254 unit tests across 14 files**, and **69 browser tests** passed. Zero failed/skipped tests; zero flaky browser results. |
+| Focused workshop checks | **7 passed**, including day/evening palette and launch-label contrast, three short panes, eight distinct repainting mechanism images, exact real-cascade result/reload, and reduced-motion play. |
+| Existing layout/inventory slice | **26 passed** before the full regression: all 18 layout cases and eight counted-spare cases. |
+| `npm run test:desktop` | **12 native tests passed** against the final production renderer, covering actual play, CSP/isolation, save/export, fullscreen, and relaunch. |
+| Original asset generation | Two 2400x1600 WebP room images, SVG authoring sources, and app icon exports generated with dimension/nonblank pixel checks. No third-party illustration or network generation service used. |
+| `npm run assets:steam` | Five actual-play 1920x1080 screenshots, eight capsule/library images, and twenty achievement variants refreshed from legal campaign actions and original artwork. |
+| `npm run package:win` | Final portable and unpacked Windows applications rebuilt after the daylight contrast correction. |
+| Actual executable checks | **Both final launchers passed** with decoded workshop/part images, painted canvas, native save, CSP, renderer isolation, and save-aware quit. |
+| Save preservation | Existing native primary and backup copied outside the repository before checking; version, run, profile, and settings compare equal afterward. Normal saved timestamps are excluded. |
+| Rule preservation | Git diff verifies no changes to src/game, src/audio, electron, package manifests/lockfile, or the original balance reports. Full balance generation was not rerun for a presentation-only change. |
+| Git/publication | Existing repository and remote left intact; no stage, commit, push, branch, or remote-policy operation for this theme. The earlier uncommitted discussion records were preserved. |
+
+Final package record: `2026-09-09T21:38:29.056Z`, which is 2026-09-10 in the
+recorded local UTC+05:30 timezone. Runtime: Node 24.15.0, npm 11.12.1, Electron
+43.4.1, Playwright 1.63.0, Vite 7.3.6, Vitest 4.1.11, electron-builder 26.15.3,
+Windows 10.0.26200. Packages remain unsigned despite builder signing-step messages;
+no signing identity was configured by this work.
+
+| H026 Packaged Artifact | Bytes | SHA-256 |
+| --- | ---: | --- |
+| `release/Pocket-Cascade-1.0.0-win-x64-portable.exe` | 99,207,411 | `588fcbcffdfdec0e94ad849bf96f8bc470f2e1d31724677c9b965daee7cfc300` |
+| `release/win-unpacked/Pocket Cascade.exe` | 235,782,656 | `a280f7e96b52e92c5d02ad3c1331fc4d47aa77cf833c6795c527ac4849a95431` |
+
+Machine-readable [package evidence](../artifacts/release/verification.json) and
+[save-preservation evidence](../artifacts/release/theme-save-check.json) accompany
+the [portable capture](../artifacts/release/portable.png) and
+[unpacked capture](../artifacts/release/unpacked.png). The ordinary game remains
+available at **http://127.0.0.1:5173/** through Pocket Cascade: Play.
+
+The room images are **79,986 bytes** (daylight) and **103,722 bytes** (evening),
+with [original-source provenance](../assets/workshop/manifest.json). Shared part
+images are generated locally by the same mechanism painter as the cabinet, not
+fetched from a service. Representative desktop, 320px mobile, daylight, active
+cascade, store-capsule, and actual packaged captures were inspected. The new
+contrast test checks seven palette text roles against the surface plus launch
+and small launch-label text at at least 4.5:1 in both lighting modes; it is not
+a blanket accessibility certification for every layered pixel combination.
+
+D11 remains open: a 320px desktop track floor fixes the confirmed short-pane
+collapse, tested at 1280x360, 1100x240, and 1920x360, but the user's exact zoom
+mechanism/percentage was not reproduced. No browser/editor zoom certification is
+inferred from changing viewport sizes. No frame-time benchmark on lower-end
+hardware, physical audio/controller test, real Steam/Cloud/Deck check, store
+upload, or legal approval is claimed. D09 balance and the other deferred systems
+are untouched. Older dated verification below is retained as historical evidence;
+the top section and current package JSON identify the latest delivered build.
+
 ## D09 Experiment - 2026-09-09
 
 The approved first balancing experiment was **not adopted**. Normal game/runtime
@@ -93,7 +233,10 @@ override fixed ordinary **Pocket Cascade: Play** startup at
 machine-specific path. R02 is resolved in [OPEN-ITEMS.md](OPEN-ITEMS.md). Old
 terminal sessions can still require reopening to inherit the updated user PATH.
 
-## Delivered Artifacts
+## Historical Restore Artifacts
+
+These are the 2026-09-08 restore hashes, not the current theme executables. Use
+the clockwork-delivery table above for the files now in the release directory.
 
 | Artifact | Bytes | SHA-256 |
 | --- | ---: | --- |

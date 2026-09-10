@@ -43,6 +43,8 @@ npm run test:e2e -- tests/browser/restarts-inventory.spec.ts tests/browser/workf
 npm run test:e2e -- tests/browser/layout.spec.ts
 npm run test:e2e -- tests/browser/part-stacks.spec.ts
 npm run test:e2e -- tests/browser/gift-variety.spec.ts
+npm run test:e2e -- tests/browser/workshop.spec.ts
+npm run test:e2e -- tests/browser/board-presentation.spec.ts tests/browser/workshop.spec.ts
 npm run test:desktop -- --grep "fullscreen"
 npm run test:desktop -- --grep "unmarked false preference"
 npm run test:desktop -- --grep "exports the current save"
@@ -67,7 +69,7 @@ Run the controlling slice after a change, then the broader affected suites. A fo
 | [tests/impacts.test.ts](../tests/impacts.test.ts) | Ephemeral physical impacts, passive and repeated contacts, duplicate suppression on scored contacts, unchanged scoring. |
 | [tests/audio.test.ts](../tests/audio.test.ts) | Mechanical feedback, production-output safety and headroom; not physical audio-device testing. |
 | [tests/electron-main.test.ts](../tests/electron-main.test.ts) | Save/export boundary, trust checks, CSP and file serving, preload/lifecycle, optional Steam mocks, Windows packaging hook. |
-| [tests/balance.test.ts](../tests/balance.test.ts) | Legal placement, the early upgrade loop, unchanged default campaign results, detached diagnostic observations, frozen-layout isolation, and bounded local edits. |
+| [tests/balance.test.ts](../tests/balance.test.ts) | Legal placement, the early upgrade loop, a full fresh seed-42 optimized twelve-commission run, unchanged default campaign results, detached diagnostic observations, frozen-layout isolation, and bounded local edits. The optimized case checks completion, nonnegative earned currency, owned-part diagnostics, capacity, safe scoring, and improving edits; it does not establish that later repositioning is required. |
 | [tests/gift-variety.test.ts](../tests/gift-variety.test.ts) | Inactive gift candidate: unchanged first six shops, bounded deterministic third-choice replacement, total ownership, unchanged other state/paid stock, saved-shop preservation, and untouched final/After Hours rewards. |
 | [tests/part-stacks.test.ts](../tests/part-stacks.test.ts) | Display-only grouping, ID conservation, meaningful directions, one-copy placement/return/rotation/salvage, and unchanged version-one save instances. |
 
@@ -81,6 +83,8 @@ The calculated advisor implementation, UI, and unit test were removed on 2026-09
 
 - [tests/browser/smoke.spec.ts](../tests/browser/smoke.spec.ts) checks a painted, playable first screen with 46 socket controls, no startup external runtime requests, placement/undo/redo, persistence, pause, interrupted-launch refund, backup/settings recovery, and salvage clearing edit history.
 - [tests/browser/layout.spec.ts](../tests/browser/layout.spec.ts) checks height-aware cabinet sizing, full-HD/ultrawide and mobile overflow, and painted-board screenshots, including the new machine controls and adjacent capacity indicator. Layout reserves room for the toolbar and Quick Guide. Responsive checks inspect both canvas buffer pixels and the painted canvas, compare overflow against the configured viewport width, and launch a real token. A populated internal buffer alone is not enough after resize.
+- [tests/browser/workshop.spec.ts](../tests/browser/workshop.spec.ts) has nine clockwork cases: a ready-token pixel check at every aim lane followed by exact real-cascade output; neutral-field pixels in both lighting modes; palette/launch-label contrast; three short panes; eight local mechanism images repainting; a moving real cascade and reload; and daylight/reduced-motion play. Short-pane checks verify the 320px desktop floor, not the unconfirmed browser/editor zoom setting from D11. Scenery is decorative and noninteractive. These checks do not certify human enjoyment or every possible contrast combination.
+- [tests/browser/board-presentation.spec.ts](../tests/browser/board-presentation.spec.ts) has four cases: isolated renderer payout events check each recessed chute responds locally, returns to a quiet intake, and keeps that intake unchanged under reduced motion; a stationary idle board exposes real Relay-link pixels only in context; and full-capacity mixed-part fixtures at 1440px and 390px check distinct designs, all 46 targets, no horizontal overflow, and exact output after actual 4x UI launches. The injected payout case tests rendering, not earned scoring; separate real-cascade cases compare full simulation results. The Test Workshop task runs both board and workshop files.
 - [tests/browser/campaign.spec.ts](../tests/browser/campaign.spec.ts) completes all twelve commissions through actual controls and affordable purchases, persists the win, reloads, and enters After Hours. It uses a route-aware automated planner; it is not an unaided human playtest or coverage of all Daily/After Hours progression.
 - [tests/browser/gift-variety.spec.ts](../tests/browser/gift-variety.spec.ts) loads a candidate shop earned through legal simulated play, then uses real desktop/mobile controls to claim a free Echo, install it, launch a painted cascade with exact payout, and reload. It tests a saved candidate fixture, not a live balance-rule change or human satisfaction. The gift experiment remains disconnected from the normal engine.
 - [tests/browser/gamepad.spec.ts](../tests/browser/gamepad.spec.ts) covers detection, Start/B menu flow and focus confinement, A/X actions, D-pad/stick and LB/RB navigation, paused focus, React-backed sliders and switches, one launch while Y is held, and disconnect/reconnect. Controller state is injected through `navigator.getGamepads`; no physical controller is exercised.
@@ -112,6 +116,35 @@ The export case substitutes the save dialog's response so it can assert file out
 
 ## Evidence Snapshot
 
+**H030 collector refinement, 2026-09-10:** the production build and all **13
+focused board/workshop browser tests** passed. The new collector test samples
+all three receivers in normal and reduced-motion modes. Sparse desktop, busy
+mobile, and daylight captures were inspected. Full unit/browser/native suites,
+package launches, and store capture generation were not repeated for this small
+renderer-only change; the H028 totals below are the last complete-suite evidence.
+
+**H028 board refinement, 2026-09-10:** twelve focused visual checks passed,
+followed by the production build, **255 unit tests across 14 files**, **74 browser
+tests**, and **12 native tests**. The unit total now includes H027's optimized
+twelve-commission run. Local gameplay/capsule captures were refreshed. Windows
+portable/unpacked outputs were not rebuilt in this pass; their prior H026 evidence
+is not evidence for these latest board visuals. The browser and source-mode
+Electron build contain the revision. See [VERIFICATION.md](VERIFICATION.md).
+
+H027 follow-up on 2026-09-10: the requested optimized-run regression was added;
+the focused balance/gift task passed **11 tests** (seven balance and four inactive
+gift-experiment cases). One full optimized campaign ran inside the test from a
+fresh seed; no original reports were overwritten. No artwork or gameplay was
+changed for this discussion/test addition, and the broader suites below were not
+rerun for it. The necessity of repositioning remains an open review under D14.
+
+**2026-09-10 clockwork delivery:** production build, 254 unit tests, 69 browser
+tests, and 12 native tests pass. Both final Windows executables were rebuilt and
+launched with decoded local room/mechanism artwork and preserved native gameplay,
+profile, and settings. Seven focused workshop cases passed before the final full
+regression. See [VERIFICATION.md](VERIFICATION.md) for current hashes and evidence;
+the following older entries remain historical context.
+
 The 2026-09-09 D09 trial added separate diagnostics and inactive-candidate tests;
 it was not adopted. See [BALANCE.md](BALANCE.md#d09-first-experiment---2026-09-09)
 for the 88+88 comparison and [VERIFICATION.md](VERIFICATION.md) for current checks.
@@ -131,9 +164,16 @@ As of **2026-09-08**, D08 counted spare icons are complete alongside P01-P14: th
 
 Do not copy older aggregate test totals into a release claim. Record the final date, runtime versions, command, pass/fail/skip counts, and artifact location after the complete rerun; keep focused and full-suite results distinct.
 
-[docs/OPEN-ITEMS.md](OPEN-ITEMS.md) is the authoritative user-requested work tracker; final verification counts are maintained in [VERIFICATION.md](VERIFICATION.md). D08 is resolved; D01-D07 and D09 remain open/deferred. D09 requires separately examining opening stalls and late-game route dominance before choosing any balance changes, not a blanket target increase. Existing autosave/export coverage is not evidence of a workshop database, named slots, or Steam Cloud support.
+[docs/OPEN-ITEMS.md](OPEN-ITEMS.md) is the authoritative user-requested work tracker; final verification counts are maintained in [VERIFICATION.md](VERIFICATION.md). D03 and D08 are implemented; D01-D02, D04-D07, and D09-D14 remain open or partial. D09 requires separately examining opening stalls and late-game route dominance before choosing any balance changes, not a blanket target increase. Existing autosave/export coverage is not evidence of a workshop database, named slots, or Steam Cloud support.
 
 `npm run test:package` connects to the actual unpacked and portable launchers over local CDP because the portable wrapper does not forward the stderr required by Playwright's direct Electron launcher. It uses the ordinary player-save location without changing the run, captures a screenshot, and quits through the save-aware API. Ordinary player launches do not enable that debug port.
+
+The package verifier also awaits room/part image decoding, requires the 2400px
+local room image, and verifies any visible mechanism images are 96px. Before the
+theme package runs, the existing primary/backup save files were backed up outside
+the repository and version/run/profile/settings were compared afterward. Generated
+asset checks verify both room dimensions and nonblank pixel statistics;
+`npm run assets:generate` refreshes the icon and both lighting variants.
 
 ## Artifacts and Release Checks
 

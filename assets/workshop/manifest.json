@@ -1,0 +1,21 @@
+{
+  "title": "Pocket Cascade clockwork workshop",
+  "origin": "Original project artwork authored in scripts/generate-workshop.mjs",
+  "externalImages": [],
+  "generation": "Procedural SVG source rasterized by Sharp; no text-to-image service or third-party illustration.",
+  "rightsNote": "Project-original source and exports; no third-party artwork license or attribution dependency added. Not a legal clearance opinion.",
+  "files": [
+    {
+      "source": "assets/workshop/light-source.svg",
+      "output": "public/workshop/light.webp",
+      "width": 2400,
+      "height": 1600
+    },
+    {
+      "source": "assets/workshop/dark-source.svg",
+      "output": "public/workshop/dark.webp",
+      "width": 2400,
+      "height": 1600
+    }
+  ]
+}

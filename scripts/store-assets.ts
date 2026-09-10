@@ -71,77 +71,27 @@ try {
       const tall = layout === 'tall';
       const unit = Math.min(width, height);
 
-      const painter = { coin(centerX: number, centerY: number, radius: number, variant: number, noText: boolean) {
-        context.save();
-        context.translate(centerX, centerY);
-        context.shadowColor = color('surface');
-        context.shadowBlur = radius * 0.3;
-        context.shadowOffsetY = radius * 0.13;
-        context.fillStyle = color('surface');
-        context.strokeStyle = color(variant % 3 === 0 ? 'warning' : variant % 3 === 1 ? 'success' : 'accent');
-        context.lineWidth = radius * 0.075;
-        context.beginPath();
-        context.arc(0, 0, radius, 0, Math.PI * 2);
-        context.fill();
-        context.stroke();
-        context.shadowBlur = 0;
-        context.shadowOffsetY = 0;
-        context.lineWidth = radius * 0.025;
-        context.beginPath();
-        context.arc(0, 0, radius * 0.82, 0, Math.PI * 2);
-        context.stroke();
-        if (noText) {
-          context.beginPath();
-          context.moveTo(-radius * 0.3, radius * 0.2);
-          context.lineTo(0, -radius * 0.25);
-          context.lineTo(radius * 0.3, radius * 0.2);
-          context.stroke();
-        } else {
-          context.fillStyle = context.strokeStyle;
-          context.font = `600 ${Math.round(radius * 1.04)}px "Barlow Condensed"`;
-          context.textAlign = 'center';
-          context.textBaseline = 'middle';
-          context.fillText(['x2', '+', 'Y'][variant % 3], 0, -radius * 0.03);
-        }
-        context.restore();
-      } };
-
       if (layout !== 'logo') {
-        context.fillStyle = color('surface');
-        context.fillRect(0, 0, width, height);
-        context.globalAlpha = 0.11;
-        context.fillStyle = color('success');
-        context.fillRect(0, 0, width, height);
-        context.globalAlpha = 0.18;
-        context.strokeStyle = color('border-strong');
-        context.lineWidth = 1;
-        for (let index = -height; index < width + height; index += unit * 0.1) {
-          context.beginPath(); context.moveTo(index, 0); context.lineTo(index + height, height); context.stroke();
-        }
-        context.globalAlpha = 1;
-        context.strokeStyle = color('warning');
-        context.lineWidth = Math.max(2, unit * 0.007);
-        context.strokeRect(unit * 0.035, unit * 0.035, width - unit * 0.07, height - unit * 0.07);
-
-        if (!small) {
-          const points = tall
-            ? [{ x: 0.5, y: 0.50 }, { x: 0.24, y: 0.7 }, { x: 0.76, y: 0.7 }, { x: 0.40, y: 0.91 }, { x: 0.82, y: 0.93 }]
-            : layout === 'hero'
-              ? [{ x: 0.26, y: 0.2 }, { x: 0.41, y: 0.48 }, { x: 0.61, y: 0.25 }, { x: 0.54, y: 0.77 }, { x: 0.75, y: 0.74 }]
-              : [{ x: 0.08, y: 0.12 }, { x: 0.9, y: 0.18 }, { x: 0.11, y: 0.82 }, { x: 0.82, y: 0.86 }, { x: 0.97, y: 0.76 }];
-          context.strokeStyle = color('warning');
-          context.globalAlpha = 0.36;
-          context.lineWidth = unit * 0.008;
-          context.setLineDash([unit * 0.012, unit * 0.016]);
-          context.beginPath();
-          points.forEach((point, index) => {
-            if (index === 0) context.moveTo(point.x * width, point.y * height);
-            else context.lineTo(point.x * width, point.y * height);
-          });
-          context.stroke();
-          context.setLineDash([]);
+        const environment = document.querySelector<HTMLImageElement>('.workshop-scene img')!;
+        await environment.decode();
+        const scale = Math.max(width / environment.naturalWidth, height / environment.naturalHeight);
+        context.drawImage(environment, (width - environment.naturalWidth * scale) / 2, 0, environment.naturalWidth * scale, environment.naturalHeight * scale);
+        if (layout !== 'hero') {
+          context.fillStyle = color('surface');
+          context.globalAlpha = 0.28;
+          context.fillRect(0, 0, width, height);
           context.globalAlpha = 1;
-          points.forEach((point, index) => painter.coin(point.x * width, point.y * height, unit * (tall ? 0.12 : layout === 'hero' ? 0.125 : 0.105), index, layout === 'hero'));
+          const cabinet = document.querySelector<HTMLCanvasElement>('[data-testid="machine-canvas"]')!;
+          const cabinetHeight = height * (tall ? 0.54 : 0.8);
+          const cabinetWidth = cabinetHeight * 500 / 650;
+          context.save();
+          context.translate(width * (tall ? 0.5 : 0.76), height * (tall ? 0.71 : 0.51));
+          context.rotate(tall ? -0.04 : 0.06);
+          context.shadowColor = color('bg');
+          context.shadowBlur = unit * 0.055;
+          context.shadowOffsetY = unit * 0.016;
+          context.drawImage(cabinet, -cabinetWidth / 2, -cabinetHeight / 2, cabinetWidth, cabinetHeight);
+          context.restore();
         }
       }
 
@@ -152,14 +102,15 @@ try {
         context.shadowColor = color('surface');
         context.shadowBlur = unit * 0.045;
         context.shadowOffsetY = unit * 0.008;
-        const centerY = tall ? height * 0.225 : height * 0.5;
-        const size = small ? 67 : tall ? width * 0.16 : layout === 'logo' ? 168 : width * 0.11;
+        const centerX = tall || layout === 'logo' ? width / 2 : width * 0.3;
+        const centerY = tall ? height * 0.20 : height * 0.5;
+        const size = small ? 67 : tall ? width * 0.16 : layout === 'logo' ? 168 : width * 0.10;
         context.font = `500 ${Math.round(size * 0.66)}px "Barlow Condensed"`;
         context.fillStyle = color('text');
-        context.fillText('POCKET', width / 2, centerY - size * 0.47);
+        context.fillText('POCKET', centerX, centerY - size * 0.47);
         context.font = `700 ${Math.round(size)}px "Barlow Condensed"`;
         context.fillStyle = color('warning');
-        context.fillText('CASCADE', width / 2, centerY + size * 0.4);
+        context.fillText('CASCADE', centerX, centerY + size * 0.4);
         context.restore();
       }
       return canvas.toDataURL('image/png').split(',')[1];

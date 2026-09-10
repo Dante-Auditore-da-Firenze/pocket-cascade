@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type ChangeEvent } from 'react';
 import {
   ArrowDown, ArrowLeft, ArrowRight, Award, BookOpen, Check, CheckCircle2, ChevronRight,
-  CircleHelp, Coins, Crown, Download, Expand, FlaskConical, Hammer, Menu,
+  CircleHelp, Cog, Coins, Crown, Download, Expand, FlaskConical, Hammer, Menu,
   Minimize, Pause, Play, Plus, Redo2, RotateCcw, RotateCw, Settings2, Recycle, Gamepad2,
   ShieldCheck, Shuffle, Sparkles, Trophy, Undo2, Upload, Volume2, VolumeX, X, Ticket, Gift, Accessibility,
 } from 'lucide-react';
@@ -27,6 +27,7 @@ import { GameAudio } from './audio/synth';
 import { useGamepadNavigation } from './input/useGamepadNavigation';
 import { advanceTutorial, currentTutorialStep, startingTutorialStep, type TutorialAction, type TutorialStep } from './game/tutorial';
 import './polish.css';
+import './render/workshop.css';
 
 type Modal = 'menu' | 'settings' | 'accessibility' | 'collection' | 'achievements' | 'new' | 'credits' | 'rules' | null;
 
@@ -430,12 +431,13 @@ function Game({ initial, initialMessage }: { initial: SaveData; initialMessage: 
   });
 
   return <div className="game-app" data-testid="game-ready" data-save-ready={saved} data-tutorial-active={tutorialStep !== 'done'} data-tutorial-step={tutorialStep}>
+    <div className="workshop-scene" aria-hidden="true"><img src={`./workshop/${settings.theme}.webp`} alt="" width="2400" height="1600" decoding="async" /></div>
     <header className="topbar">
       <button className="wordmark" onClick={() => setModal('menu')} aria-label="Pocket Cascade menu">
-        <span className="brand-symbol"><Coins size={30} strokeWidth={1.5} /></span>
+        <span className="brand-symbol"><Cog size={30} strokeWidth={1.5} /></span>
         <span>POCKET <strong>CASCADE</strong></span>
       </button>
-      <div className="run-label"><span className="status-light" />{run.mode === 'daily' ? 'DAILY MACHINE' : run.mode === 'endless' ? 'AFTER HOURS' : 'THE WORKSHOP'}<span className="run-number">NO. {String(run.seed % 1000).padStart(3, '0')}</span></div>
+      <div className="run-label"><span className="status-light" />{run.mode === 'daily' ? 'DAILY MACHINE' : run.mode === 'endless' ? 'AFTER HOURS' : 'CLOCKWORK WORKSHOP'}<span className="run-number">NO. {String(run.seed % 1000).padStart(3, '0')}</span></div>
       <nav className="top-actions" aria-label="Game menu">
         <IconButton icon={BookOpen} label="Part collection" onClick={() => setModal('collection')} />
         <IconButton icon={Trophy} label="Achievements" onClick={() => setModal('achievements')} />

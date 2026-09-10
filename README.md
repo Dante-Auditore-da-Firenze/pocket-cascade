@@ -2,11 +2,15 @@
 
 A compact, active combo builder about arranging a tiny token machine and improving its chain reactions. Build routes through eight part types, meet minimum payout targets across twelve commissions, and spend earned Workshop credits on the next improvement. Excess output is rewarded, not punished.
 
-The implemented game has one custom brass-and-green Canvas2D cabinet, repeatable Matter.js physics, a finite token-power track, a UTC daily seed, and optional After Hours continuation. It follows the minimum-payout direction from the Pocket Cascade research brief; the original exact-total tray concept is not the shipped rule set. There are no paid token purchases, wagering, online leaderboards, or runtime network-asset dependencies.
+The implemented game has one custom Canvas2D cabinet in an original clockwork inventor's workshop, repeatable Matter.js physics, a finite token-power track, a UTC daily seed, and optional After Hours continuation. The revised board has a neutral playfield, red housing, a rail-mounted token hopper, steel collectors, and clear colored mechanisms. Day/evening scenery and hit-driven animation frame the same deterministic game. It follows the minimum-payout direction from the Pocket Cascade research brief, not the original exact-total tray concept. This remains an unreleased prototype. There are no paid token purchases, wagering, online leaderboards, or runtime network-asset dependencies.
 
-**Status (2026-09-07):** the four approved follow-ups are implemented and verified: one-time fullscreen migration, restart/New Workshop controls, removal of the mid-run relaxed-target prompt, and inventory/capacity clarity. **238 unit tests, 52 browser tests, and 11 native tests pass.** Both rebuilt Windows executables passed actual-launch smoke checks. [docs/VERIFICATION.md](docs/VERIFICATION.md) records current evidence and hashes. Real Steam/Cloud, hardware testing, broader human playtesting, signing, and legal/store approval remain release gates.
+**Status (2026-09-10):** the board refinement is implemented alongside the clockwork scene and earlier gameplay controls. **255 unit tests, 74 browser tests, and 12 native tests pass**, including one complete optimized campaign regression. [docs/VERIFICATION.md](docs/VERIFICATION.md) separates current build evidence from older packaged artifacts. The first balance experiment remains unadopted; text-quality, reading-load, and repositioning reviews remain open.
 
-**Play now:** the running [browser game](http://127.0.0.1:5173/), or the updated [Windows portable executable](release/Pocket-Cascade-1.0.0-win-x64-portable.exe) and [unpacked Windows executable](release/win-unpacked/Pocket%20Cascade.exe). Both Windows builds include these follow-ups. They are unsigned and may show an unknown-publisher warning; they need no Node installation or server.
+Latest collector follow-up: the bowls are now integrated recessed payout chutes.
+The production build and **13 focused browser tests** pass for this change; the
+full-suite totals above are the preceding H028 checkpoint, not a fresh full run.
+
+**Play now:** the running [browser game](http://127.0.0.1:5173/), or run `npm.cmd run desktop` against the current production build. The existing [Windows portable executable](release/Pocket-Cascade-1.0.0-win-x64-portable.exe) and [unpacked Windows executable](release/win-unpacked/Pocket%20Cascade.exe) are the earlier H026 clockwork builds, not the latest H028 board refinement. They were not rebuilt in this pass.
 
 ## Run Locally
 
@@ -89,7 +93,7 @@ The optional version-1 setting `fullscreenPreferenceVersion: 1` marks an authori
 | `npm run test:desktop` | Run real Electron integration tests after a build, on an interactive desktop. |
 | `npm run test:package` | Launch both actual executables, verify rendering/native saves, record hashes, and quit. Uses the ordinary native save location without changing the run. |
 | `npm run test:balance` | Regenerate the full affordable-action balance report. |
-| `npm run assets:generate` | Regenerate original PNG/ICO application icons. |
+| `npm run assets:generate` | Regenerate the original app icon and day/evening workshop backgrounds. |
 | `npm run assets:steam` | Capture actual gameplay and generate Steam artwork; requires the local server. |
 | `npm run notices:generate` | Generate notices for production components and the Electron runtime. |
 | `npm run verify` | Build, unit tests, and browser tests; excludes native, full balance, and packaging. |
@@ -102,7 +106,7 @@ Regenerate the original local icon assets with the existing script:
 npm run assets:generate
 ```
 
-This writes [assets/icon-source.svg](assets/icon-source.svg), [assets/icon.png](assets/icon.png), [assets/icon.ico](assets/icon.ico), and [public/icon.png](public/icon.png). DM Sans and Barlow Condensed are bundled through Fontsource; there are no runtime font downloads.
+This writes [assets/icon-source.svg](assets/icon-source.svg), [assets/icon.png](assets/icon.png), [assets/icon.ico](assets/icon.ico), and [public/icon.png](public/icon.png), plus the original [daylight](public/workshop/light.webp) and [evening](public/workshop/dark.webp) workshop scenes. [assets/workshop/manifest.json](assets/workshop/manifest.json) records editable source and provenance. DM Sans and Barlow Condensed are bundled through Fontsource; there are no runtime font downloads.
 
 Use the complete unpacked directory for the Steam depot, not just the executable or portable wrapper. [artifacts/release/verification.json](artifacts/release/verification.json) records the rebuilt packages' hashes, sizes, and executable-level checks. Packaging reuses the locked installed Electron runtime to avoid a Windows staging-directory extraction lock.
 
@@ -116,7 +120,7 @@ Use the complete unpacked directory for the Steam depot, not just the executable
 - [docs/STEAM.md](docs/STEAM.md): native API/security, real AppID setup, achievements, Auto-Cloud, private-branch SteamPipe workflow, and hardware caveats.
 - [docs/RELEASE-CHECKLIST.md](docs/RELEASE-CHECKLIST.md): ten evidence-backed gates before public distribution.
 - [docs/STORE.md](docs/STORE.md): proposed store copy, actual-play screenshots, capsule/library assets, and listing caveats.
-- [docs/OPEN-ITEMS.md](docs/OPEN-ITEMS.md): authoritative tracker. P01-P14 and D08 counted spare icons are resolved with outcomes and evidence. D01-D07 and D09 remain open, including named saves, Steam-save investigation, speed-control visibility, and late-game balance review. No balance retuning is approved by the spare-icon change.
+- [docs/OPEN-ITEMS.md](docs/OPEN-ITEMS.md): authoritative tracker. P01-P14, D03 clockwork theme, and D08 counted spare icons are resolved with evidence. D01-D02, D04-D07, and D09-D11 remain open or partial. The theme changes no balance values; the confirmed short-pane cabinet collapse is fixed, but exact low-zoom reproduction still needs confirmation.
 - [docs/VERIFICATION.md](docs/VERIFICATION.md): current verification results and package hashes for this follow-up candidate.
 
 The balance sample is encouraging for route-aware automated play, but the beginner policy wins only two of four seeds and already searches the best lane. Its simulated watching time excludes planning and is not human session length. One user playtest reported that the game feels good; that is qualitative feedback, not evidence of demand or sales. Broader closed playtesting is still needed before charging. [THIRD_PARTY_NOTICES.txt](THIRD_PARTY_NOTICES.txt) is generated and bundled; [LICENSE.txt](LICENSE.txt) remains the unchanged private-project placeholder, not an approved player EULA. Distribution rights, a player-facing EULA, and Steam SDK terms still require owner approval.

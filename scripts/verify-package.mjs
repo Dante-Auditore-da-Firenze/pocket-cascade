@@ -45,6 +45,7 @@ for (const target of targets) {
     await page.getByTestId('game-ready').waitFor({ state: 'visible', timeout: 30_000 });
     await page.locator('[data-save-ready="true"]').waitFor({ timeout: 15_000 });
     await page.evaluate(() => document.fonts.ready);
+    await page.evaluate(() => Promise.all([...document.querySelectorAll('.workshop-scene img, .part-symbol img')].map((image) => image.decode())));
     const state = await page.evaluate(async () => {
       const status = await window.pocketDesktop.getStatus();
       const saved = await window.pocketDesktop.readSave();
@@ -52,7 +53,13 @@ for (const target of targets) {
       const pixels = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height).data;
       const colors = new Set();
       for (let index = 0; index < pixels.length; index += 64) colors.add(`${pixels[index]},${pixels[index + 1]},${pixels[index + 2]}`);
-      return { status, saveVersion: JSON.parse(saved.data).version, colors: colors.size, hasCsp: Boolean(document.querySelector('meta[http-equiv="Content-Security-Policy"]')), rendererNode: typeof window.require };
+      const environment = document.querySelector('.workshop-scene img');
+      const mechanisms = [...document.querySelectorAll('.part-symbol img')];
+      return {
+        status, saveVersion: JSON.parse(saved.data).version, colors: colors.size,
+        hasCsp: Boolean(document.querySelector('meta[http-equiv="Content-Security-Policy"]')), rendererNode: typeof window.require,
+        workshop: { source: environment?.getAttribute('src'), loaded: Boolean(environment?.complete && environment.naturalWidth === 2400), mechanismImages: mechanisms.length, mechanismImagesLoaded: mechanisms.every((image) => image.complete && image.naturalWidth === 96) },
+      };
     });
     assert.equal(state.status.version, metadata.version);
     assert.equal(state.status.steam, false);
@@ -60,6 +67,8 @@ for (const target of targets) {
     assert.ok(state.colors > 100);
     assert.equal(state.hasCsp, true);
     assert.equal(state.rendererNode, 'undefined');
+    assert.equal(state.workshop.loaded, true);
+    assert.equal(state.workshop.mechanismImagesLoaded, true);
     assert.deepEqual(errors, []);
     await page.screenshot({ path: `artifacts/release/${target.name}.png`, fullPage: true });
     results.push({ name: target.name, filename: path.relative(root, target.executable), bytes: info.size, sha256: hash, ...state, passed: true });

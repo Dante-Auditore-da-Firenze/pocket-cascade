@@ -1614,3 +1614,531 @@ push exception reflect the user's explicit latest choices, replacing the earlier
 private/no-bypass defaults. No subscription upgrade, collaborators, account,
 automatic PR approval, or new gameplay work was introduced. Generated local
 verification records remain in the ignored artifacts/security directory.
+
+## H025 - 2026-09-10 - Three Theme Directions and Asset Production Discussion
+
+### Request and Approval Boundary
+
+The user identifies theme as a major factor in the game's prospects, remembers
+the earlier clock suggestion, and asks for three good themes that might sell,
+how assets would be acquired or created, and the complete implementation steps.
+They explicitly request discussion first with no changes. No theme, art production,
+gameplay change, purchase, rebrand, or release action was approved. Only the
+required discussion records were updated; no game or art files changed.
+
+### Evidence and Recommendation
+
+Read the current tracker and latest history, including the authorized GitHub
+publication in H024; inspected the existing packaged-game capture and the owning
+Canvas/art generation code. The current art is original procedural Canvas2D
+with materials, cached layers, and bounded effects; application icons have SVG
+authoring source rasterized to local bitmap outputs. This supports more designed
+mechanisms and a layered scene, but does not establish hand-painted illustration
+capability or production-art quality without a sample.
+
+Clarified that the earlier suggestion was a clockwork inventor's workshop, not
+a timed game. Recommended these three distinct concepts:
+
+1. **Clockwork inventor's workshop:** the preferred fit/feasibility choice.
+   A playful kinetic invention on a real workbench, enamel/brass/red accents,
+   springs and ratchets reacting to impacts, collector bells, and purposeful
+   workshop props. Avoid generic brown steampunk and any implied timer mechanic.
+2. **Alchemist's glass workshop:** a tactile magical distillation machine with
+   essence beads, compact glass mechanisms, catalyst crystals, and collector
+   bottles. Avoid promising recipes, customers, gardening, or realistic fluid
+   simulation, and preserve clearly readable token paths and original effects.
+3. **Miniature retro-future power plant:** a bright toy-scale energy machine with
+   coils, analog meters, capacitors, and a proposed completion-lighting payoff
+   outside the playfield. A concrete alternative to an unspecified space backdrop;
+   not a factory, exploration, overheating, or city-management system.
+
+These are commercially plausible positioning hypotheses, not demonstrated sales
+forecasts. The shortlist was assessed for clarity in a screenshot/clip, fit with
+the actual machine-building loop, and feasible consistent art production. Theme
+does not resolve D09's later-game decision problem, and it does not fix D11's
+low-zoom layout defect. No name or trademark availability was asserted.
+
+Official storefront descriptions checked as visual/player-fantasy references:
+- [Machinarium](https://store.steampowered.com/app/40700/Machinarium/): authored
+  mechanical world with hand-drawn 2D backgrounds/characters and animation.
+- [Potion Craft](https://store.steampowered.com/app/1210320/Potion_Craft_Alchemist_Simulator/):
+  alchemy communicated through physical tools, ingredients, and manuscript-inspired
+  visuals, with a different actual crafting/shop game.
+- [Nova Lands](https://store.steampowered.com/app/1501610/Nova_Lands/): accessible
+  planetary building and automation framing, with substantially different scope.
+
+Their pricing, reviews, or mere existence were not converted into sales estimates
+for Pocket Cascade. No competitor art was downloaded into the game or proposed
+for reuse, and no hands-on competitor play was claimed.
+
+### Asset Strategy and Proposed Workflow
+
+Original procedural 2D art, sprites, material textures, mechanical animation,
+and local PNG/WebP/icon exports are feasible with the current coding tools.
+A dedicated text-to-image generator was not available from the session's tool
+search. Therefore a painted scene or highly illustrated character set was not
+promised. Recommend a deliberately stylized, consistent layered-2D direction;
+evaluate one finished sample before assuming a larger production pass will work.
+
+If that quality target cannot be reached through the original-art route, choose
+an explicitly approved licensed pack, commissioned illustration, user-provided
+art with known rights, or separately available image-generation workflow. No
+paid asset or third-party generation is required or authorized now. Track editable
+sources, export recipes, licenses/credits, and any generative usage; review relevant
+store disclosures rather than guaranteeing legal or store approval.
+
+Recorded the full proposal in [OPEN-ITEMS.md](OPEN-ITEMS.md): define the fantasy;
+make three matched concept screens after approval; select a single direction and
+art guide; prove a small playable art sample; create the remaining scoped assets;
+integrate via existing renderer/layers; bind animations to actual events; validate
+rules/saves, visual readability and performance; then rebuild and test native
+packages and prepare truthful store captures. Approval gates separate mockups,
+the playable sample, production art, and any adjacent layout/audio/progression
+work. Proposed inventory is one layered environment and cabinet, eight part
+families plus states/directions, token/collector/effect assets, a small prop set,
+and matching app/store branding, not three complete skins or a 3D rewrite.
+
+Physics, scoring, prices, targets, launch budgets, save IDs, local assets, renderer
+security, and earned-value accounting must remain unchanged by a presentation-only
+pass. Reduced motion remains optional, music continuous, and decorative art must
+not imply new physical obstacles or routing rules. No theme implementation,
+concept images, new music, milestone system, or D11 fix was started.
+
+### Actual Changes and Validation
+
+Updated only the D03 status and discussion proposal in the tracker, and appended
+this history entry. D03 remains unselected and unapproved; all other item statuses
+and earlier decisions are retained. Documentation checks cover IDs, local links,
+unchanged other tracker rows, and explicit proposal-versus-approval boundaries.
+No gameplay test, build, asset generator, balance simulation, or packaged launch
+was run for this discussion-only exchange. Git status was unavailable from this
+terminal's attempted paths; no staging, commit, push, or repository configuration
+change was attempted. The recommended next approval is three comparable concept
+screens, not an immediate full reskin.
+
+## H026 - 2026-09-10 - Approved Clockwork Workshop Implementation
+
+### User Approval and Selection
+
+The user authorized proceeding, delegated the theme choice to the assistant, and
+offered broad latitude to obtain internet/open-source images, suggesting licensing
+could wait because the project was local. This supersedes H025's concept-screen
+selection wait. Selected **clockwork inventor's workshop** for its fit with the
+existing tinkering/impact loop, recognizable object-focused presentation, and
+feasible original-art production. No market evidence establishes that it will
+outsell the other concepts, and no such guarantee was made.
+
+Used original project-authored artwork throughout instead of uncertain third-party
+images. The repository had already been made public in H024; no downloaded image,
+licensing deferral, or new commercial-clearance claim was necessary. The choice
+did not authorize or implement balance tuning, new endgame/board systems, timed
+mechanics, save slots, Steam Cloud, or dedicated menu music. No three complete
+alternative skins were produced after the user delegated the choice.
+
+### Implemented Theme
+
+- [generate-workshop.mjs](../scripts/generate-workshop.mjs) creates two original
+  2400x1600 day/evening WebP scenes and editable SVG authoring files. The scene
+  includes an arched window, gear clock, blueprint, tool board, articulated lamp,
+  red tool drawers, and a workbench. A quiet center preserves readable gameplay.
+  The [asset manifest](../assets/workshop/manifest.json) records provenance and
+  that no external illustration or text-to-image provider was used.
+- Added noninteractive, aria-hidden scenery and coordinated teal/enamel, brass,
+  steel, and red accent colors through existing palette variables. High contrast
+  hides the room decoration; compact layouts retain a quiet content surface.
+  The existing day/evening preference is preserved rather than reset.
+- Updated the cabinet maker's plate and all eight part treatments. A shared
+  `paintMechanism` implementation draws cabinet pieces and local UI image exports
+  for inventory, rewards, catalogue, and feed. Directional spare images use their
+  actual left/right direction and retain individual IDs and quantity metadata.
+- Existing hit flashes drive small gear/spring/mechanism movement, with no added
+  simulation, score, token, or audio event. Reduced motion disables the new motion;
+  existing physics, audio voice limits, and continuous menu music are unchanged.
+- Regenerated the cog-shaped application insignia, original room exports, five
+  legal-campaign screenshots, eight capsule/library images, and twenty achievement
+  variants. Store compositions show the actual completed cabinet in the workshop,
+  not unsupported gameplay. No store upload or trailer was made.
+
+### Local Defects and Corrections
+
+Confirmed that the existing desktop cabinet-width formula could shrink the board
+below its controls when the available viewport height was small. Added a 320px
+desktop track floor so short panes scroll vertically instead of collapsing.
+Tests at 1280x360, 1100x240, and 1920x360 verify usable size, non-overlap, aiming,
+and launch access. Normal mobile rules and physical geometry remain intact.
+This addresses the confirmed short-pane path, not every form of browser/editor
+zoom. D11 remains open pending the exact reported zoom settings.
+
+The first new reduced-motion test tried launching after closing Accessibility,
+which returns to Settings. Corrected the test's two-level navigation and reran
+the same focused suite; no runtime change was needed. A final daylight visual
+review found low contrast in the launch sublabel and red cabinet nameplate.
+Adjusted the light warning/launch palette, removed sublabel transparency, and
+selected the nameplate text tone by luminance. A new browser test checks seven
+palette roles and both launch labels at 4.5:1 or better in day/evening modes.
+Rebuilt and repeated full/native/package verification after that correction.
+
+### Final Actual Verification
+
+| Gate | Result |
+| --- | --- |
+| Asset generation | Original app icon plus both room images generated and dimension/pixel checked. Daylight 79,986 bytes; evening 103,722 bytes. |
+| Focused visual behavior | Seven workshop tests passed, including three short panes, eight distinct mechanism exports, palette/launch contrast, real-cascade full-result equality, reload, lighting, and reduced motion. |
+| Existing layout and spare inventory | All 26 focused cases passed: 18 layout and eight counted-spare cases. |
+| Production build and full regression | `npm.cmd run verify`: TypeScript/Vite build, 254 unit tests across 14 files, and 69 browser tests passed. Zero failed/skipped tests; zero flaky browser results. |
+| Native production renderer | All 12 Electron tests passed, including real play, persistence/export/relaunch, fullscreen, isolation, and CSP. |
+| Store artwork | Thirteen scene/capsule/screenshot exports and twenty achievement icons generated with checked dimensions, using actual affordable campaign play. |
+| Windows packaging | Final portable and unpacked outputs rebuilt after the last contrast correction. |
+| Actual executables and save preservation | Both final launchers passed painted-canvas, decoded room/part image, native-save, isolation/CSP, and save-aware quit checks. Existing native primary/backup were copied outside the repository first; version/run/profile/settings compare equal afterward. |
+| Unchanged rules | Git diff confirms no changes to src/game, src/audio, electron, package manifests/lockfile, or original balance reports. No full balance report overwrite or new tuning was performed. |
+
+Package evidence timestamp: `2026-09-09T21:38:29.056Z`, which is 2026-09-10 in the
+recorded local timezone. Portable: 99,207,411 bytes, SHA-256
+`588fcbcffdfdec0e94ad849bf96f8bc470f2e1d31724677c9b965daee7cfc300`.
+Unpacked executable: 235,782,656 bytes, SHA-256
+`a280f7e96b52e92c5d02ad3c1331fc4d47aa77cf833c6795c527ac4849a95431`.
+Current [package record](../artifacts/release/verification.json) and
+[save guard result](../artifacts/release/theme-save-check.json) retain the details.
+The portable is about 94.6 MiB. No signing identity was configured; builder
+signing-step messages do not mean the game is signed.
+
+### Scope and Remaining Work
+
+D03 is implemented and validated; updated design/testing/store/README/verification
+and the tracker. D11 records partial completion, not a full zoom fix. D09's
+gift trial remains inactive, and other deferred systems remain untouched. The
+original-art provenance does not substitute for final distribution/EULA review.
+Real Steam/Cloud, hardware audio/controllers/Deck, human visual approval and fun,
+lower-spec performance benchmarks, signing, and store approval remain separate.
+
+Inspected desktop/mobile/daylight/cascade/store and actual packaged screenshots.
+No lower-end frame-time or human-enjoyment measurement was invented. The browser
+game remains at http://127.0.0.1:5173/. Added repeatable artwork, workshop-test,
+full-verification, native-test, store-capture, and packaging tasks. Earlier local
+discussion edits were preserved. No staging, commit, push, branch, remote change,
+dependency upgrade, paid asset, personal-save reset, or publication was performed.
+Final documentation validation covers links, history sequence, current counts,
+package hashes, asset provenance, and the remaining open-item boundaries.
+
+## H027 - 2026-09-10 - Board Readability Discussion and Optimized-run Test
+
+### User Clarification and Requested Scope
+
+The user clarified that the game has not shipped and asked the assistant to stop
+treating hypothetical shipped-player saves as a design concern. Treat this as an
+unreleased prototype; do not require old private-run compatibility or permanent
+parallel rules to justify an approved improvement. This is not a request to delete
+an actual save. Earlier use of delivered/package language refers to local builds,
+not a commercial game launch, and the public source repository is a separate fact.
+
+They want to discuss the playable board itself and the ball drop/collection
+areas: these still feel too simple, the overall palette is overly green, and they
+are unsure how much visual density would improve the experience. Ballionaire was
+cited as an appealing example, explicitly not as a design to copy. They also
+requested three open items: later review of AI-slop-looking text/images, overall
+text load, and whether completing a run requires updating part positioning.
+They expressly authorized adding a test for one optimized run. This authorizes
+that test and records, not an immediate art redesign, text purge, or balance change.
+
+### Local Evidence and Suggestions
+
+Inspected the existing commission-1 and commission-8 gameplay captures and the
+current cabinet painter. Green spans the room, UI, playfield, and some mechanism
+faces; permanent decorative adjacency lines compete with the ball route. The top
+is a row of nine numbered tiles and the bottom three collectors are nested shallow
+rectangles. This explains why a themed room does not by itself give the board a
+distinctive functional identity. No new live visual treatment was applied.
+
+Proposed a neutral graphite or pale-gray playfield, selective red enamel housing,
+steel collectors, restrained brass trim, and a clearly visible gold token. Keep
+green as a meaningful accent rather than every surface. Reduce decorative links
+and low-value always-visible socket IDs while preserving passive collision pegs,
+accessible targets, and genuine contextual Relay/selection cues. Favor strong part
+silhouettes over tiny repeated detail. Give current aiming a recognizable drop
+head/hopper on its existing nine-position rail and make the collectors tangible
+cups/chutes with a distinct x2 center and short event-driven payoff. No changes
+to actual aiming, collisions, boundaries, timing, or scoring are implied.
+
+Recommendation on clutter: a quiet resting field, clear objects to arrange, and
+brief visual activity where a real cascade earns it. Dense player-made machines
+can be expressive without painting equally dense decoration behind every socket.
+Compare sparse, full, and active boards at the same sizes rather than accepting
+a design based only on an attractive empty-board still. No Ballionaire artwork,
+layout, or theme was copied or newly researched in this turn.
+
+Recorded D12 for visible content quality/specificity rather than authorship
+detection, D13 for reading load and progressive disclosure while retaining
+essential rules/prices/accessibility, and D14 for meaningful repositioning during
+progression. Current copy such as "MADE FOR THE LITTLE MOMENTS" and "Beautifully
+overachieved." is a review example, not automatically deleted. Original or
+procedural imagery can still look generic; no claim of universal player sentiment
+or reliable AI detection was made. D03 retains its implemented theme milestone
+but now records the requested board-refinement discussion.
+
+### Authorized Test and Actual Validation
+
+Added one full optimized seed-42 regression in
+[tests/balance.test.ts](../tests/balance.test.ts), using `diagnoseCampaign` with
+the existing default optimized strategy. It starts with fresh normal state,
+simulates actual drops, uses owned parts and earned purchases, and checks all
+twelve targets, nonnegative currency, installation capacity, safe scoring, at
+most four tokens, no timeouts, and at least one improving build. It does not
+hardcode one-launch wins, a particular score, or mandatory edits on every level.
+
+The new case passed first in isolation. The focused **Pocket Cascade: Test
+Balance** task then passed **11 tests across two files**: seven balance cases
+and four existing inactive gift-experiment cases. The optimized case took about
+23 seconds in that run. Editor diagnostics reported no errors in the touched
+test. The original sixteen-run and experimental reports were not overwritten.
+
+An optimized strategy making edits does not prove they are necessary. H019's
+eight strong machines frozen after commission 6 still finishing without further
+layout or power changes remains the available counterexample. D14 stays open for
+the separate necessity/experience assessment; no forced-reposition rule or balance
+target was selected or asserted as implemented by this passing regression.
+
+### Outcome and Boundaries
+
+Changed the requested test and the discussion/testing/verification records only.
+No board, palette, image, text in the game, runtime rule, save, dependency, package,
+or release state was altered. No full build/browser/native/package rerun or new
+human playtest is claimed for this turn. No staging, commit, push, or branch was
+performed. Documentation checks cover the new IDs, history order, actual focused
+test totals, current prototype clarification, and retained unrelated decisions.
+D12-D14 and board refinement await further review; D09 remains unfinished.
+
+## H028 - 2026-09-10 - Approved Board Refinement
+
+### Approval and Scope
+
+The user approved proceeding with the board changes proposed in H027. Implemented
+the visual/refinement pass, keeping the prototype framing requested there rather
+than treating hypothetical shipped-player compatibility as a design constraint.
+This did not authorize a balance retune, forced repositioning, new physics,
+or the separate D12/D13 content/text reviews. No Ballionaire assets or layout were
+copied; it remains only the user's example of appealing board presentation.
+
+### Changes
+
+- Neutral graphite evening and pale daylight fields replace green-tinted enamel
+  behind the parts. Interface neutral surfaces lose the pervasive green cast.
+  The housing is red, side rails and outer collectors steel, and brass is reserved
+  for the token and selected accents, including the x2 center collector.
+- Removed the permanent connection web and always-visible socket coordinates.
+  Passive collision pegs remain visible. Coordinates appear on hover/keyboard
+  focus, and actual occupied Relay adjacency appears when that Relay is selected,
+  inspected, or activating. Ordinary neighboring parts no longer imply wiring.
+- Simplified part faces into clearer colored shapes with stronger glyphs and
+  steel edging. Doubler and Echo lose duplicate decorative gears; the shared
+  painter still supplies board, inventory, shop, and catalogue illustrations.
+  Directional parts and all effect meanings are unchanged.
+- Replaced the top row of tiles with a continuous rail and illustrated hopper at
+  the selected one of nine lanes. One ready gold token sits at the real spawn
+  height; the gate and side lever open on real release. There is no new delay,
+  aiming rule, or extra gameplay token. Reduced motion uses the static state.
+- Replaced the shallow tray panels with recessed collector cups, clear x1/x2/x1
+  badges, local counters, and short rim/lever feedback on collection. The actual
+  collector boundaries and earned accounting are unchanged.
+- Added board-presentation tests and included them in the existing Test Workshop
+  task. Existing room artwork and in-game copy were not regenerated or rewritten.
+  Refreshed the existing legal-campaign screenshot/capsule workflow to show the
+  new board. No new external assets or dependencies were introduced.
+
+### Validation and Iteration
+
+The first neutral-field edit was followed by eight passing workshop tests.
+The physical hopper then passed a focused all-nine-lanes ready-token pixel check
+and an exact real-cascade comparison. Added neutral palette/contrast and full-board
+checks, inspected sparse/full/active/daylight/mobile captures, strengthened the
+Relay check to sample the link pixels themselves, and adjusted the housing from a
+brownish red to a clearer restrained red. The resulting twelve focused board and
+workshop checks passed before the final full regression.
+
+The full-capacity fixtures contain all eight kinds at the current eighteen-part
+campaign cap, with mixed directions at 1440px and 390px. They verify artwork and
+actual UI payout, not affordable progression. The separate campaign browser test
+and H027 optimized-run unit case provide real legal-play progression checks.
+Idle canvas screenshots remain unchanged across frames; inspecting a Relay shows
+its real connection pixels and inspecting an ordinary part clears them. This is
+not a claim that every possible visual configuration was human-approved.
+
+| Check | Actual Outcome |
+| --- | --- |
+| Focused board/workshop | 12 passed: neutral fields, ready token at nine lanes, palette/launch contrast, three short panes, eight distinct images, idle/contextual Relay pixels, full desktop/mobile fixtures, exact cascade results, reduced motion, and reload. |
+| Production build | TypeScript and Vite passed. Existing theme-script and Zod annotation notices remain nonblocking. |
+| Unit tests | 255 passed across 14 files, including the full fresh seed-42 optimized campaign. |
+| Browser suite | 74 passed, with the final task reporting 5.5 minutes. Includes complete campaign, audio, controller, layout, inventory, onboarding, and new board cases. |
+| Source-mode Electron | 12 native tests passed against the current built renderer. |
+| Local captures | Five legal-campaign 1920x1080 screenshots, eight capsule/library images, and twenty achievement variants regenerated; no publication. |
+| Scope checks | No diff to src/game, src/audio, electron, package manifests/lockfile, or original balance reports. Diff whitespace check passed apart from Git's informational LF/CRLF notices. |
+
+The browser report initially still showed the preceding twelve-case report while
+the full suite was running. It was not called a full pass based on that stale
+page; the final Verify Game task output explicitly confirmed 74 passed.
+
+### Outcome
+
+D03's approved board refinement is implemented. D09/D14 balance and repositioning
+necessity remain open, D12/D13 are still future reviews, and D11's exact zoom
+confirmation remains incomplete. This pass did not change any of those decisions.
+Documentation records the revised board behavior and tested scope. The ordinary
+Play task is running at http://127.0.0.1:5173/.
+
+Existing H026 portable/unpacked executables were not rebuilt or launched during
+this pass; they retain the previous board. The live browser and freshly built
+source-mode Electron contain the current refinement. This keeps prototype
+iteration focused; no shipping, commercial approval, physical hardware test, or
+new balance claim is implied. No save reset, stage, commit, push, or branch was
+performed. Pre-existing local changes were preserved. Final documentation checks
+cover current results, item IDs, history numbering, local links, and that older
+package evidence is not represented as the new board build.
+
+## H029 - 2026-09-10 - Alternatives to Bowl-shaped Collectors
+
+- **Request / observation:** The user says the board looks nice but is unsure
+  whether they like the bowl-shaped collectors and asks for other suggestions.
+  This is a discussion request, not authorization to replace them immediately.
+- **Local evidence:** Read the latest tracker/history and inspected the existing
+  H028 commission-8 capture. The broad elliptical rims and curved sides make the
+  collectors look like separate containers in front of the cabinet. No new browser
+  play, external reference research, or runtime inspection was needed to discuss
+  that visual shape.
+- **Recommendation / options:** Prefer one built-in payout assembly with three
+  recessed chutes, angled inner surfaces, beveled lips, and counters in the base
+  fascia. Give the center destination a brass/red emphasis. Alternatives are
+  low-profile hinged catch gates with a short collection response, or compact
+  glass-front cutaway chambers. Gates should not imply new timing/failure rules;
+  chambers should not imply extra physical stacking or invented scoring tokens.
+  All options retain clear x1/x2/x1 destinations and the existing collection
+  regions. No replacement, animation design, or mockup was selected or approved.
+- **Changes:** Discussion records only. D03 retains its implemented H028 board
+  milestone but now records collector alternatives under discussion. The rest
+  of the board, artwork, rules, tests, and other review items are unchanged.
+- **Validation / follow-up:** Documentation IDs, status boundaries, and local
+  links checked. No gameplay tests, build, captures, package runs, staging,
+  commits, or pushes for this discussion. Await the user's choice before a
+  collector-only visual iteration; do not reopen the whole board or balance pass.
+
+## H030 - 2026-09-10 - Approved Recessed Payout Chutes
+
+### Approval and Implementation
+
+The user approved proceeding with H029's recommended integrated payout chutes.
+Replaced only the collector treatment, keeping the board the user liked and the
+existing three scoring regions. No wider redesign or balancing was authorized.
+
+- Removed the elliptical rims, curved bowl bodies, and exposed side levers.
+  A continuous base fascia now holds three dark recessed mouths with angled
+  steel inner surfaces and beveled lips. The center retains brass/red emphasis.
+- Moved each x1/x2/x1 plate beside its compact counter. Actual collection briefly
+  moves the receiving inner flap, highlights its lip, and nudges the displayed
+  counter digits. It does not change score, trajectory, or launch timing.
+- The painter and existing payout overlay remain the controlling paths in
+  [art.ts](../src/render/art.ts) and [cabinet.ts](../src/render/cabinet.ts).
+  No changes to the other board objects, room artwork, or UI controls were needed.
+
+### Actual Validation
+
+Added one focused case to
+[board-presentation.spec.ts](../tests/browser/board-presentation.spec.ts).
+It injects renderer payout events into all three collectors, checks that only the
+receiving region changes, that the intake responds and returns to rest, and that
+the board is quiet afterward. It then repeats the checks with reduced motion.
+These injected events test visual behavior, not earned gameplay accounting.
+
+The normal-motion check passed first. The expanded reduced-motion check detected
+changed intake pixels because the already-cached static chute was being repainted.
+Skipped that redundant paint in reduced-motion mode while retaining the localized
+highlight and counter value. The same focused test then passed in both modes.
+
+The existing **Pocket Cascade: Test Workshop** task passed **13 browser tests
+across two files**, including real-cascade full-result equality, desktop/mobile
+full-capacity fixtures, daylight/contrast, aiming, and reduced-motion play. Sparse
+desktop, mobile payout, and daylight screenshots were inspected. The production
+TypeScript/Vite build passed, with only the previously documented theme-script
+and Zod annotation notices. Editor diagnostics were clean. Git diff confirms no
+changes to src/game, src/audio, electron, manifests/lockfile, or original balance
+reports. No new scoring or balance result is implied by this visual pass.
+
+### Outcome and Scope
+
+D03 records the integrated collector refinement as implemented. All unrelated
+open items remain unchanged. Updated design/testing/verification and prototype
+records; the local browser and compiled renderer contain the new chutes.
+Full unit/browser/native suites, packaged executables, and store captures were
+not regenerated for this narrowly scoped iteration. H028/H026 results and images
+remain historical evidence; the latest collector captures are in the focused
+browser artifacts. No assets were sourced externally and no commit, push,
+branch, save reset, or publication was performed. Documentation validation checks
+IDs, current scope/results, and local links. The Play task remains available at
+http://127.0.0.1:5173/.
+
+## H031 - 2026-09-10 - Review Dropper Aiming and Center-chute Importance
+
+- **Request / observation:** The user accepts the new collectors and asks for an
+  action item on their gameplay importance. They report leaving the dropper in
+  the center while clearing levels, with the chutes making little apparent
+  difference and balls rarely entering x2 until "the very end." This is user
+  play feedback, not a newly measured run; whether that timing means late in a
+  cascade or late in a run remains to be clarified during investigation.
+- **Proposal / decision:** Added **D15: Dropper aiming and center-chute relevance**,
+  marked **Open: balance review**, linked to D09 and D14. Explore whether moving
+  the dropper to get at least one ball into the center chute should become
+  important or necessary for clearing a commission. Making the x2 contribution
+  matter through balance and adding a mandatory center-hit completion rule are
+  distinct options; no option or numerical change was selected or approved.
+- **Future checks:** Compare fixed-center aiming with other lanes on matched
+  boards and seeds using legal earned progression. Measure actual center-chute
+  arrivals and payout contributions, not just the selected launch lane. Check
+  completion, retries, and stalls for weak and optimized builds across the
+  opening, late campaign, and endgame/After Hours. The user specifically requests
+  verifying that any change does not make the endgame excessively difficult,
+  even though they suspect it may be fine. Preserve satisfying build choices;
+  do not assume all players must follow one route or make pointless aim changes.
+- **Changes / validation:** Tracker and this appended history entry only.
+  Documentation checks cover the new ID, sequential history, scope, and links.
+  No gameplay edit, new simulation, unit/browser test, build, package, commit,
+  or push was performed. Existing item statuses and test evidence are unchanged.
+- **Open follow-up:** D15 investigation and proposal before implementation;
+  D09/D14 remain open and the current scoring/collection rules remain intact.
+
+## H032 - 2026-09-10 - Authorized Local Workshop Commit
+
+- **Request / decision:** The user explicitly requested a commit of the current
+  work. Prepare one local commit on the existing main branch with the short
+  message `Refine clockwork workshop`. No push, new branch, remote change, or
+  additional gameplay work was requested or authorized.
+- **Scope reviewed:** The pending work contains the original clockwork artwork
+  and generator, board/dropper/collector presentation, shared part illustrations,
+  supporting tasks/tests, the optimized-run regression, and the corresponding
+  design/history/review records through D15. Preserve the current local edits;
+  do not include ignored dependencies, compiled output, executables, generated
+  test reports, handoff bundles, or player saves.
+- **Existing validation:** H028 records the full build, 255 unit, 74 browser, and
+  12 native passes. H030 subsequently records the collector-specific production
+  build and 13 focused browser passes. These are actual prior checks, not new
+  test runs for this commit. Store captures remain the H028 snapshot and packaged
+  executables remain H026, as documented; neither is regenerated by committing.
+- **Commit checkpoint:** Reviewed the current worktree and the unchanged Git
+  exclusions/Gitleaks policy. Before committing, check the staged diff, scan the
+  exact staged files with Gitleaks, and verify the resulting commit matches that
+  snapshot. Commit completion is not claimed at this preparation checkpoint.
+- **Open items:** All existing D-item decisions remain unchanged, including the
+  unadopted balance experiment and unselected D15 center-chute proposal. This is
+  a local source checkpoint, not publication or completion of those reviews.
+
+### Pre-commit Check Results
+
+Staged 67 changed files. Exported the exact Git-index blobs for all 154 files in
+the prospective tree, without working-copy line-ending conversion, and scanned
+them with Gitleaks 8.30.1 using the staged configuration. Zero findings; the
+existing narrow public-storage-key exceptions were unchanged. Staged whitespace
+and ignored-file checks passed. Runtime rules, audio, native boundaries, manifests,
+lockfile, original balance reports, and repository policies remain unchanged.
+Generated scan evidence is retained only in ignored artifacts/security output.
+
+This final history update is restaged and rescanned before the authorized commit.
+After creation, compare the resulting Git tree with the final scanned tree and
+check the worktree and local branch status. No push is part of this operation;
+the final commit hash comes from Git rather than being embedded in its own record.
+No gameplay tests, builds, assets, or packages were rerun for this commit-only turn.

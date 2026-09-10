@@ -4,7 +4,7 @@ import {
   type Board, type CascadeEvent, type DropResult, type TokenView,
 } from '../game/model';
 import {
-  CIRCUITS, COLLECTORS, cabinetMaterials, circle, circuitPath, paintCabinet, roundRect,
+  CIRCUITS, COLLECTORS, cabinetMaterials, circle, circuitPath, paintCabinet, paintCollector, paintMechanism, roundRect,
   type Materials,
 } from './art';
 import { ink, mix, type CabinetPalette, type Tone } from './palette';
@@ -19,8 +19,10 @@ export interface CabinetView {
   board: Board;
   lane: number;
   selectedPegId: string | null;
+  inspectedSlotId: string | null;
   destinations: ReadonlySet<string>;
   editable: boolean;
+  ready: boolean;
   dropping: boolean;
   paused: boolean;
   reducedMotion: boolean;
@@ -119,6 +121,7 @@ export class CabinetRenderer {
   private playing = false;
   private reducedMotion = false;
   private visualTime = 0;
+  private releaseAge = 1000;
 
   constructor(private readonly canvas: HTMLCanvasElement, private palette: CabinetPalette) {
     const context = canvas.getContext('2d', { alpha: false });
@@ -157,6 +160,7 @@ export class CabinetRenderer {
 
   beginDrop(tokens: TokenView[]): void {
     this.playing = true;
+    this.releaseAge = 0;
     this.tokens = [];
     this.previousTokens.clear();
     this.tracks.clear();
@@ -252,6 +256,7 @@ export class CabinetRenderer {
 
   advance(milliseconds: number): void {
     this.visualTime += milliseconds;
+    this.releaseAge = Math.min(1000, this.releaseAge + milliseconds);
     for (const particle of this.particles) particle.age += milliseconds;
     this.particles = this.particles.filter((particle) => particle.age < particle.lifetime);
     for (const label of this.labels) label.age += milliseconds;
@@ -318,6 +323,7 @@ export class CabinetRenderer {
     context.lineJoin = 'round';
     this.drawAim(view);
     this.drawCircuits(view);
+    this.drawMechanisms(view);
     this.drawSelections(view);
     if (view.trails) this.drawTrails(view.dropping);
     this.drawCollectors();
@@ -337,41 +343,65 @@ export class CabinetRenderer {
   private drawAim(view: CabinetView): void {
     const context = this.context;
     const laneX = lanePosition(view.lane);
-    const tint = view.paused ? this.palette.warning : this.palette.success;
-    roundRect(context, laneX - 17, 20, 34, 32, 4, ink(tint, 0.18), ink(mix(tint, this.material.light, 0.35), 0.85), 1.2);
+    const material = this.material;
+    const opened = view.dropping ? this.reducedMotion ? 1 : Math.min(1, this.releaseAge / 120) : 0;
+    context.save();
+    context.translate(laneX, 0);
+    roundRect(context, -24, 19, 48, 34, 5, ink(material.steel), ink(material.light, 0.75));
+    roundRect(context, -19, 11, 38, 43, 6, ink(material.enamel), ink(material.light, 0.75), 1.3);
+    context.beginPath();
+    context.moveTo(-12, 23);
+    context.lineTo(12, 23);
+    context.lineTo(10, 48);
+    context.lineTo(8, 56);
+    context.lineTo(-8, 56);
+    context.lineTo(-10, 48);
+    context.closePath();
+    context.fillStyle = ink(material.recess);
+    context.fill();
+    context.strokeStyle = ink(material.steel);
+    context.lineWidth = 1.5;
+    context.stroke();
+    roundRect(context, -16, 8, 32, 6, 2, ink(material.steel), ink(material.light, 0.7));
+    context.strokeStyle = ink(material.brass);
+    context.lineWidth = 3;
+    context.beginPath();
+    context.moveTo(-12 - opened * 4, 55);
+    context.lineTo(-opened * 12, 55);
+    context.moveTo(12 + opened * 4, 55);
+    context.lineTo(opened * 12, 55);
+    context.stroke();
+    context.strokeStyle = ink(material.steel);
+    context.beginPath();
+    context.moveTo(20, 36);
+    context.lineTo(27, 27 + opened * 17);
+    context.stroke();
+    circle(context, 27, 27 + opened * 17, 3.5);
+    context.fillStyle = ink(material.rose);
+    context.fill();
+    roundRect(context, -9, 67, 18, 17, 3, ink(material.brass));
     context.font = `750 11px ${this.palette.font}`;
     context.textAlign = 'center';
     context.textBaseline = 'middle';
-    context.fillStyle = ink(this.material.light);
-    context.fillText(String(view.lane + 1), laneX, 36.5);
-    context.beginPath();
-    context.moveTo(laneX - 3.5, 57);
-    context.lineTo(laneX, 61);
-    context.lineTo(laneX + 3.5, 57);
-    context.strokeStyle = ink(this.material.brass, 0.9);
-    context.lineWidth = 1.5;
-    context.stroke();
-    circle(context, 112, 76, 2.5);
-    context.fillStyle = ink(tint, view.paused || !view.dropping || this.reducedMotion ? 0.9 : 0.6 + Math.sin(this.visualTime / 110) * 0.3);
-    context.fill();
-    if (view.paused) {
-      context.fillStyle = ink(this.material.brass);
-      context.fillRect(382, 72, 2, 8);
-      context.fillRect(387, 72, 2, 8);
-    }
+    context.fillStyle = ink(material.dark);
+    context.fillText(String(view.lane + 1), 0, 76);
+    context.restore();
+    if (view.ready) this.drawToken({ id: 0, x: laneX, y: 38, value: 0, chain: 0, depth: 0 });
   }
 
   private drawCircuits(view: CabinetView): void {
     const context = this.context;
     for (const { source, destination } of CIRCUITS) {
       if (!view.board[source.id] || !view.board[destination.id]) continue;
-      const flash = this.flashes.get(source.id) ?? this.flashes.get(destination.id);
-      if (!flash && this.reducedMotion) continue;
-      const strength = flash ? Math.max(0, 1 - flash.age / 650) : 0.12;
+      const relays = [source, destination].filter((slot) => view.board[slot.id].kind === 'relay');
+      const flash = relays.map((slot) => this.flashes.get(slot.id)).find(Boolean);
+      const selected = view.editable && relays.some((slot) => view.board[slot.id].id === view.selectedPegId || slot.id === view.inspectedSlotId);
+      if (!selected && !flash) continue;
+      const strength = flash ? Math.max(0, 1 - flash.age / 650) : 0.7;
       circuitPath(context, source, destination);
       context.strokeStyle = ink(flash ? this.palette[flash.color] : this.palette.success, strength * 0.5);
       context.lineWidth = flash ? 1.8 : 1;
-      if (!this.reducedMotion) {
+      if (flash && !this.reducedMotion) {
         context.setLineDash([3, 13]);
         context.lineDashOffset = -this.visualTime / 65;
       }
@@ -389,12 +419,37 @@ export class CabinetRenderer {
     }
   }
 
+  private drawMechanisms(view: CabinetView): void {
+    if (this.reducedMotion) return;
+    const context = this.context;
+    for (const [slotId, flash] of this.flashes) {
+      const slot = SLOT_MAP[slotId];
+      const peg = view.board[slotId];
+      if (!slot || !peg) continue;
+      const progress = Math.min(1, flash.age / 650);
+      context.save();
+      context.beginPath();
+      context.rect(slot.x - 24, slot.y - 23, 48, 44);
+      context.clip();
+      context.drawImage(this.layer, 0, 0, BOARD_WIDTH, BOARD_HEIGHT);
+      context.translate(slot.x, slot.y);
+      paintMechanism(context, peg, this.palette, this.material, progress);
+      context.restore();
+    }
+  }
+
   private drawSelections(view: CabinetView): void {
     if (!view.editable) return;
     const context = this.context;
     for (const slot of SLOTS) {
       const selected = view.board[slot.id]?.id === view.selectedPegId;
-      if (!selected && !view.destinations.has(slot.id)) continue;
+      const inspected = view.inspectedSlotId === slot.id;
+      if (inspected) {
+        context.font = '600 8px Consolas, "Courier New", monospace';
+        const width = context.measureText(slot.id).width + 10;
+        this.labelPlate(slot.id, { left: slot.x - width / 2, top: slot.y + 23, width, height: 13 }, this.material.steel, 1, false);
+      }
+      if (!selected && !inspected && !view.destinations.has(slot.id)) continue;
       const tint = selected ? this.material.brass : view.board[slot.id] ? this.palette.link : this.palette.success;
       const intensity = selected && !this.reducedMotion ? 0.76 + Math.sin(this.visualTime / 260) * 0.16 : 0.8;
       context.strokeStyle = ink(tint, intensity);
@@ -459,36 +514,29 @@ export class CabinetRenderer {
       const tray = COLLECTORS[index];
       const progress = flash.age / 1100;
       const opacity = (1 - progress) ** 2;
-      const tint = index === 1 ? this.material.rose : this.material.brass;
+      const tint = index === 1 ? this.material.brass : this.material.steel;
       context.save();
       context.beginPath();
-      context.rect(tray.left + 2, 512, tray.right - tray.left - 4, 117);
+      context.rect(tray.left + 1, 559, tray.right - tray.left - 2, 76);
       context.clip();
-      if (!this.reducedMotion) {
-        const radius = 48 + progress * 75;
-        const bloom = context.createRadialGradient(tray.center, 597, 2, tray.center, 597, radius);
-        bloom.addColorStop(0, ink(this.material.light, opacity * 0.68));
-        bloom.addColorStop(0.3, ink(tint, opacity * 0.44));
-        bloom.addColorStop(1, ink(tint, 0));
-        context.fillStyle = bloom;
-        context.fillRect(tray.left, 512, tray.right - tray.left, 117);
-        context.strokeStyle = ink(tint, opacity * 0.8);
-        context.lineWidth = 1.3;
-        context.beginPath();
-        context.ellipse(tray.center, 598, 23 + progress * 80, 13 + progress * 40, 0, Math.PI, Math.PI * 2);
-        context.stroke();
-      } else {
-        context.fillStyle = ink(tint, opacity * 0.18);
-        context.fillRect(tray.left + 4, 570, tray.right - tray.left - 8, 58);
-      }
+      context.drawImage(this.layer, 0, 0, BOARD_WIDTH, BOARD_HEIGHT);
+      if (!this.reducedMotion) paintCollector(context, index, this.palette, this.material, progress);
+      context.strokeStyle = ink(tint, opacity * 0.85);
+      context.lineWidth = 1.8;
+      context.beginPath();
+      context.moveTo(tray.left + 7, 596);
+      context.lineTo(tray.right - 7, 596);
+      context.stroke();
       context.restore();
     }
     COLLECTORS.forEach((tray, index) => {
-      context.font = '700 15px Consolas, "Courier New", monospace';
+      context.font = '700 13px Consolas, "Courier New", monospace';
       context.textAlign = 'center';
       context.textBaseline = 'middle';
       context.fillStyle = ink(this.collectorFlashes.has(index) ? this.material.brass : this.material.light, 0.95);
-      context.fillText(displayValue(this.trayTotals[index]), tray.center, 616, tray.right - tray.left - 30);
+      const flash = this.collectorFlashes.get(index);
+      const tick = flash && !this.reducedMotion ? Math.sin(Math.min(1, flash.age / 180) * Math.PI) * 1.5 : 0;
+      context.fillText(displayValue(this.trayTotals[index]), tray.center + 18, 618 + tick, 59);
     });
   }
 

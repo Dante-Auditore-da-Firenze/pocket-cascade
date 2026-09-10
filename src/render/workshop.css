@@ -1,0 +1,28 @@
+.game-app { position: relative; isolation: isolate; }
+.workshop-scene { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; user-select: none; }
+.workshop-scene img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center 62%; }
+.game-app:has(.workshop-scene) { background: transparent; }
+.game-app:has(.workshop-scene) .workspace { background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--cp-surface) 92%, transparent) 12% 88%, transparent); }
+.game-app:has(.workshop-scene) .topbar { background: color-mix(in srgb, var(--cp-surface) 94%, transparent); }
+.game-app:has(.workshop-scene) .game-footer { background: color-mix(in srgb, var(--cp-surface) 94%, transparent); }
+.workshop-scene ~ .topbar .brand-symbol { background: var(--cp-accent-soft); border-color: var(--cp-accent); color: var(--cp-accent); }
+.game-app .part-symbol:has(img) { border-color: transparent; background: transparent; box-shadow: none; }
+.part-symbol img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.machine-frame { filter: drop-shadow(0 9px 9px color-mix(in srgb, var(--cp-bg) 60%, transparent)); }
+.game-app .machine-toolbar { border-top: 2px solid var(--cp-accent); padding-top: 5px; }
+.game-app .launch-button { border-bottom: 3px solid color-mix(in srgb, var(--cp-warning) 60%, var(--cp-bg)); }
+.game-app .launch-button small { opacity: 1; }
+html[data-theme="light"] .game-app .launch-button:not(.launching),
+html[data-theme="light"] .game-app .button.primary { background: color-mix(in srgb, var(--cp-warning) 50%, var(--cp-surface)); color: var(--cp-text); }
+.game-app .bench-part { background: linear-gradient(145deg, var(--cp-sheen), transparent), var(--cp-bg-elevated); }
+.game-app .bench-part.selected { background: var(--cp-accent-soft); }
+.game-app .worktable-header { border-bottom: 2px solid var(--cp-accent); }
+.game-app .free-offer { border-left: 3px solid var(--cp-success); }
+.game-app .score-panel { border-top: 2px solid var(--cp-warning); }
+.game-app .dialog { background-image: linear-gradient(180deg, var(--cp-accent-soft), transparent 110px); }
+html[data-high-contrast="true"] .workshop-scene { visibility: hidden; }
+html[data-high-contrast="true"] .game-app:has(.workshop-scene) { background: var(--cp-surface); }
+@media (max-width: 930px) {
+  .game-app:has(.workshop-scene) .workspace { background: color-mix(in srgb, var(--cp-surface) 94%, transparent); }
+  .game-app .score-panel { border-top: 0; }
+}

@@ -4,7 +4,7 @@
 
 Pocket Cascade is a compact, active combo builder: arrange a small machine, choose a launch lane, watch a repeatable physical cascade, and spend earned Workshop credits on improvements. The implemented game uses **minimum commission payouts**, not the exact-total tray orders in the original research concept. Excess output is welcome; it never fails a commission.
 
-The scope is one custom brass-and-green Canvas2D cabinet, eight part types, twelve authored commissions, a finite power track, a UTC daily seed, and an After Hours continuation. It is not an idle-income game, a large roguelike item pool, an online competition, or a real-money system. The research brief is background, not evidence of approved pricing, playtime, or demand. This build is a technically complete gameplay candidate for closed playtesting, not proof of commercial readiness.
+The scope is one custom Canvas2D cabinet in an original clockwork inventor's workshop, eight part types, twelve authored commissions, a finite power track, a UTC daily seed, and an After Hours continuation. It is not an idle-income game, a large roguelike item pool, an online competition, or a real-money system. The research brief is background, not evidence of approved pricing, playtime, or demand. This build is a technically complete gameplay candidate for closed playtesting, not proof of commercial readiness.
 
 ## Play Loop
 
@@ -100,7 +100,56 @@ There is one active saved machine per storage profile. Confirming a new run repl
 
 The board is a custom Canvas2D scene with an accessible DOM control layer for sockets and tools. Local generated cabinet art and icons provide the visual identity. DM Sans, Barlow Condensed, Lucide icons, and generated icon assets are bundled locally; normal gameplay has no runtime network-asset dependency.
 
-The height-aware layout caps the board track at **850 px** and reserves room for the guide, capacity indicator, and machine controls without changing physical geometry, socket positions, or simulation rules. Full-HD, ultrawide, and mobile layout checks cover control separation and painted-board resizing. Current full-suite and executable evidence is recorded in [docs/VERIFICATION.md](VERIFICATION.md); coverage is described in [docs/TESTING.md](TESTING.md).
+The approved **clockwork workshop** now uses a graphite playing surface in evening
+lighting and a pale neutral surface in daylight, with red enamel housing, steel
+rails/collectors, and limited brass accents. Interface surfaces and text neutrals
+no longer carry the room's green tint. Original day/evening room artwork frames
+the cabinet with an arched window, clock, blueprint, tools, lamp, and workbench.
+The fixed room layer is decorative, hidden from assistive technology, and cannot
+intercept controls. High contrast hides the scenery; narrow layouts increase the
+quiet background behind the playable content. There is no countdown mechanic.
+
+All eight mechanism illustrations share `paintMechanism` between the cabinet and
+inventory/shop/catalogue images. Directional spares retain their real direction
+and separate quantity metadata. UI images are local 96px PNG data URLs generated
+from that painter and repainted when lighting changes. Colored enamel faces and
+stronger glyphs distinguish the parts; duplicate ornamental gears were removed
+from Doubler and Echo, while Relay retains its functional gear identity. During
+actual hits, mechanisms move using the existing short-lived event flashes;
+reduced motion disables this added motion. No extra physics steps, tokens, scoring
+events, or audio voices are created for the theme.
+
+The field is quiet at rest: passive physical pegs remain visible, but permanent
+decorative adjacency wiring and always-visible socket coordinates are removed.
+An installed Relay's real occupied neighbors are linked while it is selected,
+hovered, keyboard-focused, or activating. Other adjacent parts do not imply a
+connection. Socket coordinates appear on hover/focus; DOM titles and accessible
+names still identify every socket. Previously observed ball trails remain optional.
+
+The nine aim targets retain their original positions and actions. Their visual
+treatment is a continuous metal rail with a movable hopper, lane marker, and one
+gold token when ready to launch. The token is illustrated at the actual spawn
+height; a short gate/lever opening accompanies the real release without changing
+physics or adding launch delay. Motion is suppressed under reduced motion.
+
+Three recessed payout chutes are built into one continuous base fascia. Dark
+openings and angled inner surfaces replace the H028 bowl silhouettes; steel lips
+frame the outer intakes and the center uses brass/red accents. Each x1/x2/x1 badge
+sits alongside its compact score counter. Collection briefly moves only the
+receiving chute's inner flap, highlights its lip, and nudges its counter digits.
+The intake returns to rest afterward. Reduced motion retains a static cached
+intake and updates only the highlight/value. The original collection boundaries
+and accounting are unchanged. Added animations do not continue in an idle board.
+
+[scripts/generate-workshop.mjs](../scripts/generate-workshop.mjs) authors the
+original layered SVG source and exports two 2400x1600 WebP room images.
+[assets/workshop/manifest.json](../assets/workshop/manifest.json) records their
+provenance. The regular icon generator invokes it, so packaged builds receive the
+same assets as browser play. No third-party illustration, runtime image service,
+or new artwork dependency was introduced. This is procedural original art, not
+a hand-painted or text-to-image-generated asset claim.
+
+The height-aware layout caps the board track at **850 px** and reserves room for the guide, capacity indicator, and machine controls without changing physical geometry, socket positions, or simulation rules. A **320px desktop track floor** prevents short windows from collapsing the machine below its controls; short panes scroll vertically instead. Normal narrow mobile layouts retain their separate responsive sizing. Full-HD, ultrawide, and mobile layout checks cover control separation and painted-board resizing. Three short-pane cases cover heights of 240-360px, but the user's exact low-zoom case still needs confirmation under D11. Current full-suite and executable evidence is recorded in [docs/VERIFICATION.md](VERIFICATION.md); coverage is described in [docs/TESTING.md](TESTING.md).
 
 Original Web Audio synthesis now gives physical collisions prominent mechanical feedback. Ephemeral `PhysicalImpact` events are separate from `DropResult`: passive peg/wall hits and repeated contacts can sound without scoring again. A scored contact suppresses its duplicate generic impact sound. Parts and payouts have distinct mechanical transients, with bounded voices and soft-limited output independent of earned value.
 
@@ -138,3 +187,11 @@ Keep game rules in the engine/simulation, presentation in the renderer, and priv
 The unchanged balance sample includes beginner-policy failures and large late-game output variance. One user playtest reported that the game feels good; this is qualitative feedback, not proof of demand, retention, or sales. Automated completion does not answer whether people understand routes or find enough variety for a fair paid product. Broader closed playtesting should observe unaided progression, commission-8 losses, difficulty recovery, high-output readability, and interest in building another machine. Do not derive session length from simulated physics time.
 
 [docs/OPEN-ITEMS.md](OPEN-ITEMS.md) is the authoritative tracker and [HISTORY.md](HISTORY.md) preserves the chronological decisions. P01-P14 retain their verified outcomes. D08 spare grouping was approved, implemented, and verified on 2026-09-08, including both rebuilt Windows executables. D09 balance review remains explicitly deferred: preserve the opening difficulty and earned big payouts while reviewing multiplier repetition and meaningful later decisions, not a blanket difficulty increase. Other deferred work is not authorized by the inventory change.
+
+D03 was separately approved and implemented on 2026-09-10 (H026). D09's isolated
+gift trial was not adopted; the theme changes no economy or balance values. D11's
+confirmed short-pane defect is fixed, with exact zoom confirmation still open.
+
+H028 subsequently implements the board-specific refinement approved after H027.
+D12/D13 content and reading-load reviews, D14 repositioning necessity, and D09
+balancing remain open; a more legible board does not by itself resolve them.

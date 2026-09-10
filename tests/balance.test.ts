@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { claimPart, newRun, upgradePower } from '../src/game/engine';
+import { claimPart, commission, newRun, upgradePower } from '../src/game/engine';
 import { chooseReward, evaluateMachine, planBuild, playCampaign, shopLegally } from '../scripts/strategies';
 import { diagnoseCampaign, planLocalBuild } from '../scripts/balance-diagnostics';
 
@@ -21,6 +21,28 @@ describe('legal-play balance checks', () => {
     expect(report.stages.every((stage) => stage.brass >= 0)).toBe(true);
     expect(report.bestDrop).toBeGreaterThan(100);
   }, 30_000);
+
+  it('completes a fresh optimized run through all twelve commissions using legal upgrades and edits', () => {
+    const result = diagnoseCampaign(42, 'optimized');
+    expect(result.report.won).toBe(true);
+    expect(result.report.stagesCleared).toBe(12);
+    expect(result.report.stages.map((stage) => stage.stage)).toEqual(Array.from({ length: 12 }, (_, index) => index + 1));
+    expect(result.report.maxTokens).toBeLessThanOrEqual(4);
+    expect(result.report.timeouts).toBe(0);
+    expect(Number.isSafeInteger(result.report.totalScore)).toBe(true);
+    for (const stage of result.report.stages) {
+      expect(stage.payout, `Commission ${stage.stage}`).toBeGreaterThanOrEqual(stage.target);
+      expect(stage.brass).toBeGreaterThanOrEqual(0);
+      expect(stage.parts).toBeLessThanOrEqual(commission({ stage: stage.stage - 1, assisted: false }).capacity);
+    }
+    expect(result.shops).toHaveLength(11);
+    for (const shop of result.shops) {
+      expect(shop.choices).toContain(shop.gift);
+      expect(shop.spent).toBeGreaterThanOrEqual(0);
+    }
+    expect(result.builds.some((build) => build.changed && build.after > build.before)).toBe(true);
+    expect(result.builds.every((build) => build.after >= build.before)).toBe(true);
+  }, 90_000);
 
   it('diagnostic hooks preserve the default campaign and cannot mutate observations into currency', () => {
     const baseline = playCampaign(42, 'conservative', 3);

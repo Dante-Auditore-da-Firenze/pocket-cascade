@@ -40,7 +40,7 @@ export function PartInventory({ run, selectedId, editable, onSelect }: PartInven
           <span className="stack-direction">{stack.direction === 1 ? <ArrowRight size={13} /> : stack.direction === -1 ? <ArrowLeft size={13} /> : null}</span>
           <span className="stack-count" data-testid="stack-count">{stack.parts.length > 1 ? `x${stack.parts.length}` : ''}</span>
         </span>
-        <PartSymbol kind={stack.kind} /><span>{definition.name}</span>
+        <PartSymbol kind={stack.kind} direction={part.direction} /><span>{definition.name}</span>
       </button>;
     })}
       {run.bench.length === 0 && <div className="empty-bench"><CheckCircle2 size={18} /><span>No spare parts.</span></div>}

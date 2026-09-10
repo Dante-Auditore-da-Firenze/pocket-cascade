@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, type CSSProperties } from 'react';
+import { useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
 import { PARTS } from '../game/content';
 import { placePeg, type RunState } from '../game/engine';
 import {
@@ -57,6 +57,7 @@ export function Board(props: BoardProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const runtimeRef = useRef<Runtime | null>(null);
+  const [inspectedSlotId, setInspectedSlotId] = useState<string | null>(null);
   const editable = !run.activeDrop && (run.phase === 'ready' || run.phase === 'shop' || run.phase === 'lost');
   const destinations = new Set<string>();
   if (editable && selectedPegId) {
@@ -68,8 +69,10 @@ export function Board(props: BoardProps) {
     board: run.activeDrop?.board ?? run.board,
     lane: run.activeDrop?.lane ?? run.lane,
     selectedPegId,
+    inspectedSlotId,
     destinations,
     editable,
+    ready: run.phase === 'ready' && run.dropsLeft > 0,
     dropping: Boolean(run.activeDrop),
     paused,
     reducedMotion,
@@ -288,6 +291,10 @@ export function Board(props: BoardProps) {
               title={name}
               disabled={!editable}
               onClick={() => props.onSlot(slot.id)}
+              onPointerEnter={() => setInspectedSlotId(slot.id)}
+              onPointerLeave={() => setInspectedSlotId(null)}
+              onFocus={() => setInspectedSlotId(slot.id)}
+              onBlur={() => setInspectedSlotId(null)}
             />
           );
         })}
