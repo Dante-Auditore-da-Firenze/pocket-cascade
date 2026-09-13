@@ -1,0 +1,37 @@
+.reward-choices { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.reward-choice { min-width: 0; padding: 16px; display: flex; flex-direction: column; align-items: flex-start; gap: 12px; text-align: left; background: var(--cp-bg-elevated); border: 1px solid var(--cp-border); border-top: 3px solid var(--cp-success); border-radius: 6px; }
+.reward-choice:hover, .reward-choice:focus-visible { background: var(--cp-surface-soft); border-color: var(--cp-warning); }
+.reward-choice-top { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; width: 100%; color: var(--cp-text-muted); font-size: 9px; }
+.reward-choice-top > span:last-child { display: inline-flex; align-items: center; gap: 5px; color: var(--cp-success); }
+.reward-choices .reward-choice .part-symbol { width: 64px; height: 64px; margin: 4px auto; }
+.reward-choice > strong { font: 600 27px/1.1 'Barlow Condensed', sans-serif; }
+.reward-effect { color: var(--cp-text-soft); font-size: 12px; line-height: 1.6; }
+.reward-owned { margin-top: auto; padding-top: 6px; color: var(--cp-text-muted); font-size: 11px; }
+.reward-dialog-actions { display: flex; justify-content: flex-end; margin-top: 20px; }
+.reward-reopen { margin: 8px 0 4px; }
+.reward-conversion { display: flex; flex-direction: column; align-items: center; gap: 18px; padding: 20px 0; color: var(--cp-warning); }
+.reward-conversion > strong { font: 600 28px/1.2 'Barlow Condensed', sans-serif; }
+.reward-modes { display: flex; gap: 4px; margin-bottom: 18px; border-bottom: 1px solid var(--cp-border); }
+.reward-modes button { flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 6px; background: transparent; font-size: 12px; border-bottom: 2px solid transparent; }
+.reward-modes button[aria-pressed="true"] { border-color: var(--cp-accent); color: var(--cp-accent); }
+.reward-dialog-actions { justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.reward-tuning-card { cursor: default; }
+.tuning-target { width: 100%; display: grid; gap: 5px; margin-top: auto; font-size: 11px; color: var(--cp-text-muted); }
+.tuning-target select { width: 100%; min-height: 36px; min-width: 0; color: var(--cp-text); background: var(--cp-surface); border: 1px solid var(--cp-border); border-radius: 3px; padding: 5px; }
+.part-tuning { margin-top: 15px; padding-top: 12px; border-top: 1px solid var(--cp-border); display: grid; gap: 8px; }
+.part-tuning > strong { display: flex; align-items: center; gap: 7px; font-size: 12px; }
+.part-tuning > small { color: var(--cp-text-soft); line-height: 1.5; }
+.tuning-actions { display: grid; gap: 7px; }
+.tuning-actions .button { justify-content: center; font-size: 11px; min-width: 0; }
+.capacity-milestone { color: var(--cp-warning); font-size: 11px; margin-top: 7px; }
+@media (max-width: 580px) {
+  .reward-choices { grid-template-columns: 1fr; gap: 10px; }
+  .reward-choice { display: grid; grid-template-columns: 48px minmax(0, 1fr); gap: 4px 12px; padding: 12px; }
+  .reward-choice-top { grid-column: 1 / -1; margin-bottom: 4px; }
+  .reward-choices .reward-choice .part-symbol { grid-column: 1; grid-row: 2 / 5; width: 48px; height: 48px; margin: auto 0; }
+  .reward-choice > strong, .reward-effect, .reward-owned { grid-column: 2; }
+  .reward-choice > strong { font-size: 24px; }
+  .reward-effect { font-size: 11px; }
+  .reward-owned { padding-top: 2px; }
+  .reward-tuning-card .tuning-target, .reward-tuning-card > button { grid-column: 1 / -1; }
+}

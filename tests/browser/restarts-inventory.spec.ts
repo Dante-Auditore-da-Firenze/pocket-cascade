@@ -61,7 +61,7 @@ test('New Workshop uses the existing confirmation and keeps the machine until co
   await drop(page);
   const previous = await readSave(page);
   await page.getByRole('button', { name: 'New workshop', exact: true }).click();
-  const dialog = page.getByRole('dialog', { name: 'A fresh worktable', exact: true });
+  const dialog = page.getByRole('dialog', { name: 'New workshop', exact: true });
   await expect(dialog).toBeVisible();
   await expect(dialog.getByRole('textbox')).toBeVisible();
   expect((await readRun(page))).toEqual(previous.run);

@@ -5,6 +5,8 @@ import type { PegKind } from '../game/model';
 import { cabinetMaterials, paintMechanism } from '../render/art';
 import { readCabinetPalette } from '../render/palette';
 
+const partImages = new WeakMap<Document, Map<string, string>>();
+
 export function formatNumber(value: number): string {
   if (value < 1_000_000) return Math.round(value).toLocaleString('en-US');
   return new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 2 }).format(value);
@@ -34,7 +36,7 @@ export function IconButton({ icon: Icon, label, className = '', ...props }: Butt
   return <button type="button" className={`icon-button ${className}`} aria-label={label} title={label} {...props}><Icon size={18} strokeWidth={1.7} /></button>;
 }
 
-export function PartSymbol({ kind, small = false, direction = 1 }: { kind: PegKind; small?: boolean; direction?: -1 | 1 }) {
+export function PartSymbol({ kind, small = false, direction = 1, tuned = false }: { kind: PegKind; small?: boolean; direction?: -1 | 1; tuned?: boolean }) {
   const reference = useRef<HTMLSpanElement>(null);
   const [image, setImage] = useState('');
   useEffect(() => {
@@ -42,22 +44,31 @@ export function PartSymbol({ kind, small = false, direction = 1 }: { kind: PegKi
     if (!element) return;
     const draw = () => {
       if (!element.isConnected) return;
+      const ownerDocument = element.ownerDocument;
+      const palette = readCabinetPalette(element);
+      const key = JSON.stringify([kind, direction, tuned, palette, ownerDocument.fonts.status]);
+      let images = partImages.get(ownerDocument);
+      if (!images) { images = new Map(); partImages.set(ownerDocument, images); }
+      const existing = images.get(key);
+      if (existing) { setImage(existing); return; }
       const canvas = element.ownerDocument.createElement('canvas');
       canvas.width = 96;
       canvas.height = 96;
       const context = canvas.getContext('2d');
       if (!context) return;
-      const palette = readCabinetPalette(element);
       context.setTransform(2, 0, 0, 2, 48, 48);
-      paintMechanism(context, { kind, id: 'display', direction }, palette, cabinetMaterials(palette));
-      setImage(canvas.toDataURL('image/png'));
+      paintMechanism(context, { kind, id: 'display', direction, tuned }, palette, cabinetMaterials(palette));
+      const image = canvas.toDataURL('image/png');
+      if (images.size >= 64) images.delete(images.keys().next().value!);
+      images.set(key, image);
+      setImage(image);
     };
     draw();
     void element.ownerDocument.fonts.ready.then(draw);
     const observer = new MutationObserver(draw);
     observer.observe(element.ownerDocument.documentElement, { attributes: true, attributeFilter: ['data-theme', 'data-high-contrast'] });
     return () => observer.disconnect();
-  }, [kind, direction]);
+  }, [kind, direction, tuned]);
   return <span ref={reference} aria-hidden="true" className={`part-symbol part-${kind} ${small ? 'small' : ''}`}>
     {image && <img src={image} alt="" width="96" height="96" />}
     <span className={image ? 'visually-hidden' : undefined}>{PARTS[kind].symbol}</span>

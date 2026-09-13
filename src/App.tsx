@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type ChangeEvent } from 'react';
 import {
   ArrowDown, ArrowLeft, ArrowRight, Award, BookOpen, Check, CheckCircle2, ChevronRight,
-  CircleHelp, Cog, Coins, Crown, Download, Expand, FlaskConical, Hammer, Menu,
+  CircleHelp, Cog, Coins, Combine, Crown, Download, Expand, Hammer, Menu,
   Minimize, Pause, Play, Plus, Redo2, RotateCcw, RotateCw, Settings2, Recycle, Gamepad2,
   ShieldCheck, Shuffle, Sparkles, Trophy, Undo2, Upload, Volume2, VolumeX, X, Ticket, Gift, Accessibility,
 } from 'lucide-react';
@@ -9,16 +9,19 @@ import { Board } from './components/Board';
 import { QuickGuide } from './components/QuickGuide';
 import { CreditWallet } from './components/CreditWallet';
 import { PartInventory } from './components/PartInventory';
+import { RewardDialog } from './components/RewardDialog';
+import { CascadeReceipt } from './components/CascadeReceipt';
 import { Counter, Dialog, formatNumber, IconButton, PartSymbol, Toggle } from './components/UI';
-import { ACHIEVEMENTS, COMMISSIONS, PARTS, PART_KINDS, POWER_VALUES, powerPrice } from './game/content';
+import { ACHIEVEMENTS, COMMISSIONS, PARTS, PART_KINDS, POWER_VALUES, TUNINGS, partName, powerPrice, tuningPrice } from './game/content';
 import {
   baseValue, buyPart, claimPart, collectCommission, commission, commissionReward,
   dailySeed, enterEndless, launchDrop, newRun, nextCommission, placePeg, removePeg,
   rerollShop, retryCommission, rotatePeg, setLane, settleDrop, upgradePower,
   MAX_OWNED_PARTS, salvagePeg, parseMachineSeed, canRestartCommission, restartCommission,
+  claimTuning, claimCredits, tuningTargets, tunePeg, fusePeg,
   type RunMode, type RunState,
 } from './game/engine';
-import type { CascadeEvent, DropResult } from './game/model';
+import type { CascadeEvent, DropResult, PegKind } from './game/model';
 import {
   freshSave, loadBrowserSave, migrateDesktopSave, parseSave, updateProgress, writeBrowserSave,
   type SaveData, type Settings,
@@ -29,7 +32,7 @@ import { advanceTutorial, currentTutorialStep, startingTutorialStep, type Tutori
 import './polish.css';
 import './render/workshop.css';
 
-type Modal = 'menu' | 'settings' | 'accessibility' | 'collection' | 'achievements' | 'new' | 'credits' | 'rules' | null;
+type Modal = 'menu' | 'settings' | 'accessibility' | 'collection' | 'achievements' | 'new' | 'credits' | 'rules' | 'reward' | null;
 
 async function loadGame(): Promise<{ save: SaveData; message: string | null }> {
   if (window.pocketDesktop) {
@@ -78,8 +81,9 @@ export default function App() {
 }
 
 function Game({ initial, initialMessage }: { initial: SaveData; initialMessage: string | null }) {
+  const commissionFor = commission;
   const [save, setSave] = useState(initial);
-  const [modal, setModal] = useState<Modal>(null);
+  const [modal, setModal] = useState<Modal>(initial.run.phase === 'shop' && !initial.run.rewardClaimed ? 'reward' : null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [paused, setPaused] = useState(false);
   const [tab, setTab] = useState<'bench' | 'shop'>(initial.run.phase === 'shop' ? 'shop' : 'bench');
@@ -99,7 +103,7 @@ function Game({ initial, initialMessage }: { initial: SaveData; initialMessage: 
   const fileInput = useRef<HTMLInputElement>(null);
   const run = save.run;
   const settings = save.settings;
-  const definition = commission(run);
+  const definition = commissionFor(run);
   const selectedSlot = Object.entries(run.board).find(([, peg]) => peg.id === selectedId)?.[0];
   const selectedPeg = Object.values(run.board).find((peg) => peg.id === selectedId) ?? run.bench.find((peg) => peg.id === selectedId);
   const latest = useRef({ save, modal, paused, selectedId });
@@ -185,7 +189,7 @@ function Game({ initial, initialMessage }: { initial: SaveData; initialMessage: 
   function changeRun(action: (current: RunState) => RunState): void {
     setSave((current) => {
       const next = action(current.run);
-      return next === current.run ? current : updateProgress(current, next);
+      return next === current.run ? current : updateProgress(current, next, commissionFor(next));
     });
   }
 
@@ -219,6 +223,7 @@ function Game({ initial, initialMessage }: { initial: SaveData; initialMessage: 
   }
 
   function locateGuide(step: TutorialStep): void {
+    if (step === 'gift' && run.phase === 'shop' && !run.rewardClaimed) { setTab('shop'); setModal('reward'); return; }
     if (step === 'gift' || step === 'spend') setTab('shop');
     let selector = '';
     if (step === 'place') {
@@ -271,12 +276,13 @@ function Game({ initial, initialMessage }: { initial: SaveData; initialMessage: 
 
   function handleSlot(slotId: string): void {
     if (selectedPeg && run.board[slotId]?.id !== selectedPeg.id) {
-      const changed = placePeg(run, selectedPeg.id, slotId);
+      const full = !selectedSlot && !run.board[slotId] && Object.keys(run.board).length >= definition.capacity;
+      const changed = full ? run : placePeg(run, selectedPeg.id, slotId);
       if (changed !== run) {
         editBoard(() => changed);
         setSelectedId(null);
         learn('place');
-      } else setToast(`Machine full (${Object.keys(run.board).length}/${definition.capacity}). Swap an installed part or return one to the workbench.${run.phase === 'shop' ? ` Next level allows ${commission({ ...run, stage: run.stage + 1 }).capacity}.` : ''}`);
+      } else setToast(`Machine full (${Object.keys(run.board).length}/${definition.capacity}). Swap an installed part or return one to the workbench.${run.phase === 'shop' ? ` Next level allows ${commissionFor({ ...run, stage: run.stage + 1 }).capacity}.` : ''}`);
     } else setSelectedId(run.board[slotId]?.id === selectedId ? null : run.board[slotId]?.id ?? null);
   }
 
@@ -288,7 +294,7 @@ function Game({ initial, initialMessage }: { initial: SaveData; initialMessage: 
 
   function finishDrop(result: DropResult): void {
     const current = latest.current.save.run;
-    const next = settleDrop(current, result);
+    const next = settleDrop(current, result, commissionFor(current));
     if (next.phase === 'review') audio.success();
     setLivePayout(0);
     changeRun(() => next);
@@ -313,16 +319,62 @@ function Game({ initial, initialMessage }: { initial: SaveData; initialMessage: 
   }
 
   function collect(): void {
-    changeRun(collectCommission);
+    const current = latest.current.save.run;
+    const collected = collectCommission(current, commissionFor(current));
+    if (collected === current) return;
+    changeRun(() => collected);
     learn('collect');
     setTab('shop');
     setHistory([]);
     setFuture([]);
+    setModal(collected.phase === 'shop' && !collected.rewardClaimed ? 'reward' : null);
     audio.success();
   }
 
+  function chooseGift(kind: PegKind): void {
+    const current = latest.current.save.run;
+    const claimed = claimPart(current, kind);
+    if (claimed === current) return;
+    const converted = current.bench.length + Object.keys(current.board).length >= MAX_OWNED_PARTS;
+    trade(() => claimed);
+    learn('claim');
+    setSelectedId(converted ? null : `part-${current.nextId}`);
+    setModal(null);
+    if (converted) setToast('Storage full: received 2 credits.');
+    audio.click();
+    requestAnimationFrame(() => document.querySelector<HTMLElement>(converted ? '.next-commission .button' : '.bench-part[aria-pressed="true"]')?.focus());
+  }
+
+  function closeReward(): void {
+    setTab('shop');
+    setModal(null);
+    requestAnimationFrame(() => document.querySelector<HTMLElement>('.reward-reopen')?.focus());
+  }
+
+  function chooseTuning(partId: string): void {
+    const current = latest.current.save.run;
+    const tuned = claimTuning(current, partId);
+    if (tuned === current) return;
+    trade(() => tuned);
+    learn('claim');
+    setSelectedId(partId);
+    setTab('bench');
+    setModal(null);
+    audio.success();
+    const slot = Object.keys(tuned.board).find((slotId) => tuned.board[slotId].id === partId);
+    requestAnimationFrame(() => document.querySelector<HTMLElement>(slot ? `[data-slot="${slot}"]` : '.bench-part[aria-pressed="true"]')?.focus());
+  }
+
+  function chooseCredits(): void {
+    trade(claimCredits);
+    learn('claim');
+    setSelectedId(null);
+    setModal(null);
+    requestAnimationFrame(() => document.querySelector<HTMLElement>('.next-commission .button')?.focus());
+  }
+
   function advance(): void {
-    if (!run.rewardClaimed) { setToast('Choose your complimentary part first.'); return; }
+    if (!run.rewardClaimed) { setModal('reward'); return; }
     changeRun(nextCommission);
     learn('continue');
     setTab('bench');
@@ -400,7 +452,8 @@ function Game({ initial, initialMessage }: { initial: SaveData; initialMessage: 
     setFuture([]);
     setSelectedId(null);
     setLivePayout(0);
-    setModal(null);
+    setTab(restored.run.phase === 'shop' ? 'shop' : 'bench');
+    setModal(restored.run.phase === 'shop' && !restored.run.rewardClaimed ? 'reward' : null);
     setToast('Machine restored.');
   }
 
@@ -408,16 +461,19 @@ function Game({ initial, initialMessage }: { initial: SaveData; initialMessage: 
   const score = run.score + livePayout;
   const progress = Math.min(100, score / definition.target * 100);
   const overshoot = score >= definition.target;
-  const reward = commissionReward(run);
+  const reward = commissionReward(run, definition);
   const inventoryFull = run.bench.length + Object.keys(run.board).length >= MAX_OWNED_PARTS;
   const installedParts = Object.keys(run.board).length;
+  const fusionDonor = selectedPeg && !selectedPeg.tuned ? run.bench.find((part) => part.id !== selectedPeg.id && part.kind === selectedPeg.kind && !part.tuned) : undefined;
+  const nextExpansion = run.mode === 'endless' && definition.capacity < 18 ? 12 + (definition.capacity - 13) * 3 : null;
   const canRestart = canRestartCommission(run);
   const tutorialStep = currentTutorialStep(save.profile, run);
   const displayFullscreen = window.pocketDesktop ? settings.fullscreen : browserFullscreen;
   const gamepad = useGamepadNavigation({
     onMenu: () => setModal('menu'),
     onBack: () => {
-      if (modal) setModal(null);
+      if (modal === 'reward') closeReward();
+      else if (modal) setModal(null);
       else if (selectedId) setSelectedId(null);
       else setModal('menu');
     },
@@ -449,13 +505,12 @@ function Game({ initial, initialMessage }: { initial: SaveData; initialMessage: 
       </nav>
     </header>
 
-    <QuickGuide step={tutorialStep} run={run} selected={Boolean(selectedPeg)} onSkip={() => learn('skip')} onLocate={locateGuide} />
+    <QuickGuide step={tutorialStep} run={run} definition={definition} selected={Boolean(selectedPeg)} onSkip={() => learn('skip')} onLocate={locateGuide} />
 
     <main className="workspace">
       <aside className="commission-panel" aria-label="Commission">
         <div className="eyebrow"><span>COMMISSION</span><span>{String(run.stage + 1).padStart(2, '0')} <span className="muted">/ {run.stage > 11 ? '--' : '12'}</span></span></div>
         <h1>{definition.title}</h1>
-        <p className="commission-subtitle">{definition.subtitle}</p>
         <div className={`score-panel ${overshoot ? 'cleared' : ''}`} tabIndex={-1}>
           <div className="label">{run.phase === 'dropping' ? 'POINTS THIS COMMISSION' : overshoot ? 'TARGET CLEARED' : 'COMMISSION POINTS'}{overshoot && <Check size={15} />}</div>
           <Counter value={score} reduced={settings.reducedMotion} className="score-value" />
@@ -466,20 +521,13 @@ function Game({ initial, initialMessage }: { initial: SaveData; initialMessage: 
         <div className="commission-facts">
           <div><span><Ticket size={14} />Completion reward</span><strong>{definition.reward} credits</strong></div>
           <div><span><Plus size={14} />Excess bonus</span><strong>up to 3 credits</strong></div>
-          <div><span><FlaskConical size={14} />Installed parts</span><strong>{Object.keys(run.board).length} / {definition.capacity}</strong></div>
         </div>
         {run.assisted && <div className="quiet-badge"><ShieldCheck size={13} />RELAXED WORKSHOP</div>}
         {run.retries > 0 && <div className="quiet-badge"><Hammer size={13} />TUNE-UP +{Math.min(run.retries, 3) * 10}%</div>}
-        <section className="last-cascade" aria-label="Last cascade">
-          <div className="section-heading"><span>LAST CASCADE</span><span className="muted">{run.lastDrop ? `${run.lastDrop.maxChain} IN CHAIN` : 'READY'}</span></div>
-          <div className="last-value"><ArrowDown size={21} /><Counter value={run.lastDrop?.total ?? livePayout} reduced={settings.reducedMotion} /></div>
-          {run.lastDrop ? <div className="payout-breakdown">
-            <div><span>Collectors</span><strong>{formatNumber(run.lastDrop.total - run.lastDrop.banked)}</strong></div>
-            <div><span>Vault deposits</span><strong>{formatNumber(run.lastDrop.banked)}</strong></div>
-            <div><span>Tokens made</span><strong>{run.lastDrop.splits + 1}</strong></div>
-          </div> : <div className="idle-diagram" aria-hidden="true"><PartSymbol kind="mint" small /><ChevronRight size={13} /><PartSymbol kind="doubler" small /><ChevronRight size={13} /><PartSymbol kind="splitter" small /></div>}
-          <div className="event-feed" aria-live="off">{feed.slice(-4).map((event, index) => <div key={`${event.tick}-${event.tokenId}-${index}`} className={`feed-item event-${event.type}`}>{event.kind ? <PartSymbol kind={event.kind} small /> : <Coins size={15} />}<span>{event.kind ? PARTS[event.kind].name : 'Collector'}</span><strong>{event.label}</strong></div>)}</div>
-        </section>
+        {nextExpansion !== null && <p className="capacity-milestone" data-testid="capacity-milestone">After Hours {nextExpansion - 11}: {definition.capacity + 1} installed parts</p>}
+        {(run.lastDrop || run.phase === 'dropping') && <section className="last-cascade" aria-label="Last cascade">
+          {run.phase === 'dropping' ? <div className="event-feed" aria-live="off">{feed.slice(-4).map((event) => <div key={`${event.tick}-${event.tokenId}-${event.type}-${event.slotId ?? event.tray}`} className={`feed-item event-${event.type}`}>{event.kind ? <PartSymbol kind={event.kind} small /> : <Coins size={15} />}<span>{event.kind ? PARTS[event.kind].name : 'Collector'}</span><strong>{event.label}</strong></div>)}</div> : run.lastDrop && <CascadeReceipt result={run.lastDrop} />}
+        </section>}
         <button className="text-button rules-button" onClick={() => setModal('rules')}><CircleHelp size={15} />The machine manual<ArrowRight size={14} /></button>
       </aside>
 
@@ -494,9 +542,9 @@ function Game({ initial, initialMessage }: { initial: SaveData; initialMessage: 
           </div>
         </div>
         <div className="machine-frame">
-          <Board run={run} selectedPegId={selectedId} onSlot={handleSlot} onLane={(lane) => changeRun((current) => setLane(current, lane))}
+          <Board run={run} maxInstalled={definition.capacity} selectedPegId={selectedId} onSlot={handleSlot} onLane={(lane) => changeRun((current) => setLane(current, lane))}
             onDropComplete={finishDrop} onEvent={handleEvent} onImpact={(impact) => audio.impact(impact)} paused={paused || Boolean(modal)} speed={settings.speed} reducedMotion={settings.reducedMotion} trails={settings.trails} />
-          {paused && !modal && <div className="pause-overlay"><Pause size={30} /><strong>Taking a breath</strong><button className="button primary" onClick={() => setPaused(false)}><Play size={17} />Resume</button></div>}
+          {paused && !modal && <div className="pause-overlay"><Pause size={30} /><strong>Paused</strong><button className="button primary" onClick={() => setPaused(false)}><Play size={17} />Resume</button></div>}
         </div>
         <div className="launch-console">
           <div className="token-reserve" aria-label={`${run.dropsLeft} launches remaining`}><span className="label">LAUNCHES</span><div>{Array.from({ length: 5 }, (_, index) => <span key={index} className={`reserve-token ${index < run.dropsLeft ? 'available' : ''}`} />)}</div></div>
@@ -508,51 +556,57 @@ function Game({ initial, initialMessage }: { initial: SaveData; initialMessage: 
       </section>
 
       <aside className="worktable-panel" aria-label="Worktable">
-        <div className="worktable-header"><h2>{run.phase === 'review' ? 'A job well done' : run.phase === 'won' ? 'Made of little things' : run.phase === 'lost' ? 'Back to the worktable' : 'The worktable'}</h2></div>
+        <div className="worktable-header"><h2>{run.phase === 'review' ? 'Commission reward' : run.phase === 'won' ? 'Run complete' : 'Worktable'}</h2></div>
         <CreditWallet credits={run.brass} reducedMotion={settings.reducedMotion} />
-        {(canEdit || run.phase === 'dropping') && <PartInventory run={run} selectedId={selectedId} editable={canEdit} onSelect={(id) => { setSelectedId(selectedId === id ? null : id); audio.click(); }} />}
+        {(canEdit || run.phase === 'dropping') && <PartInventory run={run} capacity={definition.capacity} nextCapacity={commissionFor({ ...run, stage: run.stage + 1 }).capacity} selectedId={selectedId} editable={canEdit} onSelect={(id) => { setSelectedId(selectedId === id ? null : id); audio.click(); }} />}
         {run.phase === 'review' ? <div className="result-panel">
-          <div className="result-stamp"><CheckCircle2 size={42} strokeWidth={1.2} /></div><div className="eyebrow">COMMISSION COMPLETE</div><h3>Beautifully<br />overachieved.</h3>
+          <h3>Target reached</h3>
           <p>{formatNumber(run.score)} points from {5 - run.dropsLeft} {5 - run.dropsLeft === 1 ? 'launch' : 'launches'}.</p>
           <dl className="reward-ledger"><div><dt>Completion reward</dt><dd>+{reward.base}</dd></div><div><dt>Spare launches</dt><dd>+{reward.spare}</dd></div><div><dt>Excess payout</dt><dd>+{reward.overdrive}</dd></div><div className="ledger-total"><dt>Workshop credits earned</dt><dd>+{reward.total}</dd></div></dl>
           <button className="button primary full" aria-label={run.stage === 11 && run.mode !== 'endless' ? 'Complete the machine' : 'Visit the workshop'} onClick={collect}><Ticket size={17} />{run.stage === 11 && run.mode !== 'endless' ? 'Complete the machine' : `Collect ${reward.total} credits`}<ArrowRight size={18} /></button>
-          <span className="result-note">{run.stage === 11 ? 'This one is yours.' : 'A new part is waiting for you.'}</span>
+          {run.stage < 11 && <span className="result-note">Includes one part or tuning</span>}
         </div> : run.phase === 'won' ? <div className="result-panel victory">
-          <div className="victory-art" aria-hidden="true"><Crown size={58} strokeWidth={1.1} /><span /><span /><span /></div><div className="eyebrow">ALL TWELVE COMMISSIONS</div><h3>Look what<br />you made.</h3><p>A handful of parts. An extraordinary little machine.</p>
+          <div className="victory-art" aria-hidden="true"><Crown size={48} strokeWidth={1.4} /></div><h3>Workshop complete</h3><p>12 commissions completed</p>
           <dl className="reward-ledger"><div><dt>Total payout</dt><dd>{formatNumber(run.totalScore)}</dd></div><div><dt>Best cascade</dt><dd>{formatNumber(run.bestDrop)}</dd></div><div><dt>Launches</dt><dd>{run.totalDrops}</dd></div></dl>
-          <button className="button primary full" onClick={() => { changeRun(enterEndless); setTab('shop'); }}>Stay after hours<ArrowRight size={17} /></button>
+          <button className="button primary full" onClick={() => { changeRun(enterEndless); setTab('shop'); setModal('reward'); }}>Stay after hours<ArrowRight size={17} /></button>
           <button className="button subtle full" onClick={() => openNew('workshop')}><RotateCcw size={16} />A new machine</button>
         </div> : <>
-          {run.phase === 'lost' && <div className="retry-panel"><span className="eyebrow">A LITTLE MORE TINKERING</span><h3>Almost a good thing.</h3><p>{formatNumber(Math.max(0, definition.target - run.score))} points short. Your parts and credits stay yours.</p><button className="button primary full" onClick={() => { changeRun(retryCommission); setFeed([]); setHistory([]); setFuture([]); }}><RotateCcw size={16} />Retry commission</button><small>Complimentary tune-up: +10% base value, up to +30%.</small></div>}
-          {run.phase === 'shop' && <div className="worktable-tabs" role="tablist" aria-label="Workshop views"><button role="tab" aria-selected={tab === 'shop'} onClick={() => setTab('shop')}><Hammer size={14} />Parts counter</button><button role="tab" aria-selected={tab === 'bench'} onClick={() => setTab('bench')}><FlaskConical size={14} />Workbench{run.bench.length > 0 && <span>{run.bench.length}</span>}</button></div>}
+          {run.phase === 'lost' && <div className="retry-panel"><h3>{formatNumber(Math.max(0, definition.target - run.score))} points short</h3><p>Adjust the machine, then retry.</p><button className="button primary full" onClick={() => { changeRun(retryCommission); setFeed([]); setHistory([]); setFuture([]); }}><RotateCcw size={16} />Retry commission</button><small>Retry: +10% base value, up to +30%.</small></div>}
+          {run.phase === 'shop' && <div className="worktable-tabs" role="tablist" aria-label="Workshop views"><button role="tab" aria-selected={tab === 'shop'} onClick={() => setTab('shop')}><Hammer size={14} />Parts counter</button><button role="tab" aria-selected={tab === 'bench'} onClick={() => setTab('bench')}><Cog size={14} />Workbench{run.bench.length > 0 && <span>{run.bench.length}</span>}</button></div>}
           {run.phase === 'shop' && tab === 'shop' ? <div className="shop-panel">
             <div className="free-reward-section" aria-label="Free commission reward">
-              <div className="section-heading"><span><Gift size={14} />{run.rewardClaimed ? 'FREE PART CLAIMED' : 'CHOOSE ONE FREE PART'}</span><span>{run.rewardClaimed ? <Check size={14} /> : '0 CREDITS'}</span></div>
-              {run.rewardClaimed ? <div className="gift-claimed"><CheckCircle2 size={22} /><span>Gift collected<small>No credits spent.</small></span></div> : <div className="offer-list">{run.rewardChoices.map((kind) => <button className="part-offer free-offer" key={kind} aria-label={`Choose ${PARTS[kind].name}`} onClick={() => { const id = `part-${run.nextId}`; trade((current) => claimPart(current, kind)); learn('claim'); setSelectedId(inventoryFull ? null : id); if (inventoryFull) setToast('Parts storage is full. Your complimentary part became 2 credits.'); audio.click(); }}><PartSymbol kind={kind} /><span><strong>{PARTS[kind].name}</strong><small>{inventoryFull ? 'Storage full: receive 2 credits instead.' : PARTS[kind].description}</small></span><span className="offer-price">FREE</span></button>)}</div>}
+              {run.rewardClaimed ? <div className="gift-claimed"><CheckCircle2 size={17} /><span>Gift collected</span></div> : <button className="button subtle full reward-reopen" onClick={() => setModal('reward')}><Gift size={17} />Choose free part</button>}
             </div>
             <div className="paid-offers" aria-label="Paid upgrades">
               <div className="section-heading shop-heading"><span>SPEND WORKSHOP CREDITS</span><button className="text-button" disabled={run.brass < 2 || run.rerolls >= 2} onClick={() => trade(rerollShop)} aria-label="Refresh shop for 2 credits" title="Refresh offers for 2 credits, at most twice"><Shuffle size={14} /><Ticket size={12} />2</button></div>
               <div className="offer-list">{run.offers.map((offer) => <button className="part-offer" key={offer.id} disabled={offer.sold || run.brass < offer.price || inventoryFull} aria-label={`Buy ${PARTS[offer.kind].name} for ${offer.price} credits`} onClick={() => { const id = `part-${run.nextId}`; trade((current) => buyPart(current, offer.id)); learn('purchase'); setSelectedId(id); audio.click(); }}><PartSymbol kind={offer.kind} small /><span><strong>{PARTS[offer.kind].name}</strong><small>{PARTS[offer.kind].family}</small></span><span className="offer-price">{offer.sold ? 'SOLD' : <><Ticket size={12} />{offer.price}<small>credits</small></>}</span></button>)}</div>
-              <button className="power-upgrade" disabled={run.power >= POWER_VALUES.length - 1 || run.brass < powerPrice(run.power)} onClick={() => { trade(upgradePower); learn('purchase'); audio.success(); }} aria-label="Upgrade token value"><span className="power-icon"><Coins size={24} /></span><span><strong>Heavier pockets</strong><small>{POWER_VALUES[run.power]} <ArrowRight size={12} /> {POWER_VALUES[Math.min(run.power + 1, 8)]} base value</small><small>All tokens. No part to place.</small></span><span>{run.power >= 8 ? 'MAX' : <><Ticket size={12} />{powerPrice(run.power)}<small>credits</small></>}</span></button>
-              <p className="shop-optional">Purchases are optional. Unspent credits carry forward.</p>
+              <button className="power-upgrade" disabled={run.power >= POWER_VALUES.length - 1 || run.brass < powerPrice(run.power)} onClick={() => { trade(upgradePower); learn('purchase'); audio.success(); }} aria-label="Upgrade token value"><span className="power-icon"><Coins size={24} /></span><span><strong>Token value</strong><small>{POWER_VALUES[run.power]} <ArrowRight size={12} /> {POWER_VALUES[Math.min(run.power + 1, 8)]} base value</small><small>All tokens. No part to place.</small></span><span>{run.power >= 8 ? 'MAX' : <><Ticket size={12} />{powerPrice(run.power)}<small>credits</small></>}</span></button>
+              <button className="button subtle full" disabled={!tuningTargets(run).length} onClick={() => { setTab('bench'); setSelectedId(tuningTargets(run)[0]?.id ?? null); }}><Hammer size={16} />Tune a part</button>
             </div>
-            {selectedPeg && <div className="selected-inline"><PartSymbol kind={selectedPeg.kind} small /><span>{PARTS[selectedPeg.kind].name} ready to place</span><IconButton icon={X} label="Deselect part" onClick={() => setSelectedId(null)} /></div>}
+            {selectedPeg && <div className="selected-inline"><PartSymbol kind={selectedPeg.kind} tuned={selectedPeg.tuned} small /><span>{partName(selectedPeg)} ready to place</span><IconButton icon={X} label="Deselect part" onClick={() => setSelectedId(null)} /></div>}
           </div> : <div className="bench-panel">
-            {selectedPeg ? <div className="part-inspector"><div className="inspector-heading"><PartSymbol kind={selectedPeg.kind} /><div><span className="eyebrow">{PARTS[selectedPeg.kind].family}</span><h3>{PARTS[selectedPeg.kind].name}</h3></div><IconButton icon={X} label="Deselect part" onClick={() => setSelectedId(null)} /></div><p>{PARTS[selectedPeg.kind].description}</p><small>{PARTS[selectedPeg.kind].detail}</small><div className="inspector-actions">{(selectedPeg.kind === 'kicker' || selectedPeg.kind === 'splitter') && <button className="button subtle" onClick={() => editBoard((current) => rotatePeg(current, selectedPeg.id))}><RotateCw size={15} />{selectedPeg.direction === 1 ? 'Right' : 'Left'}</button>}{selectedSlot ? <button className="button subtle" onClick={() => { editBoard((current) => removePeg(current, selectedSlot)); setSelectedId(null); }}><ArrowLeft size={15} />To worktable</button> : <button className="button subtle" aria-label="Salvage part for 1 credit" title="Permanently recycle this spare part for 1 Workshop credit" onClick={() => { trade((current) => salvagePeg(current, selectedPeg.id)); setSelectedId(null); audio.click(); }}><Recycle size={15} />1 credit</button>}</div></div> : <div className="machine-summary"><div className="blueprint-mark" aria-hidden="true"><FlaskConical size={52} strokeWidth={0.9} /></div><span className="eyebrow">YOUR LITTLE MACHINE</span><div><strong>{Object.keys(run.board).length}</strong><span>parts working together</span></div><div><strong>{baseValue(run)}</strong><span>starting token value</span></div><div><strong>{formatNumber(run.bestDrop)}</strong><span>personal best cascade</span></div></div>}
+            {selectedPeg ? <div className="part-inspector"><div className="inspector-heading"><PartSymbol kind={selectedPeg.kind} direction={selectedPeg.direction} tuned={selectedPeg.tuned} /><div><span className="eyebrow">{PARTS[selectedPeg.kind].family}</span><h3>{partName(selectedPeg)}</h3></div><IconButton icon={X} label="Deselect part" onClick={() => setSelectedId(null)} /></div><p>{PARTS[selectedPeg.kind].description}</p><small>{PARTS[selectedPeg.kind].detail}</small><div className="inspector-actions">{(selectedPeg.kind === 'kicker' || selectedPeg.kind === 'splitter') && <button className="button subtle" onClick={() => editBoard((current) => rotatePeg(current, selectedPeg.id))}><RotateCw size={15} />{selectedPeg.direction === 1 ? 'Right' : 'Left'}</button>}{selectedSlot ? <button className="button subtle" onClick={() => { editBoard((current) => removePeg(current, selectedSlot)); setSelectedId(null); }}><ArrowLeft size={15} />To worktable</button> : <button className="button subtle" aria-label="Salvage part for 1 credit" title="Recycle this spare part for 1 Workshop credit" onClick={() => { trade((current) => salvagePeg(current, selectedPeg.id)); setSelectedId(null); audio.click(); }}><Recycle size={15} />1 credit</button>}</div>
+              <div className="part-tuning"><strong><Hammer size={14} />{selectedPeg.tuned ? 'Tuned: ' : ''}{TUNINGS[selectedPeg.kind].name}</strong><small>{TUNINGS[selectedPeg.kind].description}</small>{!selectedPeg.tuned && <div className="tuning-actions">
+                {run.phase === 'shop' && <button className="button subtle" disabled={run.brass < tuningPrice(selectedPeg.kind)} aria-label={`Tune ${PARTS[selectedPeg.kind].name} for ${tuningPrice(selectedPeg.kind)} credits`} onClick={() => { trade((current) => tunePeg(current, selectedPeg.id)); learn('purchase'); audio.success(); }}><Hammer size={14} />Tune<Ticket size={12} />{tuningPrice(selectedPeg.kind)}</button>}
+                <button className="button subtle" disabled={!canEdit || !fusionDonor} aria-label={`Fuse spare ${PARTS[selectedPeg.kind].name}`} title={`Consume one untuned spare ${PARTS[selectedPeg.kind].name} to tune this copy`} onClick={() => { if (fusionDonor) { trade((current) => fusePeg(current, selectedPeg.id, fusionDonor.id)); audio.success(); } }}><Combine size={15} />Fuse 1 spare {PARTS[selectedPeg.kind].name}</button>
+              </div>}</div>
+            </div> : run.bestDrop > 0 && <div className="machine-record"><span>Best cascade</span><strong>{formatNumber(run.bestDrop)}</strong></div>}
             <div className="edit-toolbar"><span className="muted">{selectedPeg ? 'Choose a socket' : 'WORKBENCH'}</span><IconButton icon={Undo2} label="Undo placement" disabled={!canEdit || history.length === 0} onClick={undo} /><IconButton icon={Redo2} label="Redo placement" disabled={!canEdit || future.length === 0} onClick={redo} /></div>
           </div>}
-          {run.phase === 'shop' && <div className="next-commission"><button className="button primary full" disabled={!run.rewardClaimed} onClick={advance}>Next commission<ArrowRight size={17} /></button><span>{run.rewardClaimed ? `${COMMISSION_LABEL(run.stage + 1)} / ${formatNumber(commission({ ...run, stage: run.stage + 1 }).target)} points` : 'A complimentary part is still waiting.'}</span></div>}
+          {run.phase === 'shop' && <div className="next-commission"><button className="button primary full" disabled={!run.rewardClaimed} onClick={advance}>Next commission<ArrowRight size={17} /></button><span>{run.rewardClaimed ? `${COMMISSION_LABEL(run.stage + 1)} / ${formatNumber(commissionFor({ ...run, stage: run.stage + 1 }).target)} points` : 'A complimentary part is still waiting.'}</span></div>}
         </>}
       </aside>
     </main>
 
-    <footer className="game-footer"><span><ShieldCheck size={13} />{saveError ? 'SAVE NEEDS ATTENTION' : saved ? 'MACHINE SAVED' : 'SAVING'}{steam && ' / STEAM CONNECTED'}</span><span className="seed-label">SEED {run.seed}{run.mode === 'daily' ? ` / ${run.date} UTC` : ''}</span><span><strong data-testid="total-drops">{run.totalDrops}</strong> LAUNCHES</span><span aria-label="Controller status" title={gamepad.name ?? gamepad.label}><Gamepad2 size={13} />{gamepad.label}</span><button className="text-button" onClick={() => setModal('credits')}>MADE FOR THE LITTLE MOMENTS <span>v1.0</span></button></footer>
+    <footer className="game-footer"><span><ShieldCheck size={13} />{saveError ? 'SAVE NEEDS ATTENTION' : saved ? 'MACHINE SAVED' : 'SAVING'}{steam && ' / STEAM CONNECTED'}</span><span className="seed-label">SEED {run.seed}{run.mode === 'daily' ? ` / ${run.date} UTC` : ''}</span><span><strong data-testid="total-drops">{run.totalDrops}</strong> LAUNCHES</span><span aria-label="Controller status" title={gamepad.name ?? gamepad.label}><Gamepad2 size={13} />{gamepad.label}</span><button className="text-button" onClick={() => setModal('credits')}>About <span>v1.0</span></button></footer>
     {saveError && <div className="save-warning" role="alert">{saveError}<button className="text-button" onClick={exportSave}><Download size={15} />Export backup</button></div>}
     {toast && <div className="toast" role="status"><Sparkles size={17} /><span>{toast}</span><IconButton icon={X} label="Dismiss notification" onClick={() => setToast(null)} /></div>}
 
-    {modal === 'menu' && <Dialog title="A moment in the workshop" onClose={() => setModal(null)}><div className="menu-brand"><Coins size={38} strokeWidth={1.2} /><h3>POCKET CASCADE</h3></div><button className="button primary full" onClick={() => { setModal(null); setPaused(false); }}><Play size={17} />Back to the machine</button><div className="menu-actions"><button disabled={!canRestart} onClick={restartLevel}><RotateCcw size={18} />Restart level<ChevronRight size={16} /></button><button onClick={() => openNew('workshop')}><Plus size={18} />New workshop<ChevronRight size={16} /></button><button onClick={() => openNew('daily')}><Award size={18} />Daily machine<span>{new Date().toISOString().slice(5, 10)}</span></button><button onClick={() => setModal('settings')}><Settings2 size={18} />Settings<ChevronRight size={16} /></button><button onClick={() => setModal('rules')}><BookOpen size={18} />Machine manual<ChevronRight size={16} /></button>{window.pocketDesktop && <button onClick={() => { void persistGame(save).then((error) => { if (error) setToast(error); else window.pocketDesktop?.quit(); }); }}><X size={18} />Save and quit</button>}</div><div className="menu-record"><span>Best cascade</span><strong>{formatNumber(save.profile.bestDrop)}</strong></div></Dialog>}
+    {modal === 'reward' && run.phase === 'shop' && !run.rewardClaimed && <RewardDialog run={run} onChoose={chooseGift} onTune={chooseTuning} onCredits={chooseCredits} onClose={closeReward} />}
 
-    {modal === 'settings' && <Dialog title="Make yourself comfortable" onClose={() => setModal(null)}>
+    {modal === 'menu' && <Dialog title="Workshop menu" onClose={() => setModal(null)}><div className="menu-brand"><Cog size={32} strokeWidth={1.5} /><h3>POCKET CASCADE</h3></div><button className="button primary full" onClick={() => { setModal(null); setPaused(false); }}><Play size={17} />Back to the machine</button><div className="menu-actions"><button disabled={!canRestart} onClick={restartLevel}><RotateCcw size={18} />Restart level<ChevronRight size={16} /></button><button onClick={() => openNew('workshop')}><Plus size={18} />New workshop<ChevronRight size={16} /></button><button onClick={() => openNew('daily')}><Award size={18} />Daily machine<span>{new Date().toISOString().slice(5, 10)}</span></button><button onClick={() => setModal('settings')}><Settings2 size={18} />Settings<ChevronRight size={16} /></button><button onClick={() => setModal('rules')}><BookOpen size={18} />Machine manual<ChevronRight size={16} /></button>{window.pocketDesktop && <button onClick={() => { void persistGame(save).then((error) => { if (error) setToast(error); else window.pocketDesktop?.quit(); }); }}><X size={18} />Save and quit</button>}</div><div className="menu-record"><span>Best cascade</span><strong>{formatNumber(save.profile.bestDrop)}</strong></div></Dialog>}
+
+    {modal === 'settings' && <Dialog title="Settings" onClose={() => setModal(null)}>
       <div className="settings-group"><h3>Sound</h3>
         <label className="slider-row"><span>Master volume<strong>{Math.round(settings.volume * 100)}%</strong></span><input aria-label="Master volume" type="range" min="0" max="1" step="0.01" value={settings.volume} onChange={(event) => changeSettings({ volume: Number(event.target.value) })} /></label>
         <label className="slider-row"><span>Workshop music<strong>{Math.round(settings.musicVolume * 100)}%</strong></span><input aria-label="Workshop music" type="range" min="0" max="1" step="0.01" value={settings.musicVolume} onChange={(event) => changeSettings({ musicVolume: Number(event.target.value) })} /></label>
@@ -581,15 +635,15 @@ function Game({ initial, initialMessage }: { initial: SaveData; initialMessage: 
       <button className="button subtle full accessibility-link" onClick={() => setModal('settings')}><ArrowLeft size={16} />Back to settings</button>
     </Dialog>}
 
-    {modal === 'collection' && <Dialog title="The parts catalogue" wide onClose={() => setModal(null)}><p className="dialog-intro">{save.profile.discovered.length} of 8 parts discovered</p><div className="catalogue-grid">{PART_KINDS.map((kind) => { const part = PARTS[kind]; const unlocked = save.profile.discovered.includes(kind); return <article className={`catalogue-part ${unlocked ? '' : 'undiscovered'}`} key={kind}><div><PartSymbol kind={kind} /><span className="eyebrow">{part.family}</span>{unlocked && <Check size={15} />}</div><h3>{part.name}</h3><p>{part.description}</p><small>{part.detail}</small><span className="catalogue-unlock">{unlocked ? 'DISCOVERED' : `COMMISSION ${part.unlock + 1}`}</span></article>; })}</div></Dialog>}
+    {modal === 'collection' && <Dialog title="The parts catalogue" wide onClose={() => setModal(null)}><p className="dialog-intro">{save.profile.discovered.length} of {PART_KINDS.length} parts discovered</p><div className="catalogue-grid">{PART_KINDS.map((kind) => { const part = PARTS[kind]; const unlocked = save.profile.discovered.includes(kind); return <article className={`catalogue-part ${unlocked ? '' : 'undiscovered'}`} key={kind}><div><PartSymbol kind={kind} /><span className="eyebrow">{part.family}</span>{unlocked && <Check size={15} />}</div><h3>{part.name}</h3><p>{part.description}</p><small>{part.detail}</small><small><strong>{TUNINGS[kind].name}:</strong> {TUNINGS[kind].description}</small><span className="catalogue-unlock">{unlocked ? 'DISCOVERED' : `COMMISSION ${part.unlock + 1}`}</span></article>; })}</div></Dialog>}
 
-    {modal === 'achievements' && <Dialog title="Little accomplishments" wide onClose={() => setModal(null)}><div className="achievement-overview"><Trophy size={32} /><div><strong>{save.profile.achievements.length} / {ACHIEVEMENTS.length}</strong><span>collected along the way</span></div><div><strong>{formatNumber(save.profile.lifetimeScore)}</strong><span>lifetime points</span></div></div><div className="achievement-list">{ACHIEVEMENTS.map((achievement) => { const unlocked = save.profile.achievements.includes(achievement.id); return <div key={achievement.id} className={`achievement ${unlocked ? 'unlocked' : ''}`}><span className="achievement-icon">{unlocked ? <Award size={22} /> : <Trophy size={20} />}</span><div><strong>{achievement.name}</strong><span>{achievement.description}</span></div>{unlocked && <Check size={16} />}</div>; })}</div></Dialog>}
+    {modal === 'achievements' && <Dialog title="Achievements" wide onClose={() => setModal(null)}><div className="achievement-overview"><Trophy size={32} /><div><strong>{save.profile.achievements.length} / {ACHIEVEMENTS.length}</strong><span>unlocked</span></div><div><strong>{formatNumber(save.profile.lifetimeScore)}</strong><span>lifetime points</span></div></div><div className="achievement-list">{ACHIEVEMENTS.map((achievement) => { const unlocked = save.profile.achievements.includes(achievement.id); return <div key={achievement.id} className={`achievement ${unlocked ? 'unlocked' : ''}`}><span className="achievement-icon">{unlocked ? <Award size={22} /> : <Trophy size={20} />}</span><div><strong>{achievement.name}</strong><span>{achievement.description}</span></div>{unlocked && <Check size={16} />}</div>; })}</div></Dialog>}
 
-    {modal === 'new' && <Dialog title={newMode === 'daily' ? 'Today\'s little machine' : 'A fresh worktable'} onClose={() => setModal('menu')}><p className="dialog-intro">Your collection and achievements stay. This replaces the current machine.</p>{newMode === 'daily' ? <div className="daily-card"><Award size={34} /><strong>{new Date().toISOString().slice(0, 10)}</strong><span>Same starting conditions and parts counter for everyone. No online leaderboard or account required.</span>{save.profile.dailyCompleted.includes(new Date().toISOString().slice(0, 10)) && <span className="success-text"><Check size={15} />Already completed today</span>}</div> : <><label className="text-field">Machine seed <span className="muted">optional</span><input value={newSeed} onChange={(event) => setNewSeed(event.target.value)} maxLength={64} placeholder="A word, a number, a little idea" /></label><Toggle label="Relaxed targets (-35%)" value={assisted} onChange={setAssisted} /></>}<div className="button-row confirmation-actions"><button className="button subtle" onClick={() => setModal('menu')}>Keep this machine</button><button className="button primary" onClick={startNew}>Start fresh<ArrowRight size={16} /></button></div></Dialog>}
+    {modal === 'new' && <Dialog title={newMode === 'daily' ? 'Daily machine' : 'New workshop'} onClose={() => setModal('menu')}><p className="dialog-intro">Replace this machine? Your collection and achievements stay.</p>{newMode === 'daily' ? <div className="daily-card"><Award size={34} /><strong>{new Date().toISOString().slice(0, 10)}</strong><span>Shared daily seed. No leaderboard.</span>{save.profile.dailyCompleted.includes(new Date().toISOString().slice(0, 10)) && <span className="success-text"><Check size={15} />Already completed today</span>}</div> : <><label className="text-field">Machine seed <span className="muted">optional</span><input value={newSeed} onChange={(event) => setNewSeed(event.target.value)} maxLength={64} placeholder="Word or number" /></label><Toggle label="Relaxed targets (-35%)" value={assisted} onChange={setAssisted} /></>}<div className="button-row confirmation-actions"><button className="button subtle" onClick={() => setModal('menu')}>Keep this machine</button><button className="button primary" onClick={startNew}>Start fresh<ArrowRight size={16} /></button></div></Dialog>}
 
-    {modal === 'rules' && <Dialog title="The machine manual" wide onClose={() => setModal(null)}><div className="manual-layout"><section><span className="manual-number">01</span><h3>Build a chain reaction</h3><p>Choose a spare part, then a socket on the machine. Installed parts can be moved, swapped, or returned to the worktable for free between launches.</p><p>Mint adds value. Doubler multiplies what is already there. Fork makes a second token. Order matters.</p></section><section><span className="manual-number">02</span><h3>Make the target. Then some.</h3><p>Five launches per commission. Every tray and Vault deposit earns points toward the target. The middle collector pays double. Points complete commissions; they are not spendable currency.</p><p>Each lane repeats its route throughout the run. A token can trigger each part once. Forks inherit the route history and split up to two generations.</p></section><section><span className="manual-number">03</span><h3>Earn Workshop credits</h3><p>Collect a completed commission to earn credits and choose one free part. Excess points and unused launches earn bonus credits. Paid stock and token-value upgrades spend credits; unspent credits carry forward. Surplus spares can be salvaged for one credit.</p><p>Miss the target? Keep your build and credits, rewire, and retry with a small base-value tune-up. Relaxed targets are available outside daily machines. Complete all twelve commissions to unlock After Hours.</p></section><section><span className="manual-number">04</span><h3>At your own pace</h3><p>Pause whenever you like. Playback speed changes animation time, never the result. The dotted trail is the last token route. The quick guide is available from Settings.</p><p>Progress saves automatically. Interrupted launches are refunded. All currency stays inside the game. There are no purchases, bets, or payouts involving real money.</p></section></div></Dialog>}
+    {modal === 'rules' && <Dialog title="The machine manual" wide onClose={() => setModal(null)}><div className="manual-layout"><section><span className="manual-number">01</span><h3>Generate, then amplify</h3><p>Mint, Relay, and Kicker generate charge. The three marks beside each token show its charge. Doubler spends one; Crown spends two. Place generators between amplifiers. Echo repeats an effect once, not another Echo.</p><p>Move, swap, rotate, and return parts for free between launches. Each token hits each installed part once. Fork shares charge and reserves across up to four tokens.</p></section><section><span className="manual-number">02</span><h3>Bank and reconnect</h3><p>Vault turns spare charge into extra banked points. Dividend turns a token's unused deposit reserve into value; earned banked points remain. Junction rewards two branches reaching the same socket.</p><p>Five launches per commission. Collectors pay x1, x2, x1. All deposits and collector points count; excess is success. Identical launch conditions repeat throughout the run.</p></section><section><span className="manual-number">03</span><h3>Parts and tuning</h3><p>Each commission offers one new part, a tuning for an owned offered kind, or two credits. A tuning changes a part's behavior once. Fuse a matching untuned spare in the inspector, or pay credits at the shop. Fusion consumes the spare; the target keeps its socket and direction.</p><p>Credits also buy stock and token power. After Hours opens an extra installation space on entry and every three completed commissions, up to 18 parts. Tuning remains useful when space is full.</p></section><section><span className="manual-number">04</span><h3>Retry and resume</h3><p>Miss a target? Keep parts and credits, adjust, and retry with +10% base value up to +30%. Restart resets an attempt without adding a bonus. Playback speed never changes physics or scoring.</p><p>Progress saves automatically. Interrupted launches are refunded. There are no purchases, bets, or payouts involving real money.</p></section></div></Dialog>}
 
-    {modal === 'credits' && <Dialog title="Pocket Cascade" onClose={() => setModal(null)}><div className="credits-art"><Coins size={56} strokeWidth={1.1} /></div><p className="credits-line">A little machine.<br /><strong>An extraordinary chain reaction.</strong></p><div className="credits-list"><div><span>Game, artwork & sound</span><strong>Pocket Cascade</strong></div><div><span>Physics</span><strong>Matter.js</strong></div><div><span>Interface icons</span><strong>Lucide</strong></div><div><span>Type</span><strong>Barlow Condensed / DM Sans</strong></div><div><span>Edition</span><strong>1.0.0 / Offline workshop</strong></div></div><p className="fine-print">Original procedural artwork and synthesized music. No analytics, accounts, or network connection required. Made for the little moments between bigger things.</p></Dialog>}
+    {modal === 'credits' && <Dialog title="Pocket Cascade" onClose={() => setModal(null)}><div className="credits-list"><div><span>Game, artwork & sound</span><strong>Pocket Cascade</strong></div><div><span>Physics</span><strong>Matter.js</strong></div><div><span>Interface icons</span><strong>Lucide</strong></div><div><span>Type</span><strong>Barlow Condensed / DM Sans</strong></div><div><span>Version</span><strong>1.0.0</strong></div></div><p className="fine-print">Original procedural artwork and synthesized music. Offline play; no analytics or accounts.</p></Dialog>}
   </div>;
 }
 

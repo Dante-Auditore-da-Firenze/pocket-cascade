@@ -7,10 +7,11 @@ export interface PartStack {
   parts: Peg[];
 }
 
-export function partStackKey(peg: Pick<Peg, 'kind' | 'direction'>): string {
-  return peg.kind === 'splitter' || peg.kind === 'kicker'
+export function partStackKey(peg: Pick<Peg, 'kind' | 'direction' | 'tuned'>): string {
+  const key = peg.kind === 'splitter' || peg.kind === 'kicker'
     ? `${peg.kind}:${peg.direction === 1 ? 'right' : 'left'}`
     : peg.kind;
+  return peg.tuned ? `${key}:tuned` : key;
 }
 
 export function groupSpareParts(parts: readonly Peg[]): PartStack[] {

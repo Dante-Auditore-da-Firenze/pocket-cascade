@@ -51,7 +51,7 @@ describe('isolated later-gift variety experiment', () => {
 
   it('counts installed and spare copies equally and never removes duplicate choices altogether', () => {
     let duplicateOffers = 0;
-    for (let seed = 0; seed < 128; seed += 1) {
+    for (let seed = 0; seed < 512; seed += 1) {
       const run = completed(seed);
       const installed = run.board['2-3'];
       const moved: RunState = { ...run, board: { ...run.board }, bench: [...run.bench, installed] };

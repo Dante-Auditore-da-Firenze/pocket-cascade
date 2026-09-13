@@ -1,5 +1,172 @@
 # Candidate Verification
 
+## Combined Role Redesign - 2026-09-12
+
+H040 implements the authorized combined pass as normal saved gameplay: bounded
+token charge, ten interdependent parts, one behavior-changing tuning per part,
+new/free/paid tuning and duplicate fusion, revised progression, and After Hours
+capacity milestones. The old unsaved player trial is retired. The user explicitly
+confirms H039's lag is gone; its cache/feed fix remains in place.
+
+| Check | Actual Final Outcome |
+| --- | --- |
+| Production build | TypeScript/Vite passed. Nonfatal theme-script/dependency annotation warnings remain; the main bundle is about 504 kB and triggers Vite's default chunk-size warning. |
+| Full unit suite | **311 passed across 16 files.** Includes charge order/caps/sharing, ten base/tuned effects, reserve consumption, distinct Junction arrivals, safe accounting, fusion/ID conservation, earned tuning, and middle-campaign recovery. |
+| Focused reward UI | **10 passed** across desktop/mobile, including selected-copy tuning, paid tuning, fusion/undo safety, persistence, full inventory, and actual After Hours slot progression. |
+| Earned Dividend UI | **2 passed** at 1440px and 390px after arranging the actual earned Mint/Vault/Dividend sequence. Deposits remain scored and cash-out increases the token; no invented funds or parts. |
+| Full real-control campaign | Passed: twelve commissions plus four After Hours stages, needed changes during 4-9, paid/free tuning and fusion, exact simulated payouts, earned purchases, saved completion/reload, and capacity milestones. |
+| Final full browser run | **90 passed, one reload timeout out of 91** with one worker. The restart test passed its reset/ownership assertions, then reached the unchanged 45-second test budget waiting for page reload. |
+| Exact failed-case recheck | Passed unchanged in **3.6 seconds** in isolation. A preceding two-worker run had a different reward reload timeout. No timeout increase or weakened assertion was used; the complete runs are not labeled clean and the intermittent reload issue remains recorded. |
+| Final built Electron | **13 passed in 44.6 seconds**, including a new earned tuned-reward/native-relaunch test and exact post-relaunch drop. Security, CSP/isolation, native save/export, and ordinary lifecycle checks remain intact. |
+| Balance measurement | Two 12-run screens plus a final **48-run, eight-seed, six-policy report**: 72 attempts, not 72 independent seeds. No sampled timeouts or token-bound violations; policies and unsuccessful runs are retained. |
+| Report verification | All **48 end states validate as saves**. All **24 detached recovery audits** independently reproduce their before/after payouts and preserve owned IDs, credits, and power. Audits are not added to campaign win counts. |
+| Current artwork | Existing task generated **13 validated gameplay/capsule/library images and 20 achievement variants** from original art and a legally played campaign using current tuning/recovery actions. Desktop/mobile tuning, expansion, gameplay, and thumbnail captures inspected. |
+| Fresh player launch | Stopped the old 5173 server before implementation. Tests used 5174. Restarted Play on **http://127.0.0.1:5173/** after validation and opened a new normal browser machine: commission 1, zero drops/credits/power, save-ready true, launch enabled, no trial flag. No player token launched by the assistant. |
+
+The final report's campaign wins are passive stack **0/8**, recovery **8/8**,
+charge **8/8**, banking **7/8**, branching **4/8**, frozen after six **0/8**.
+Recovery play records fourteen needed installed changes during commissions 4-9
+across all eight seeds and clears all 48 sampled After Hours commissions.
+Banking/branch failures and bounded audit limitations are documented in
+[BALANCE.md](BALANCE.md#current-rules---2026-09-12). These planners know simulated
+outcomes; neither the tests nor win counts establish human enjoyment or universal
+accessibility. The design is implemented, but D09/D14 remain open for playtest
+quality and weak-case follow-up.
+
+Initial failures were addressed locally: two unused study imports, intentional
+old-rule snapshots, test selection versus move semantics, an earned Dividend
+fixture that benefited Relay instead of cashing out, and a hardcoded test origin
+that misclassified port 5174 as external traffic. Their corrections retained
+assertions of actual behavior. Remaining reload timeouts are disclosed above.
+
+The original 16-run reports, dependency lockfile, and native security/save
+implementation remain unchanged from the user's staged checkpoint. Gameplay
+rules intentionally changed under H040. No extra token population, larger
+physical board, background animation, Steam/Cloud redesign, stage/commit/push,
+or Windows package rebuild was performed. Existing executables still contain
+the older H026 game; use the running browser or the freshly built source Electron
+app for current rules. Older dated verification follows.
+
+## Hit-Feedback Performance - 2026-09-12
+
+H039 fixes a measured feedback bottleneck while leaving balance and scoring
+unchanged. The user's active unsaved trial was inspected without launching or
+reloading it; profiling uses an isolated copy of its seed-42, 11-part, four-token
+machine at base value 260, 1x speed, and 1301x1006 viewport.
+
+| Measurement | Before | After |
+| --- | ---: | ---: |
+| Small part-image PNG encodes during one drop | 316 | 1 |
+| Palette pixel reads during the same drop | 2,528 | 8 |
+| Frame interval p95, normal labels | 43.1 ms | 27.9 ms |
+| Median frame interval | 22.6 ms | 22.9 ms |
+| Exact payout | 85,375 | 85,375 |
+
+Disabling only canvas labels before the fix leaves p95 at 42.3 ms. This points
+to repeated event-feed artwork/palette work rather than the numbers themselves
+as a measured source of hitching. Stable feed keys and bounded document-scoped
+caches retain all number labels, effects, audio, and scoring. Cache signatures
+include the current color/font inputs and part direction; lighting, scoped
+color changes, and reduced-motion behavior are covered by focused checks.
+
+Timing is an instrumented headless observation, not a hardware FPS guarantee.
+The unchanged median means this does not establish a blanket frame-rate fix.
+D17 remains open for the user's perceived smoothness confirmation. Regression
+gates check bounded work counts and exact output, not a flaky absolute timing
+threshold.
+
+| Check | Actual Outcome |
+| --- | --- |
+| Focused browser slice | **15 passed**: performance/palette, workshop appearance, and board presentation. |
+| Production build and units | Build passed; **280 unit tests across 16 files passed**. Existing nonfatal build warnings remain. |
+| Full browser run | **87 passed, one timeout** among 88 cases. The 768x1024 smoke test exhausted its unchanged 45-second budget during launch; no application exception was reported. |
+| Exact failed-case rerun | The same tablet smoke test passed alone in **3.3 seconds**, with unchanged assertions/timeouts. Concurrent system load is plausible, not a proven cause; the earlier full run is not labeled clean. |
+| Built Electron | **12 native tests passed (50.9 seconds)** after the build, including actual play, artwork, saves/export, and native security boundaries. |
+| User state | Read-only post-fix inspection still showed the user's After Hours 4 machine at its shop. No assistant launch, reload, purchase, or board edit. |
+
+Local ignored measurements:
+- [Normal feedback before](../artifacts/performance/feedback-before/feedback-performance-profi-94427-without-changing-its-payout-chromium/feedback-normal.json).
+- [Canvas-label-disabled comparison before](../artifacts/performance/feedback-before/feedback-performance-profi-94427-without-changing-its-payout-chromium/feedback-without-canvas-labels.json).
+- [Normal feedback after](../artifacts/performance/feedback-after/feedback-performance-profi-94427-without-changing-its-payout-chromium/feedback-normal.json).
+- [Regression and profiling test](../tests/browser/feedback-performance.spec.ts).
+
+No new part, effect, target, capacity, reward rule, or balance simulation campaign
+was introduced. H039 records the user's playtest and discussion proposals in
+[BALANCE.md](BALANCE.md#first-structural-playtest---2026-09-12) and D18. Packages
+and store captures were not rebuilt; no stage, commit, or push was performed.
+
+## Structural Balance Trial - 2026-09-11
+
+H037 tests installation scarcity, fixed bonus destinations, compact checkpoints,
+and one calibrated target curve. The preferred **space-pressure** candidate is
+available only through the development browser's unsaved trial entry. Normal
+gameplay retains its rules; shared APIs now accept explicit trial definitions
+for consistent settlement/rewards/achievements, and simulation accepts optional
+bonus sockets for the separate diagnostic experiment.
+
+| Check | Final Outcome |
+| --- | --- |
+| Production build | TypeScript/Vite passed. The trial query is gated by development mode and excluded from normal/native entry. Existing theme-script and dependency annotation warnings remain nonfatal. |
+| Full unit suite | **280 passed across 16 files**, including 21 structural cases, actual ordinary optimized progression, custom-target accounting, fixed-route bonuses, ownership, cache, and default behavior. |
+| Full browser suite | **86 passed**, zero failed/flaky/skipped. The saved HTML report ZIP's report.json confirms total=expected=86 and ok=true after terminal output omitted its final lines. |
+| Trial real-control tests | Included in those 86: all twelve commissions and owned-part recovery at 1440px, plus the mobile early loop at 390px. Exact simulated results, displayed target/capacity, blocked over-capacity placement, legal purchases, After Hours target, and unchanged ordinary localStorage all pass. |
+| Final built Electron | **12 native tests passed in 41.9 seconds** after the build. Validates normal production play, renderer isolation/CSP, saves/export, fullscreen, earned duplicate gifts/purchases, and relaunch; the experimental trial is not enabled in native play. |
+| Structural comparisons | **154 campaign attempts** across screening/calibration/additional seeds and controls, plus **32 alternate-shopping attempts**, all using earned resources. The latter all complete the campaign and three continuations. No sampled timeouts or token-bound violations. |
+| Report validation | **70 protected opening comparisons** and **21 saved recovery pairs** independently rechecked. Ownership and credits/power are unchanged across each rescue; original reports are not overwritten. |
+| Visual/scope checks | Desktop before-recovery/victory and mobile trial screenshots inspected; canvas-pixel and viewport-width assertions pass. Editor diagnostics and documentation checks are clean. Content/effect constants, physical geometry, native/audio code, dependencies, and original reports match the user's pre-experiment staged checkpoint. |
+
+Ordinary trail-filling wins 7/8 campaigns; the preferred trial wins 3/8 with the
+same policy and 8/8 with recovery. There are six late-campaign repositioning
+rescues rather than one in baseline recovery play. Nevertheless, strongly built
+machines frozen after commission 6 still win 7/8 and proactive local builders
+can still clear easily. D09/D14 remain open. Outcome-aware search, changed
+purchases, and a limited seed sample are not human playtesting or enjoyment
+certification. Most recorded rescues are replacements on a known route rather
+than novel routing. See [BALANCE.md](BALANCE.md#structural-trials---2026-09-11).
+
+Trial: **http://127.0.0.1:5173/?balanceTrial=space-pressure&seed=42**.
+It starts fresh, does not write normal saves, disables import/export, and restarts
+on reload. The ordinary game remains at http://127.0.0.1:5173/.
+No in-game solver, mandatory center hit, background animation, new endgame system,
+or permanent legacy balance profile was added. Store captures and Windows
+executables were not regenerated this pass. No staging, commit, or push was done;
+the user's previously staged changes were preserved. Older results follow.
+
+## Progression and Clarity - 2026-09-11
+
+H034 delivers the prominent three-choice reward dialog, concise/contextual copy,
+and observed chute receipt. The price experiment is **rejected**, not enabled in
+the game. Rules, native boundaries, dependencies, and original balance reports
+are unchanged; part content edits are descriptions only.
+
+| Check | Outcome |
+| --- | --- |
+| `npm.cmd run verify` | Production build, **259 unit tests across 15 files**, and **81 browser tests** passed; the full browser task completed in 6.8 minutes. |
+| Final focused reward/controller pass | **13 passed** after fixing legacy mobile icon sizing and adding 320px, import, and controller reward cases. This includes three cases added after the 81-test full run, not a separate 84-test full-suite claim. |
+| Final reward accessibility check | **6 reward cases passed** after adding accessible effect/owned descriptions, including real earned choices at 1440/390/320px, keyboard dismissal/reopening, reload, full-storage conversion, After Hours, and validated import. |
+| Part-copy verification | **16 part-effect tests passed** after making Crown's distinct-kind wording explicit; earlier tutorial/part slice passed 21 tests. No effect changed. |
+| Final production renderer | TypeScript/Vite build passed after the final accessibility and wording changes. Existing theme-script and dependency-comment warnings remain nonfatal. Editor diagnostics are clean. |
+| Final built Electron | **12 native tests passed (44.0 seconds)** after that build: real play, earned duplicate reward/purchase, relaunch, save/export, fullscreen, CSP/isolation, and manual loss editing. |
+| Balance evidence | 360 nine-lane earned-board samples, **48 baseline + 48 price-trial campaigns**, and their earned continuations completed. All 40 overlapping baseline campaign records reproduce the archive. Paired opening checks pass; earlier stall and eight continuation regressions reject the trial. Zero sampled timeouts/token-bound violations. |
+| Artwork | Existing capture task generated **13 dimension-validated store/library images** and 20 achievement variants from local art and a real legal campaign. Current capsules/gameplay no longer show stale bowls. Representative gameplay, thumbnail, desktop/mobile reward, and receipt screenshots were inspected. |
+
+The reward full-storage/import/After Hours cases use validated boundary fixtures;
+the three viewport reward cases earn the first shop through actual UI launches.
+The full campaign test also plays all twelve commissions through real controls.
+Controller coverage uses a simulated standard Gamepad API, not hardware testing.
+No real Steam/Cloud/Deck, speaker comfort, or human-enjoyment certification follows.
+
+[BALANCE.md](BALANCE.md#progression-and-aiming---2026-09-11) records methods,
+counterfactual limitations, exact report links, and reproduction commands.
+Frozen strong machines and fixed-center builders still finish 8/8 samples, so
+D09/D14 remain open despite passing tests. The observed receipt recommends
+nothing and changes neither route nor score.
+
+The live game and final compiled renderer are current at
+**http://127.0.0.1:5173/**. Packaged executables were not regenerated or launched
+this pass; their last actual build remains H026. No commit or push was performed.
+Older sections below are dated checkpoints, not the current suite/capture state.
+
 ## Recessed Chutes - 2026-09-10
 
 H030 implements the approved collector-only follow-up: three recessed payout

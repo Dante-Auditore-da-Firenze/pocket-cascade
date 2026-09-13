@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { claimPart, commission, newRun, upgradePower } from '../src/game/engine';
 import { chooseReward, evaluateMachine, planBuild, playCampaign, shopLegally } from '../scripts/strategies';
 import { diagnoseCampaign, planLocalBuild } from '../scripts/balance-diagnostics';
+import { playRoleCampaign } from '../scripts/roles-balance';
 
 describe('legal-play balance checks', () => {
   it('places the first free part without making the initial machine worse', () => {
@@ -22,26 +23,26 @@ describe('legal-play balance checks', () => {
     expect(report.bestDrop).toBeGreaterThan(100);
   }, 30_000);
 
-  it('completes a fresh optimized run through all twelve commissions using legal upgrades and edits', () => {
-    const result = diagnoseCampaign(42, 'optimized');
-    expect(result.report.won).toBe(true);
-    expect(result.report.stagesCleared).toBe(12);
-    expect(result.report.stages.map((stage) => stage.stage)).toEqual(Array.from({ length: 12 }, (_, index) => index + 1));
-    expect(result.report.maxTokens).toBeLessThanOrEqual(4);
-    expect(result.report.timeouts).toBe(0);
-    expect(Number.isSafeInteger(result.report.totalScore)).toBe(true);
-    for (const stage of result.report.stages) {
-      expect(stage.payout, `Commission ${stage.stage}`).toBeGreaterThanOrEqual(stage.target);
-      expect(stage.brass).toBeGreaterThanOrEqual(0);
-      expect(stage.parts).toBeLessThanOrEqual(commission({ stage: stage.stage - 1, assisted: false }).capacity);
+  it('completes a fresh role-aware run with earned tuning and needed middle-campaign edits', () => {
+    const result = playRoleCampaign(42, 'recovery', 12, 0);
+    expect(result.won).toBe(true);
+    expect(result.cleared).toBe(12);
+    expect(result.records.map((stage) => stage.stage)).toEqual(Array.from({ length: 12 }, (_, index) => index + 1));
+    expect(result.timeouts).toBe(0);
+    expect(Number.isSafeInteger(result.finalRun.totalScore)).toBe(true);
+    for (const stage of result.records) {
+      expect(stage.won, `Commission ${stage.stage}`).toBe(true);
+      expect(stage.credits).toBeGreaterThanOrEqual(0);
+      expect(Object.keys(stage.board).length).toBeLessThanOrEqual(commission({ stage: stage.stage - 1, assisted: false }).capacity);
     }
     expect(result.shops).toHaveLength(11);
     for (const shop of result.shops) {
-      expect(shop.choices).toContain(shop.gift);
       expect(shop.spent).toBeGreaterThanOrEqual(0);
+      expect(shop.actions.filter((action) => action.type === 'gift' || action.type === 'gift-tune')).toHaveLength(1);
     }
-    expect(result.builds.some((build) => build.changed && build.after > build.before)).toBe(true);
+    expect(result.builds.some((build) => build.stage >= 4 && build.stage <= 9 && build.needed && build.changedInstalled)).toBe(true);
     expect(result.builds.every((build) => build.after >= build.before)).toBe(true);
+    expect(result.shops.some((shop) => shop.actions.some((action) => action.type === 'fuse' || action.type === 'gift-tune'))).toBe(true);
   }, 90_000);
 
   it('diagnostic hooks preserve the default campaign and cannot mutate observations into currency', () => {

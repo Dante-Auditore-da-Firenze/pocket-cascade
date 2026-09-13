@@ -1,0 +1,25 @@
+.cascade-receipt { border-top: 1px solid var(--cp-border); padding-top: 10px; }
+.cascade-receipt > summary { display: flex; align-items: center; gap: 10px; cursor: pointer; color: var(--cp-text-soft); font-size: 12px; }
+.cascade-receipt > summary::before { content: '+'; width: 13px; flex-shrink: 0; color: var(--cp-text-muted); }
+.cascade-receipt[open] > summary::before { content: '-'; }
+.cascade-receipt > summary strong { margin-left: auto; font: 600 25px/1.2 'Barlow Condensed', sans-serif; color: var(--cp-text); font-variant-numeric: tabular-nums; }
+.collector-receipt { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 14px 0 12px; }
+.collector-receipt > div { min-width: 0; padding-top: 7px; border-top: 2px solid var(--cp-border); }
+.collector-receipt > div.received { border-color: var(--cp-warning); }
+.collector-receipt dt { font-size: 10px; color: var(--cp-text-soft); }
+.collector-receipt dd { margin: 3px 0 0; font: 600 23px/1.15 'Barlow Condensed', sans-serif; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+.collector-receipt span { color: var(--cp-text-muted); font-size: 10px; }
+.cascade-facts { display: grid; gap: 5px; color: var(--cp-text-muted); font-size: 10px; }
+.cascade-facts > span { display: flex; justify-content: space-between; gap: 8px; }
+.cascade-facts strong { color: var(--cp-text-soft); font-weight: 500; }
+.game-app .last-cascade { border: 0; padding: 0; }
+.game-app .event-feed:empty { display: none; }
+.game-app .event-feed { min-height: 0; }
+.game-app .machine-record { margin-top: 20px; display: flex; align-items: baseline; justify-content: space-between; gap: 12px; color: var(--cp-text-muted); font-size: 11px; }
+.machine-record strong { color: var(--cp-text); font: 600 27px/1 'Barlow Condensed', sans-serif; }
+.game-app .result-panel > h3 { font-size: 32px; }
+.game-app .victory-art { height: 68px; margin-bottom: 12px; background: none; }
+@media (max-width: 930px) {
+  .game-app .commission-panel > .last-cascade { display: block; grid-column: 1 / -1; margin-top: 14px; }
+  .cascade-receipt > summary strong { font-size: 22px; }
+}

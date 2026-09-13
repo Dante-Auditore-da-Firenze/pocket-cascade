@@ -4,14 +4,16 @@ export const FIXED_STEP = 1000 / 120;
 export const MAX_TICKS = 1440;
 export const MAX_SPLIT_DEPTH = 2;
 export const MAX_VALUE = 1_000_000_000_000;
+export const MAX_CHARGE = 3;
 export const TRAY_MULTIPLIERS = [1, 2, 1] as const;
 
-export type PegKind = 'mint' | 'doubler' | 'splitter' | 'kicker' | 'relay' | 'vault' | 'echo' | 'crown';
+export type PegKind = 'mint' | 'doubler' | 'splitter' | 'kicker' | 'relay' | 'vault' | 'echo' | 'crown' | 'dividend' | 'junction';
 
 export interface Peg {
   id: string;
   kind: PegKind;
   direction: -1 | 1;
+  tuned?: boolean;
 }
 
 export type Board = Record<string, Peg>;
@@ -73,6 +75,7 @@ export interface CascadeEvent {
   slotId?: string;
   kind?: PegKind;
   tray?: number;
+  charge?: number;
 }
 
 export interface TokenView {
@@ -82,6 +85,7 @@ export interface TokenView {
   value: number;
   chain: number;
   depth: number;
+  charge?: number;
 }
 
 export interface PhysicalImpact {

@@ -1,6 +1,7 @@
 # Pocket Cascade
 
 - Do not initialize a Git repository, create branches, or commit without explicit permission.
+- Use descriptive commit messages: a clear subject plus a concise body explaining substantial changes, their purpose, and relevant validation or known limitations. This replaces the earlier short-message preference.
 - Read `docs/HISTORY.md` (especially the latest entries) and `docs/OPEN-ITEMS.md` at the start of each chat and after context compaction before acting. Append a dated entry to the same history after every substantive exchange, including discussion-only turns, before the final response. Capture user requests, proposals versus approvals, decisions/reversals, changes, actual validation, and open items. Preserve earlier history; record later corrections or reversals explicitly. Do not log secrets or claim unavailable chat history.
 - Keep `docs/OPEN-ITEMS.md` current. Mark items resolved only with an implemented/validated outcome or an explicit decision; leave deferred endgame, theme, and Steam-save work untouched until approved.
 - Read the local controlling implementation before changing it. Preserve unrelated user changes.

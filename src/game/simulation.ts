@@ -1,9 +1,13 @@
 import Matter from 'matter-js';
 import {
-  BOARD_HEIGHT, BOARD_WIDTH, FIXED_STEP, MAX_SPLIT_DEPTH, MAX_TICKS,
+  BOARD_HEIGHT, BOARD_WIDTH, FIXED_STEP, MAX_CHARGE, MAX_SPLIT_DEPTH, MAX_TICKS,
   SLOT_MAP, SLOTS, TRAY_MULTIPLIERS, lanePosition, money, random,
   type CascadeEvent, type DropConfig, type DropResult, type PegKind, type PhysicalImpact, type TokenView,
 } from './model';
+
+export interface SimulationOptions {
+  boostedSockets?: readonly string[];
+}
 
 interface Token {
   id: number;
@@ -13,6 +17,8 @@ interface Token {
   visited: Set<string>;
   kinds: Set<PegKind>;
   lastEffect: { operation: 'add' | 'multiply'; value: number } | null;
+  charge: number;
+  reserve: number;
   stalled: number;
 }
 
@@ -26,12 +32,16 @@ export class DropSimulation {
   private complete = false;
   private pendingEvents: CascadeEvent[] = [];
   private pendingImpacts: PhysicalImpact[] = [];
+  private boostedSockets: ReadonlySet<string>;
+  private junctions = new Map<string, { arrivals: Set<number>; firstValue: number }>();
   private result: DropResult = {
     total: 0, banked: 0, trayTotals: [0, 0, 0], hits: 0, splits: 0,
     maxValue: 0, maxChain: 0, ticks: 0, timedOut: false, events: [],
   };
 
-  constructor(private config: DropConfig) {
+  constructor(private config: DropConfig, options: SimulationOptions = {}) {
+    this.boostedSockets = new Set(options.boostedSockets);
+    if ([...this.boostedSockets].some((slotId) => !Object.hasOwn(SLOT_MAP, slotId))) throw new Error('Unknown boosted socket.');
     this.engine.gravity.y = 1.15;
     this.engine.positionIterations = 8;
     this.engine.velocityIterations = 8;
@@ -94,7 +104,8 @@ export class DropSimulation {
     const token: Token = {
       id: ++this.tokenCounter, body, value, depth: parent?.depth ?? 0,
       visited: new Set(parent?.visited), kinds: new Set(parent?.kinds),
-      lastEffect: parent?.lastEffect ? { ...parent.lastEffect } : null, stalled: 0,
+      lastEffect: parent?.lastEffect ? { ...parent.lastEffect } : null,
+      charge: 0, reserve: 0, stalled: 0,
     };
     this.tokens.set(body.id, token);
     Matter.Composite.add(this.engine.world, body);
@@ -107,6 +118,15 @@ export class DropSimulation {
     this.result.events.push(completeEvent);
   }
 
+  private bank(token: Token, slotId: string, value: number, prefix = 'BANK'): void {
+    const amount = money(value);
+    const slot = SLOT_MAP[slotId];
+    token.reserve = money(token.reserve + amount);
+    this.result.banked += amount;
+    this.result.total += amount;
+    this.emit({ type: 'bank', x: slot.x, y: slot.y, label: `${prefix} +${amount}`, amount, tokenId: token.id, slotId, kind: this.config.board[slotId].kind });
+  }
+
   private trigger(token: Token, slotId: string): void {
     const peg = this.config.board[slotId];
     if (!peg || token.visited.has(slotId)) return;
@@ -116,58 +136,109 @@ export class DropSimulation {
     this.result.maxChain = Math.max(this.result.maxChain, token.visited.size);
     const slot = SLOT_MAP[slotId];
     const previous = token.value;
+    const boosted = this.boostedSockets.has(slotId);
+    if (boosted) token.value = money(token.value * 2);
     let label = '';
     if (peg.kind === 'mint') {
       const added = Math.round(this.config.baseValue * 1.4);
       token.value = money(token.value + added);
+      const generated = peg.tuned ? 2 : 1;
+      token.charge = Math.min(MAX_CHARGE, token.charge + generated);
       token.lastEffect = { operation: 'add', value: added };
-      label = `+${added}`;
+      label = `+${added} / +${generated} CHARGE`;
     } else if (peg.kind === 'doubler') {
-      token.value = money(token.value * 2);
-      token.lastEffect = { operation: 'multiply', value: 2 };
-      label = 'x2';
+      if (token.charge > 0) {
+        token.charge -= 1;
+        token.value = money(token.value * 2);
+        token.lastEffect = { operation: 'multiply', value: 2 };
+        label = 'x2 / -1 CHARGE';
+        if (peg.tuned) {
+          const recipient = [...this.tokens.values()].find((other) => other.id !== token.id && other.charge < MAX_CHARGE);
+          if (recipient) recipient.charge += 1;
+        }
+      } else { token.lastEffect = null; label = 'NEEDS CHARGE'; }
     } else if (peg.kind === 'splitter') {
       if (token.depth < MAX_SPLIT_DEPTH) {
         token.depth += 1;
         const clone = this.createToken(slot.x + peg.direction * 20, slot.y + 19, money(token.value * 0.75), token);
+        clone.charge = Math.floor(token.charge / 2);
+        token.charge -= clone.charge;
+        if (peg.tuned) clone.charge = Math.min(MAX_CHARGE, clone.charge + 1);
+        clone.reserve = Math.floor(token.reserve / 2);
+        token.reserve -= clone.reserve;
         Matter.Body.setVelocity(clone.body, { x: peg.direction * 2.2, y: 1.8 });
         Matter.Body.setVelocity(token.body, { x: -peg.direction * 2.2, y: 1.4 });
         this.result.splits += 1;
         this.emit({ type: 'split', x: slot.x, y: slot.y, label: '+ TOKEN', amount: clone.value, tokenId: clone.id, slotId, kind: peg.kind });
         label = 'FORK';
       } else {
-        token.value = money(token.value * 1.25);
-        label = 'x1.25';
+        token.charge = Math.min(MAX_CHARGE, token.charge + 1);
+        label = '+1 CHARGE';
       }
     } else if (peg.kind === 'kicker') {
       Matter.Body.setVelocity(token.body, { x: peg.direction * 3.7, y: -3.2 });
       token.value = money(token.value + this.config.baseValue);
-      label = peg.direction === 1 ? 'RIGHT +' : 'LEFT +';
+      token.charge = Math.min(MAX_CHARGE, token.charge + 1);
+      label = peg.direction === 1 ? 'RIGHT / +1 CHARGE' : 'LEFT / +1 CHARGE';
+      if (peg.tuned) this.bank(token, slotId, this.config.baseValue, 'TOLL');
     } else if (peg.kind === 'relay') {
       const neighbors = SLOTS.filter((neighbor) => neighbor.id !== slotId && this.config.board[neighbor.id]
         && Math.hypot(neighbor.x - slot.x, neighbor.y - slot.y) < 78).length;
       const added = money(this.config.baseValue * (1 + neighbors));
       token.value = money(token.value + added);
+      const generated = 1 + (peg.tuned ? Math.floor(neighbors / 2) : 0);
+      token.charge = Math.min(MAX_CHARGE, token.charge + generated);
       token.lastEffect = { operation: 'add', value: added };
-      label = `+${added}`;
+      label = `+${added} / +${Math.min(MAX_CHARGE, generated)} CHARGE`;
     } else if (peg.kind === 'vault') {
-      const deposit = money(token.value * 0.5);
-      this.result.banked += deposit;
-      this.result.total += deposit;
-      this.emit({ type: 'bank', x: slot.x, y: slot.y, label: `BANK +${deposit}`, amount: deposit, tokenId: token.id, slotId, kind: peg.kind });
+      const deposit = money(token.value * (0.5 + token.charge * 0.25));
+      token.charge = peg.tuned ? 1 : 0;
+      this.bank(token, slotId, deposit);
       label = 'BANK';
     } else if (peg.kind === 'echo') {
-      const effect = token.lastEffect ?? { operation: 'add' as const, value: this.config.baseValue };
-      token.value = money(effect.operation === 'add' ? token.value + effect.value : token.value * effect.value);
-      label = effect.operation === 'add' ? `ECHO +${effect.value}` : `ECHO x${effect.value}`;
+      const effect = token.lastEffect;
+      token.lastEffect = null;
+      if (!effect) label = 'NO EFFECT';
+      else if (effect.operation === 'multiply' && token.charge === 0) label = 'NEEDS CHARGE';
+      else {
+        if (effect.operation === 'multiply') token.charge -= 1;
+        token.value = money(effect.operation === 'add' ? token.value + effect.value : token.value * effect.value);
+        label = effect.operation === 'add' ? `ECHO +${effect.value}` : `ECHO x${effect.value}`;
+        if (peg.tuned) token.charge = Math.min(MAX_CHARGE, token.charge + 1);
+      }
     } else if (peg.kind === 'crown') {
-      const multiplier = 1 + token.kinds.size * 0.4;
-      token.value = money(token.value * multiplier);
-      label = `x${multiplier.toFixed(1)}`;
-      token.lastEffect = { operation: 'multiply', value: multiplier };
+      if (token.charge >= 2) {
+        token.charge -= 2;
+        const multiplier = 1 + token.kinds.size * 0.4;
+        token.value = money(token.value * multiplier);
+        label = `x${multiplier.toFixed(1)} / -2 CHARGE`;
+        token.lastEffect = { operation: 'multiply', value: multiplier };
+      } else {
+        token.lastEffect = null;
+        label = 'NEEDS 2 CHARGE';
+        if (peg.tuned) { this.bank(token, slotId, this.config.baseValue * token.kinds.size, 'INSURE'); label = 'INSURED'; }
+      }
+    } else if (peg.kind === 'dividend') {
+      const reserve = token.reserve;
+      token.reserve = 0;
+      token.value = money(token.value + reserve * 2);
+      if (peg.tuned && reserve > 0) token.charge = Math.min(MAX_CHARGE, token.charge + 2);
+      label = reserve > 0 ? `CASH +${money(reserve * 2)}` : 'NO RESERVE';
+    } else if (peg.kind === 'junction') {
+      let junction = this.junctions.get(slotId);
+      if (!junction) {
+        junction = { arrivals: new Set(), firstValue: token.value };
+        this.junctions.set(slotId, junction);
+      }
+      junction.arrivals.add(token.id);
+      token.charge = Math.min(MAX_CHARGE, token.charge + 1);
+      if (junction.arrivals.size === 2) this.bank(token, slotId, junction.firstValue + token.value, 'JOIN');
+      else if (peg.tuned && junction.arrivals.size > 2) this.bank(token, slotId, token.value, 'EXCHANGE');
+      label = `${junction.arrivals.size} ARRIVAL${junction.arrivals.size === 1 ? '' : 'S'} / +1 CHARGE`;
     }
+    if (boosted) label = `SOCKET x2 / ${label}`;
     this.result.maxValue = Math.max(this.result.maxValue, token.value);
-    this.emit({ type: 'hit', x: slot.x, y: slot.y, label, amount: token.value - previous, tokenId: token.id, slotId, kind: peg.kind });
+    this.emit({ type: 'hit', x: slot.x, y: slot.y, label, amount: token.value - previous, tokenId: token.id, slotId, kind: peg.kind, charge: token.charge });
   }
 
   private collect(token: Token): void {
@@ -217,7 +288,7 @@ export class DropSimulation {
   get tokenViews(): TokenView[] {
     return [...this.tokens.values()].map((token) => ({
       id: token.id, x: token.body.position.x, y: token.body.position.y,
-      value: token.value, chain: token.visited.size, depth: token.depth,
+      value: token.value, chain: token.visited.size, depth: token.depth, charge: token.charge,
     }));
   }
 
@@ -231,12 +302,13 @@ export class DropSimulation {
     Matter.Composite.clear(this.engine.world, false);
     Matter.Engine.clear(this.engine);
     this.tokens.clear();
+    this.junctions.clear();
     this.pendingImpacts = [];
   }
 }
 
-export function simulateDrop(config: DropConfig): DropResult {
-  const simulation = new DropSimulation(config);
+export function simulateDrop(config: DropConfig, options: SimulationOptions = {}): DropResult {
+  const simulation = new DropSimulation(config, options);
   const result = simulation.finish();
   simulation.dispose();
   return result;

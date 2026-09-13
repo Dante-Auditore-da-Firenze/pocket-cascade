@@ -20,6 +20,8 @@ export type CabinetPalette = Record<keyof typeof THEME_PROPERTIES, Tone> & {
   font: string;
 };
 
+const paletteCache = new WeakMap<Document, Map<string, CabinetPalette>>();
+
 export function ink(tone: Tone, opacity = 1): string {
   return `rgb(${Math.round(tone.red)} ${Math.round(tone.green)} ${Math.round(tone.blue)} / ${Math.max(0, Math.min(1, tone.alpha * opacity))})`;
 }
@@ -46,6 +48,12 @@ export function readCabinetPalette(element: HTMLElement): CabinetPalette {
   if (!ownerWindow) throw new Error('The cabinet palette requires a browser document.');
 
   const styles = ownerWindow.getComputedStyle(element);
+  const signature = JSON.stringify([styles.fontFamily, styles.color,
+    ...Object.values(THEME_PROPERTIES).map((property) => styles.getPropertyValue(property))]);
+  let cached = paletteCache.get(ownerDocument);
+  if (!cached) { cached = new Map(); paletteCache.set(ownerDocument, cached); }
+  const existing = cached.get(signature);
+  if (existing) return existing;
   const probe = ownerDocument.createElement('span');
   probe.setAttribute('aria-hidden', 'true');
   probe.style.cssText = 'position:absolute;width:0;height:0;overflow:hidden;visibility:hidden;pointer-events:none';
@@ -70,7 +78,10 @@ export function readCabinetPalette(element: HTMLElement): CabinetPalette {
         alpha: channels[3] / 255,
       }];
     })) as Record<keyof typeof THEME_PROPERTIES, Tone>;
-    return { ...colors, font: styles.fontFamily || '"Segoe UI", Aptos, Calibri, sans-serif' };
+    const palette = { ...colors, font: styles.fontFamily || '"Segoe UI", Aptos, Calibri, sans-serif' };
+    if (cached.size >= 32) cached.delete(cached.keys().next().value!);
+    cached.set(signature, palette);
+    return palette;
   } finally {
     probe.remove();
   }

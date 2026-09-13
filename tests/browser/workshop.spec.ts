@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { dropConfig } from '../../src/game/engine';
+import { PART_KINDS } from '../../src/game/content';
 import { simulateDrop } from '../../src/game/simulation';
 import { canvasPixels, drop, openGame, readRun } from './helpers';
 
@@ -121,21 +122,21 @@ for (const viewport of [{ width: 1280, height: 360 }, { width: 1100, height: 240
   });
 }
 
-test('all eight mechanism illustrations repaint with the cabinet lighting', async ({ page }, testInfo) => {
+test('all ten mechanism illustrations repaint with the cabinet lighting', async ({ page }, testInfo) => {
   await openGame(page);
   await page.getByRole('button', { name: 'Part collection', exact: true }).click();
   const images = page.locator('.catalogue-part .part-symbol img');
-  await expect(images).toHaveCount(8);
+  await expect(images).toHaveCount(PART_KINDS.length);
   await expect.poll(() => images.evaluateAll((elements) => elements.every((element) => (element as HTMLImageElement).complete && (element as HTMLImageElement).naturalWidth === 96))).toBe(true);
   const darkImages = await images.evaluateAll((elements) => elements.map((element) => (element as HTMLImageElement).src));
-  expect(new Set(darkImages).size).toBe(8);
+  expect(new Set(darkImages).size).toBe(PART_KINDS.length);
   await page.screenshot({ path: testInfo.outputPath('clockwork-parts.png'), fullPage: true });
   await page.getByRole('button', { name: 'Close dialog', exact: true }).click();
   await page.getByRole('button', { name: 'Settings', exact: true }).click();
   await page.getByRole('switch', { name: 'Evening lighting', exact: true }).uncheck();
   await page.getByRole('button', { name: 'Close dialog', exact: true }).click();
   await page.getByRole('button', { name: 'Part collection', exact: true }).click();
-  await expect(images).toHaveCount(8);
+  await expect(images).toHaveCount(PART_KINDS.length);
   const lightImages = await images.evaluateAll((elements) => elements.map((element) => (element as HTMLImageElement).src));
   expect(lightImages.every((source, index) => source !== darkImages[index])).toBe(true);
 });

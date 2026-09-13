@@ -3,54 +3,62 @@ import {
   newRun, nextCommission, placePeg, removePeg, retryCommission, setLane,
   settleDrop, upgradePower, type RunState,
 } from '../src/game/engine';
-import { SLOTS, type PegKind } from '../src/game/model';
+import { SLOTS, type Peg, type PegKind } from '../src/game/model';
 import { simulateDrop } from '../src/game/simulation';
 
 export type Strategy = 'beginner' | 'conservative' | 'optimized' | 'splitter';
 export type BuildAction = { type: 'lane'; lane: number } | { type: 'place'; pegId: string; slotId: string } | { type: 'remove'; slotId: string };
 
 const preferences: Record<Strategy, PegKind[]> = {
-  beginner: ['mint', 'doubler', 'splitter', 'vault', 'relay', 'crown', 'echo', 'kicker'],
-  conservative: ['doubler', 'mint', 'vault', 'relay', 'splitter', 'echo', 'crown', 'kicker'],
-  optimized: ['crown', 'doubler', 'echo', 'splitter', 'relay', 'mint', 'vault', 'kicker'],
-  splitter: ['splitter', 'crown', 'echo', 'doubler', 'mint', 'relay', 'vault', 'kicker'],
+  beginner: ['mint', 'doubler', 'splitter', 'vault', 'relay', 'dividend', 'junction', 'crown', 'echo', 'kicker'],
+  conservative: ['vault', 'dividend', 'mint', 'relay', 'doubler', 'splitter', 'junction', 'echo', 'crown', 'kicker'],
+  optimized: ['mint', 'relay', 'doubler', 'vault', 'dividend', 'junction', 'splitter', 'crown', 'echo', 'kicker'],
+  splitter: ['splitter', 'junction', 'mint', 'kicker', 'relay', 'doubler', 'vault', 'dividend', 'echo', 'crown'],
 };
 
-const buildOrder: PegKind[] = ['mint', 'relay', 'splitter', 'doubler', 'echo', 'vault', 'crown', 'kicker'];
+const buildOrder: PegKind[] = ['mint', 'doubler', 'relay', 'splitter', 'kicker', 'vault', 'dividend', 'junction', 'echo', 'crown'];
 
 export function evaluateMachine(run: RunState): number {
   return simulateDrop(dropConfig(run)).total;
 }
 
-export function bestLane(run: RunState): RunState {
+export function bestLane(run: RunState, evaluate = evaluateMachine): RunState {
   let best = run;
-  let value = evaluateMachine(run);
+  let value = evaluate(run);
   for (let lane = 0; lane < 9; lane += 1) {
     const candidate = setLane(run, lane);
-    const score = evaluateMachine(candidate);
+    const score = evaluate(candidate);
     if (score > value) { value = score; best = candidate; }
   }
   return best;
 }
 
-export function bestPlacement(run: RunState, pegId: string): { run: RunState; slotId: string | null } {
+export function bestPlacement(run: RunState, pegId: string, evaluate = evaluateMachine): { run: RunState; slotId: string | null } {
   let best = run;
   let bestSlot: string | null = null;
-  let score = evaluateMachine(run);
+  let score = evaluate(run);
   for (const slot of SLOTS) {
     if (run.board[slot.id]) continue;
     const candidate = placePeg(run, pegId, slot.id);
     if (candidate === run) continue;
-    const value = evaluateMachine(candidate);
+    const value = evaluate(candidate);
     if (value > score) { score = value; best = candidate; bestSlot = slot.id; }
   }
   return { run: best, slotId: bestSlot };
 }
 
-export function planBuild(input: RunState, strategy: Strategy): { run: RunState; actions: BuildAction[] } {
+export interface BuildConstraints {
+  maxInstalled?: number;
+  evaluate?: typeof evaluateMachine;
+}
+
+export function planBuild(input: RunState, strategy: Strategy, fixedLane?: number, constraints: BuildConstraints = {}): { run: RunState; actions: BuildAction[] } {
   let run = structuredClone(input);
   const actions: BuildAction[] = [];
-  const lane = bestLane(run).lane;
+  const capacity = Math.min(commission(run).capacity, constraints.maxInstalled ?? commission(run).capacity);
+  if (!Number.isInteger(capacity) || capacity < Object.keys(run.board).length) throw new Error('Build input must fit its installation limit.');
+  const evaluate = constraints.evaluate ?? evaluateMachine;
+  const lane = fixedLane ?? bestLane(run, evaluate).lane;
   if (lane !== run.lane) { run = setLane(run, lane); actions.push({ type: 'lane', lane }); }
 
   if (strategy === 'optimized' || strategy === 'splitter') {
@@ -61,33 +69,40 @@ export function planBuild(input: RunState, strategy: Strategy): { run: RunState;
       rebuilt = removePeg(rebuilt, slotId);
       rebuildActions.push({ type: 'remove', slotId });
     }
-    const pegs = [...rebuilt.bench].sort((first, second) => buildOrder.indexOf(first.kind) - buildOrder.indexOf(second.kind));
+    const remaining = [...rebuilt.bench];
+    const pegs: Peg[] = [];
+    while (remaining.length) {
+      for (const kind of buildOrder) {
+        const index = remaining.findIndex((part) => part.kind === kind);
+        if (index >= 0) pegs.push(...remaining.splice(index, 1));
+      }
+    }
     for (const peg of pegs) {
-      if (Object.keys(rebuilt.board).length >= commission(rebuilt).capacity) break;
-      const placed = bestPlacement(rebuilt, peg.id);
+      if (Object.keys(rebuilt.board).length >= capacity) break;
+      const placed = bestPlacement(rebuilt, peg.id, evaluate);
       rebuilt = placed.run;
       if (placed.slotId) rebuildActions.push({ type: 'place', pegId: peg.id, slotId: placed.slotId });
     }
-    if (evaluateMachine(rebuilt) > evaluateMachine(existing)) {
+    if (evaluate(rebuilt) > evaluate(existing)) {
       run = rebuilt;
       actions.push(...rebuildActions);
     }
   }
 
   for (const peg of [...run.bench]) {
-    if (Object.keys(run.board).length >= commission(run).capacity) break;
+    if (Object.keys(run.board).length >= capacity) break;
     if (strategy === 'beginner') {
       const candidates = ['3-2', '3-3', '4-3', '2-2', '2-4', '4-2', '4-4', '5-2', '5-3', '6-3', '0-2', '0-4', '5-1', '5-4'];
       const slotId = candidates.find((candidate) => !run.board[candidate]);
       if (slotId) { run = placePeg(run, peg.id, slotId); actions.push({ type: 'place', pegId: peg.id, slotId }); }
     } else {
-      const placed = bestPlacement(run, peg.id);
+      const placed = bestPlacement(run, peg.id, evaluate);
       run = placed.run;
       if (placed.slotId) actions.push({ type: 'place', pegId: peg.id, slotId: placed.slotId });
     }
   }
 
-  const finalLane = bestLane(run).lane;
+  const finalLane = fixedLane ?? bestLane(run, evaluate).lane;
   if (finalLane !== run.lane) { run = setLane(run, finalLane); actions.push({ type: 'lane', lane: finalLane }); }
   return { run, actions };
 }

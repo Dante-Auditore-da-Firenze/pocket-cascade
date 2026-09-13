@@ -95,6 +95,8 @@ const TIMBRES: Record<PegKind | 'collector', Timbre> = {
   vault: { root: 110, cutoff: 1600, click: 0.6, tones: [[1, 0.27, 1.05, 'sine'], [2.4, 0.13, 0.45, 'triangle', 0.01]] },
   echo: { root: 220, cutoff: 2200, click: 0.24, tones: [[1, 0.22, 1, 'sine'], [1.5, 0.2, 0.6, 'sine', 0.075]] },
   crown: { root: 220, cutoff: 3000, click: 0.42, tones: [[1, 0.36, 0.92, 'triangle'], [2, 0.3, 0.48, 'sine', 0.015], [3, 0.24, 0.3, 'sine', 0.028]] },
+  dividend: { root: 165, cutoff: 2200, click: 0.4, tones: [[1, 0.3, 0.95, 'triangle'], [2, 0.23, 0.5, 'sine', 0.03]] },
+  junction: { root: 275, cutoff: 2600, click: 0.36, tones: [[1, 0.2, 0.8, 'sine'], [1.5, 0.24, 0.65, 'triangle', 0.035]] },
   collector: { root: 330, cutoff: 2800, click: 0.55, tones: [[1, 0.36, 0.95, 'triangle'], [1.5, 0.32, 0.58, 'sine', 0.03], [2, 0.3, 0.4, 'sine', 0.06]] },
 };
 

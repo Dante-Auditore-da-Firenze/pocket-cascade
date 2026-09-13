@@ -1,9 +1,10 @@
 import { chromium, expect } from '@playwright/test';
 import { mkdir, writeFile } from 'node:fs/promises';
 import sharp from 'sharp';
-import { PARTS, ACHIEVEMENTS } from '../src/game/content';
-import { planBuild, shopLegally, chooseReward } from './strategies';
-import { applyBuild, drop, openGame, readRun } from '../tests/browser/helpers';
+import { ACHIEVEMENTS } from '../src/game/content';
+import { planRoleBuild, planRoleShop } from './roles-balance';
+import { createTrialEvaluator, observeDrop } from './structural-study';
+import { applyRoleEdits, applyRoleShop, drop, openGame, readRun } from '../tests/browser/helpers';
 
 await mkdir('assets/steam/screenshots', { recursive: true });
 await mkdir('assets/steam/achievements', { recursive: true });
@@ -15,11 +16,16 @@ const manifest: { file: string; width: number; height: number; purpose: string }
 try {
   await openGame(page);
   await page.getByRole('button', { name: '4x speed', exact: true }).click();
+  await page.getByRole('button', { name: 'Skip guide', exact: true }).click();
+  const evaluator = createTrialEvaluator('baseline');
+  let contacts: string[] = [];
   const captureStages = [0, 2, 4, 7, 11];
   for (let stage = 0; stage < 12; stage += 1) {
     let run = await readRun(page);
-    await applyBuild(page, planBuild(run, 'conservative').actions);
+    await applyRoleEdits(page, planRoleBuild(run, 'recovery', contacts, evaluator.evaluate).actions);
+    run = await readRun(page);
     if (captureStages.includes(stage)) {
+      contacts = observeDrop(run, 'baseline').contacts;
       const filename = `screenshots/commission-${String(stage + 1).padStart(2, '0')}.png`;
       await page.getByRole('button', { name: '1x speed', exact: true }).click();
       await page.getByRole('button', { name: 'Launch token', exact: true }).click();
@@ -31,17 +37,24 @@ try {
       await expect.poll(async () => (await readRun(page)).phase, { timeout: 20_000 }).not.toBe('dropping');
     }
     run = await readRun(page);
-    while (run.phase === 'ready') run = await drop(page);
+    while (run.phase === 'ready' || run.phase === 'lost') {
+      if (run.phase === 'lost') {
+        if (run.retries >= 3) break;
+        await page.getByRole('button', { name: 'Retry commission', exact: true }).click();
+        run = await readRun(page);
+      }
+      await applyRoleEdits(page, planRoleBuild(run, 'recovery', contacts, evaluator.evaluate).actions);
+      run = await readRun(page);
+      contacts = observeDrop(run, 'baseline').contacts;
+      run = await drop(page);
+    }
     if (run.phase !== 'review') throw new Error(`Showcase campaign failed at commission ${stage + 1}`);
     await page.getByRole('button', { name: stage === 11 ? 'Complete the machine' : 'Visit the workshop', exact: true }).click();
     if (stage === 11) break;
     run = await readRun(page);
-    const desired = shopLegally(run, 'conservative');
-    await page.getByRole('button', { name: `Choose ${PARTS[chooseReward(run, 'conservative')].name}`, exact: true }).click();
-    if (desired.power > run.power) await page.getByRole('button', { name: 'Upgrade token value', exact: true }).click();
-    for (const offer of desired.offers.filter((item) => item.sold)) {
-      await page.getByRole('button', { name: `Buy ${PARTS[offer.kind].name} for ${offer.price} credits`, exact: true }).click();
-    }
+    const desired = planRoleShop(run, 'recovery', evaluator.evaluate);
+    await applyRoleShop(page, desired.actions);
+    if (JSON.stringify(await readRun(page)) !== JSON.stringify(desired.run)) throw new Error('Captured shop diverged from its earned actions.');
     await page.getByRole('button', { name: 'Next commission', exact: true }).click();
   }
   await page.getByTestId('machine-canvas').screenshot({ path: 'assets/steam/completed-cabinet.png' });

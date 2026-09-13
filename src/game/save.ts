@@ -10,7 +10,7 @@ export const MAX_SAVE_LENGTH = 2 * 1024 * 1024;
 
 const integer = z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER);
 const kindSchema = z.enum(PART_KINDS as [PegKind, ...PegKind[]]);
-const pegSchema = z.object({ id: z.string().regex(/^part-\d+$/).max(30), kind: kindSchema, direction: z.union([z.literal(-1), z.literal(1)]) });
+const pegSchema = z.object({ id: z.string().regex(/^part-\d+$/).max(30), kind: kindSchema, direction: z.union([z.literal(-1), z.literal(1)]), tuned: z.boolean().optional() });
 const boardSchema = z.record(z.string(), pegSchema).refine((board) => Object.keys(board).every((slotId) => Boolean(SLOT_MAP[slotId])), 'Invalid socket');
 const configSchema = z.object({ board: boardSchema, lane: integer.max(8), baseValue: integer.min(1).max(MAX_VALUE), seed: integer.max(0xffffffff) });
 const eventSchema = z.object({
@@ -18,6 +18,7 @@ const eventSchema = z.object({
   x: z.number().finite(), y: z.number().finite(), label: z.string().max(80),
   amount: z.number().finite().max(Number.MAX_SAFE_INTEGER), tokenId: integer,
   slotId: z.string().optional(), kind: kindSchema.optional(), tray: integer.max(2).optional(),
+  charge: integer.max(3).optional(),
 });
 const resultSchema = z.object({
   total: integer, banked: integer, trayTotals: z.tuple([integer, integer, integer]),
@@ -35,7 +36,7 @@ const runSchema = z.object({
   rewardChoices: z.array(kindSchema).max(3), rewardClaimed: z.boolean(),
   offers: z.array(z.object({ id: z.string().max(40), kind: kindSchema, price: integer.max(100), sold: z.boolean() })).max(3),
   rerolls: integer.max(2), lastDrop: resultSchema.nullable(), activeDrop: configSchema.nullable(),
-  lastReward: integer.max(100), discovered: z.array(kindSchema).max(8),
+  lastReward: integer.max(100), discovered: z.array(kindSchema).max(PART_KINDS.length),
 }).superRefine((run, context) => {
   const pegs = [...Object.values(run.board), ...run.bench];
   if (new Set(pegs.map((peg) => peg.id)).size !== pegs.length) context.addIssue({ code: 'custom', message: 'Duplicate part ownership' });
@@ -62,7 +63,7 @@ export type Settings = z.infer<typeof settingsSchema>;
 const profileSchema = z.object({
   seenTutorial: z.boolean(), completedRuns: integer, lifetimeScore: integer, bestDrop: integer,
   tutorialStep: z.enum(TUTORIAL_STEPS).optional(),
-  achievements: z.array(z.string().max(40)).max(50), discovered: z.array(kindSchema).max(8),
+  achievements: z.array(z.string().max(40)).max(50), discovered: z.array(kindSchema).max(PART_KINDS.length),
   dailyCompleted: z.array(z.string().max(10)).max(400),
   history: z.array(z.object({ seed: integer, score: integer, bestDrop: integer, date: z.string().max(30), mode: z.enum(['workshop', 'daily', 'endless']), stage: integer, won: z.boolean() })).max(24),
 });
@@ -106,7 +107,7 @@ export function parseSave(json: string): SaveData | null {
   }
 }
 
-export function updateProgress(save: SaveData, run: RunState): SaveData {
+export function updateProgress(save: SaveData, run: RunState, definition = commission(run)): SaveData {
   const previous = save.run;
   const profile = { ...save.profile };
   const achievements = new Set(profile.achievements);
@@ -118,7 +119,7 @@ export function updateProgress(save: SaveData, run: RunState): SaveData {
   if ((run.lastDrop?.maxChain ?? 0) >= 8) achievements.add('CHAIN_EIGHT');
   if (run.bestDrop >= 1000) achievements.add('THOUSAND_DROP');
   if (run.bestDrop >= 10000) achievements.add('TEN_THOUSAND_DROP');
-  if (run.score >= commission(run).target * 2) achievements.add('OVERDRIVE');
+  if (run.score >= definition.target * 2) achievements.add('OVERDRIVE');
   if (profile.discovered.length === PART_KINDS.length) achievements.add('ALL_PARTS');
   if (run.phase === 'won' && previous.phase !== 'won') {
     achievements.add('WORKSHOP_COMPLETE');

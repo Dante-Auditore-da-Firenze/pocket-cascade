@@ -3,9 +3,12 @@ import {
   baseValue, buyPart, claimPart, collectCommission, commission, commissionReward,
   dropConfig, launchDrop, newRun, nextCommission, placePeg, recoverInterruptedDrop,
   removePeg, retryCommission, settleDrop, upgradePower, claimPart as claimReward,
-  MAX_OWNED_PARTS, salvagePeg, parseMachineSeed, dailySeed,
+  MAX_OWNED_PARTS, salvagePeg, parseMachineSeed, dailySeed, claimTuning, claimCredits, tunePeg, fusePeg,
 } from '../src/game/engine';
+import { tuningPrice } from '../src/game/content';
+import { freshSave, parseSave } from '../src/game/save';
 import { simulateDrop } from '../src/game/simulation';
+import { auditRoleRecovery, planRoleShop, playRoleCampaign } from '../scripts/roles-balance';
 
 describe('commission economy', () => {
   it('replays displayed numeric seeds exactly and hashes text seeds consistently', () => {
@@ -120,5 +123,88 @@ describe('commission economy', () => {
     expect(claimed.brass).toBe(full.brass + 2);
     expect(buyPart(full, full.offers[0].id)).toBe(full);
     expect(nextCommission(claimed).phase).toBe('ready');
+  });
+
+  it('uses one offered reward to tune an owned part without changing its identity or charging credits', () => {
+    const shop = collectCommission({ ...newRun(42), phase: 'review', score: 200 });
+    shop.rewardChoices = ['mint', 'doubler', 'splitter'];
+    const tuned = claimTuning(shop, 'part-1');
+    expect(tuned.board['0-3']).toEqual({ ...shop.board['0-3'], tuned: true });
+    expect(tuned.brass).toBe(shop.brass);
+    expect(tuned.bench).toEqual(shop.bench);
+    expect(tuned.nextId).toBe(shop.nextId);
+    expect(tuned.rewardClaimed).toBe(true);
+    expect(claimTuning(tuned, 'part-2')).toBe(tuned);
+    expect(claimPart(tuned, 'mint')).toBe(tuned);
+    expect(claimCredits(tuned)).toBe(tuned);
+    expect(claimTuning({ ...shop, rewardChoices: ['splitter'] }, 'part-1').rewardClaimed).toBe(false);
+    const parsed = parseSave(JSON.stringify({ ...freshSave(42), run: tuned }));
+    expect(parsed?.run.board['0-3'].tuned).toBe(true);
+  });
+
+  it('fuses only a matching spare and never duplicates its credit or ownership', () => {
+    const ready = removePeg(newRun(42), '1-2');
+    const fused = fusePeg(ready, 'part-1', 'part-2');
+    expect(fused.board['0-3'].tuned).toBe(true);
+    expect(fused.bench.some((part) => part.id === 'part-2')).toBe(false);
+    expect(fused.brass).toBe(ready.brass);
+    expect(fusePeg(fused, 'part-1', 'part-3')).toBe(fused);
+    expect(fusePeg(ready, 'part-1', 'part-1')).toBe(ready);
+    expect(fusePeg(ready, 'part-1', 'part-5')).toBe(ready);
+    expect(fusePeg(launchDrop(ready), 'part-1', 'part-2').board['0-3'].tuned).toBeUndefined();
+    expect(ready.board['0-3'].tuned).toBeUndefined();
+  });
+
+  it('charges the exact tuning price once and keeps the free reward independent', () => {
+    const shop = collectCommission({ ...newRun(42), phase: 'review', score: 200 });
+    const tuned = tunePeg(shop, 'part-1');
+    expect(tuned.brass).toBe(shop.brass - tuningPrice('mint'));
+    expect(tuned.rewardClaimed).toBe(false);
+    expect(tunePeg(tuned, 'part-1')).toBe(tuned);
+    expect(tunePeg({ ...shop, brass: 0 }, 'part-1').brass).toBe(0);
+    expect(tunePeg(newRun(42), 'part-1').board['0-3'].tuned).toBeUndefined();
+    const credits = claimCredits(tuned);
+    expect(credits.brass).toBe(tuned.brass + 2);
+    expect(claimCredits(credits)).toBe(credits);
+  });
+
+  it('opens bounded After Hours capacity milestones without removing the existing build', () => {
+    const run = newRun(42);
+    expect(commission({ ...run, stage: 11 }).capacity).toBe(13);
+    expect([12, 14, 15, 18, 21, 24, 99].map((stage) => commission({ ...run, stage }).capacity))
+      .toEqual([14, 14, 15, 16, 17, 18, 18]);
+    expect(commission({ ...run, stage: 12 }).target).toBe(97500);
+  });
+
+  it('keeps the role-study shop legal and accounts for fused ownership', () => {
+    const shop = collectCommission({ ...newRun(42), phase: 'review', score: 200 });
+    const result = planRoleShop(shop, 'charge');
+    expect(result.run.brass).toBeGreaterThanOrEqual(0);
+    expect(result.run.brass).toBeLessThanOrEqual(shop.brass);
+    expect(result.run.rewardClaimed).toBe(true);
+    expect(result.run.nextId).toBeGreaterThanOrEqual(shop.nextId);
+    expect(result.actions.filter((action) => action.type === 'gift' || action.type === 'gift-tune')).toHaveLength(1);
+    const copies = Object.keys(result.run.board).length + result.run.bench.length;
+    expect(copies).toBe(Object.keys(shop.board).length + shop.bench.length
+      + result.actions.filter((action) => action.type === 'gift' || action.type === 'buy').length
+      - result.actions.filter((action) => action.type === 'fuse').length);
+  });
+
+  it('can progress through the opening with actual role-aware actions', () => {
+    const report = playRoleCampaign(42, 'recovery', 3, 0);
+    expect(report.cleared).toBe(3);
+    expect(report.timeouts).toBe(0);
+    expect(report.records.every((stage) => stage.credits >= 0)).toBe(true);
+  });
+
+  it('audits a missed target without creating money or changing already capped retry assistance', () => {
+    const lost = { ...newRun(42), phase: 'lost' as const, dropsLeft: 0, retries: 3 };
+    const audit = auditRoleRecovery(lost)!;
+    expect(audit.run.brass).toBe(lost.brass);
+    expect(audit.run.power).toBe(lost.power);
+    expect(baseValue(audit.run)).toBe(baseValue(lost));
+    expect(audit.run.retries).toBe(4);
+    expect(lost.dropsLeft).toBe(0);
+    expect(audit.after).toBeGreaterThanOrEqual(audit.before);
   });
 });

@@ -2142,3 +2142,714 @@ After creation, compare the resulting Git tree with the final scanned tree and
 check the worktree and local branch status. No push is part of this operation;
 the final commit hash comes from Git rather than being embedded in its own record.
 No gameplay tests, builds, assets, or packages were rerun for this commit-only turn.
+
+## H033 - 2026-09-11 - Next Three Prototype Priorities
+
+- **Request:** The user asks for the next three biggest open items now. This is
+  prioritization, not authorization for another implementation or balance trial.
+- **Current context:** The board and integrated collectors are implemented under
+  D03. D09's gift trial was not adopted. Existing freeze comparisons and the
+  user's fixed-center-dropper feedback leave sustained decision-making unresolved.
+  D10 reward visibility, D13 reading load, and D01 endgame are still open.
+- **Recommendation:** First, handle D09/D14/D15 as a connected balance question:
+  meaningful building, repositioning, and aiming without punishing earned power
+  or assuming a compulsory center hit is needed. Build on the existing frozen-run
+  evidence with actual per-lane center-arrival/payout analysis before proposing
+  a rule change. Second, improve discovery of free rewards and reduce reading
+  demands (D10/D13), with the D12 generic-content review as adjacent polish;
+  keep three free choices unless a separate reward-count change is approved.
+  Third, design a satisfying campaign finish and continuation (D01) once the main
+  progression is understood. A bigger board (D02) or thousands of balls is not
+  automatically necessary.
+- **Ordering rationale:** The earlier theme priority is now implemented. Clarity
+  of rewards and decisions deserves a focused pass before expanding endgame
+  content, while the balance question remains first. This revises a recommendation,
+  not the earlier historical decisions or current feature statuses. D11 remains
+  a smaller open layout check; platform/storage and music are not the top-three
+  design priorities right now.
+- **Changes / validation:** Added the dated recommendation to OPEN-ITEMS and this
+  history entry; retained all item rows and their statuses. Documentation checks
+  cover IDs, local links, ordering, and explicit non-approval. No gameplay edits,
+  simulations, tests, build, artwork, package, commit, or push were performed.
+- **Open follow-up:** Discuss the D15 diagnostic scope before starting new work.
+  No balance numbers, center-hit rule, reward dialog, or endgame design selected.
+
+## H034 - 2026-09-11 - Approved Balance Investigation and Reward Clarity
+
+### Request and Scope
+
+The user authorized **D09, D14, D15, D10, D12, D13** in the assistant's chosen
+order, asked for validation, and emphasized: "balancing is most important so
+don't do random changes. be very thoughtful." This supersedes H033's
+discussion-only wait for those six items. It does not authorize a new endgame,
+larger board, Steam/save redesign, commit, or push. Treat the game as an unreleased
+prototype; no parallel historical rules or private-machine exception was added.
+The existing uncommitted H033 records were preserved.
+
+### Balance Work and Decision
+
+- Added a detached all-nine-lane inspection and replayed **360 first-attempt
+  earned boards** from four policies/eight fixed seeds. Every recorded payout
+  reproduces exactly. A lane change rescues 230 of 242 boards that would miss
+  if recentered; all boards have a center-reaching route, while 20 highest-paying
+  routes skip it. These are counterfactual snapshots of lane-aware builds, not
+  full centered campaigns or human novice evidence.
+- Ran **48 baseline and 48 repeat-price campaigns**, including beginner,
+  conservative, optimized, splitter, frozen-after-six, and fixed-center policies,
+  then up to five legally earned After Hours commissions for campaign winners.
+  The same eight seeds were retained; no money or inventory was invented. All
+  40 overlapping baseline campaign records reproduce the previous archive.
+- Fixed-center construction evaluates placements at lane 5 throughout. All
+  eight such campaigns win, as do all eight machines frozen after commission 6
+  with no later layout/lane edits or paid purchases. The latter also clear 34
+  After Hours commissions across the eight bounded continuations. Useful late
+  changes are still not necessary for these established strong machines.
+- Evaluated a test-only paid Doubler/Crown premium: first three shops unchanged;
+  from shop four, +2 with three copies owned and at most +4 with four or more,
+  counting board and bench at collection. No effects, targets, gifts, power,
+  physics, or earned-score rules changed. It is not wired into live pricing.
+- Paired checks verify the first four commission records and first three shops
+  match. Beginner seed 1 drops from seven to six completed commissions and a
+  best payout of 824 to 540. Eight After Hours outcomes worsen. Some strong
+  results improve, including conservative seed 42's continuation, but frozen
+  completion and later target-enabling builds do not improve. **Reject the
+  price candidate**; do not strengthen it or combine it with the previously
+  rejected gift trial just to force a result.
+- Removing the entire center payout would prevent five-drop completion on 99
+  sampled boards; removing only its extra x2 bonus does so on **16** (0 opening,
+  9 middle, 7 late). The latter uses uncapped observed tokens at x1, not vanished
+  center arrivals. This distinction and the successful centered builders argue
+  against imposing a center-hit requirement. The user's exact meaning of "the
+  very end" is not reconstructed from these samples.
+- Retained full raw reports and a reproducible paired comparison under ignored
+  experiment artifacts, with methods/results in BALANCE.md. Original sixteen-run
+  reports remain intact. D09/D14 remain open rather than being marked balanced.
+
+### Implemented Player Experience
+
+- Collecting opens a prominent **Choose one free part** dialog using the current
+  three choices. It shows effects and owned counts, keeps paid stock separate,
+  and grants nothing until a real claim. Inspect, Escape, and controller Back
+  dismiss without claiming and return focus to the reopen control. Pending
+  reload/import and After Hours use the same flow. Full storage visibly offers
+  the existing two-credit conversion, once. Choice count and gift rules stay put.
+- Added a collapsed **Last cascade** receipt on desktop/mobile with actual
+  left/center/right payouts, token arrivals, Vault deposits, and longest chain.
+  The feed is live during drops only. No optimal lane, placement, or solver is
+  exposed; center x2 and excess-as-success rules remain unchanged.
+- Replaced routine forced-whimsy/status slogans with concise labels. Removed
+  duplicate subtitles/counts, idle recipe/chemistry imagery, empty victory
+  ornaments, wallet filler, and promotional footer/credits copy. Shortened the
+  guide and part descriptions while retaining effects, costs, exceptions, and
+  the optional manual. Crown now explicitly counts part kinds. Reward controls
+  announce effects and owned counts; descriptions also retain part-detail titles.
+- Reviewed actual play, mobile cards, and small/header store art by quality and
+  specificity, not claimed AI detection. Retained the coherent local workshop
+  and mechanism artwork; refreshed the existing gameplay/capsule outputs to
+  replace stale bowls. No wholesale reskin or external runtime assets added.
+
+### Actual Verification and Follow-up
+
+- Full verify task passed the production build, **259 unit tests / 15 files**,
+  and **81 browser tests**. Actual campaign, onboarding, inventory, controller,
+  audio, contrast, and responsive board checks passed.
+- Screenshot review caught an old shop selector shrinking mobile reward icons.
+  Corrected it locally; **13 focused reward/controller tests passed**, including
+  three new cases beyond the earlier full run. Final accessible-description
+  follow-up passed **all six reward cases** at 1440/390/320px and boundaries.
+  The final Crown wording passed **16 part-effect tests**.
+- Final TypeScript/Vite build and **12 real built-Electron tests** passed after
+  the last runtime edits. Existing nonfatal build warnings remain. No sampled
+  balance timeouts, token-bound violations, or unsafe score integers occurred.
+- Capture task produced 13 dimension-validated store/library images and twenty
+  achievement variants using original local art and legal actual gameplay;
+  representative screenshots were inspected. No store upload was performed.
+- Updated DESIGN, BALANCE, VERIFICATION, and the tracker. D10/D12/D13 and D15's
+  diagnostic/feedback scope are complete; meaningful later decisions remain
+  open under D09/D14. No assertion that automated success proves enjoyment.
+  Physical controller/audio, real Steam/Cloud/Deck checks remain unverified.
+- The live prototype is http://127.0.0.1:5173/. Portable/unpacked executables
+  were not regenerated in this pass. No stage, commit, push, save reset, or
+  deferred D01/D02/platform feature was performed.
+- Final documentation/scope check passed: H034 ordering, the six tracker rows,
+  48 local file links, diff whitespace, unchanged authoritative rule/native/
+  dependency/original-report files, and an HTTP 200 from the live game URL.
+
+## H035 - 2026-09-11 - Discuss Structural Difficulty Rather Than Acquisition Taxes
+
+- **Request / observation:** The user asks why balancing did not work, says the
+  game is still too easy, and explains that buying parts and installing them
+  along the previous token marker should not be enough to win. Something needs
+  to change, but a compulsory center chute is not required. They explicitly ask
+  to discuss suggestions; no new prototype or production change is authorized.
+- **Local evidence:** Read the latest history/tracker and the controlling
+  simulation, engine, and content. Every socket receives an identical static
+  physical peg regardless of installation. Most part kinds add scoring without
+  changing trajectory; Fork and Kicker explicitly change velocity. Installed
+  capacity expands 7 to 18, token-power purchases boost the whole machine, and
+  repeatable launches accumulate toward a single minimum score. This explains
+  why putting value on a known route is such a strong default action. Relay
+  already has a neighbor relationship; positional interactions are not wholly
+  absent, just insufficient to prevent the measured frozen-machine wins.
+- **Why the earlier trials failed:** Gift variety and repeat prices targeted
+  acquisition while retaining this building structure. H034's already-strong
+  frozen machines still win 8/8, while the price tax worsens weaker progression.
+  That is evidence against this candidate, not evidence that the game is
+  balanced or that no meaningful redesign can work. These counts are prior
+  results; no new simulations ran in this discussion.
+- **Recommended direction, not approval:** Make installed space more contested
+  after the opening, and make route construction/support compete with simply
+  adding another value part. Suggested prototype alternatives include fixed,
+  visible bonus sockets worth a detour, or deeper existing neighbor-support
+  relationships. A Kicker using the slot of a direct multiplier should offer an
+  understandable opportunity, not just a compulsory edit. Exact capacities,
+  bonuses, effects, and implementation choice remain unselected. Test isolated
+  changes before combining them; bonus sockets alone might only add more power.
+- **Larger alternative:** Occasional authored campaign checkpoints could favor
+  a compact build or useful branching, with advance notice and multiple viable
+  approaches. They must not depend on an unguaranteed shop part or secretly
+  invalidate a successful machine. This is a discussion option, not a new D01
+  system, selected contract rule, or permission to alter run determinism.
+- **Evaluation clarification:** Do not turn the prior trial's no-new-stalls gate
+  into a universal prohibition on making an intentionally easy game harder.
+  It is legitimate for a simplistic or frozen policy to lose under a future
+  approved redesign if thoughtful, affordable, understandable changes provide
+  recovery. Test that distinction and multiple viable builds rather than protect
+  every old win, enforce movement quotas, or count additional identical launches
+  as depth. Preserve excess-as-success and useful observed trails. Target and
+  global-power calibration can follow structural work; no blanket nerf or exact
+  numbers are selected in this turn.
+- **Changes / validation:** Discussion records only in HISTORY and OPEN-ITEMS;
+  D09/D14 remain open. Preserve the user's intervening task-file changes and all
+  prior implementation edits. Discussion checks passed for one ordered H035
+  entry, explicit proposal/non-approval and no-new-run statements, unique open
+  D09/D14 references, and clean documentation patch whitespace. Editor diagnostics
+  are clear. No gameplay tests, balance runs, build, assets, packages, or
+  commit/push ran in this exchange. Proposed ideas are not implemented.
+- **Open decision:** Choose whether to start with constrained machine-building
+  and positional routing, or prioritize occasional changing commission goals.
+  The recommendation is the former as the foundation, not more price trials.
+
+## H036 - 2026-09-11 - Track a Livelier Animated Workshop Background
+
+- **Request:** Add an action item to make the background more vibrant or alive,
+  with turning gears as the user's example.
+- **Decision / changes:** Added D16, "Livelier animated workshop background," as
+  an open deferred item. Consider coherent ambient clockwork motion while keeping
+  the machine readable, controls unobstructed, reduced motion respected, and
+  desktop/mobile performance acceptable. Exact animations and any palette change
+  are unselected; this is backlog capture, not implementation approval.
+- **Validation / scope:** Read the latest tracker/history to continue the item
+  and entry numbering. Documentation only; no gameplay tests, simulations,
+  builds, artwork, animation, task edits, or Git publication performed.
+- **Open follow-up:** Review D16's visual scope before implementation. D09/D14
+  balance proposals and all existing deferred decisions remain unchanged.
+
+## H037 - 2026-09-11 - Authorized Structural Balance Trials
+
+### Request and Current Checkpoint
+
+The user returns to the three H035 suggestions and authorizes trying any or all,
+running tests, and choosing the experiments independently. This authorizes
+testing structural balance, not D16 animation, unrelated endgame expansion,
+Steam changes, or Git publication. Existing staged work and user task edits were
+preserved; new changes are not staged or committed by this exchange.
+
+- Implemented optional shared-simulation bonus sockets and explicit commission
+  definitions for trial settlement/rewards, with ordinary defaults retained.
+  Added bounded trial builders, observed-contact filling, recovery-only play,
+  rebuild/freeze controls, and independent mandatory-removal accounting.
+- Completed 40 screening campaigns, 40 calibrated campaigns, and 72 additional-
+  seed campaigns; replayed two missing controls for **154 total**. The summary
+  verifies 70 protected opening comparisons and independently re-simulates 21
+  recorded recoveries with ownership, credits, and power unchanged.
+- Capacity grows 7/8/9, then stays 9 for commissions 4-6, 10 for 7-9, and 11
+  for 10-12 in the preferred trial. The fixed target curve preserves 100/300/550
+  and continues 1,000/1,800/3,200/5,800/10,400/18,700/33,700/60,600/109,100.
+  After Hours keeps its 1.38 growth and 1-billion cap, rebased to that final
+  target. No price, power-value, physics, split-limit, or mandatory-center change.
+- Capacity alone and targets alone still permit the tested trail-filling wins.
+  Bonus sockets increase easy power; compact checkpoints mostly require taking
+  parts off and do not create useful later recovery. Neither enters the playable
+  candidate. No candidate was tuned in response to an individual run's payout.
+- Across eight seeds, normal trail-filling wins 7/8 and the preferred trial 3/8;
+  recovery-only play wins 8/8 in both, with late repositioning rescues rising
+  from one to six. Strong frozen-after-six machines still win 7/8 in the trial,
+  versus 8/8 normally. This is a useful result, not proof of universal difficulty.
+- Added a development-only `?balanceTrial=space-pressure&seed=42` entry using
+  the real game UI, with trial-aware target/capacity/reward/achievement feedback.
+  It starts a fresh in-memory trial, disables save writes/import/export, and
+  labels itself TRIAL / NOT SAVED. Normal game and storage remain separate.
+- **Completed focused validation so far:** simulation/engine boundaries passed;
+  latest structural/aiming slice passes **25 tests**. Both actual UI trial cases
+  passed: full twelve-commission desktop recovery plus mobile early progression,
+  exact simulated payouts, capacity enforcement, earned purchases, and unchanged
+  normal storage. Captures and editor diagnostics were checked. These are not
+  yet the final full-suite/build/native results for this pass.
+- **Pending at that checkpoint:** verify conservative/Fork-focused shopping alternatives,
+  run final regressions, and complete BALANCE/VERIFICATION evidence. Normal
+  production balance is not replaced; D09/D14 remain open. No hardware audio,
+  physical-controller, real Steam, or enjoyment certification is claimed.
+
+### Final Outcome and Validation
+
+- Completed another **32 campaign attempts** with conservative and Fork-focused
+  purchase preferences under recovery/proactive-local play. All 32 finish the
+  campaign and three After Hours stages; recovery has seven/eight late
+  repositioning rescues respectively. Total diagnostic attempts for this pass:
+  **186**, including losing runs. Alternative buying remains viable in these
+  policies, not proof that distinct build archetypes are equally satisfying.
+- **Final production build passed; 280 unit tests in 16 files passed; 86 browser
+  tests passed with zero failures, skips, or flaky results.** The task output
+  truncated before the last summary; the saved Playwright HTML ZIP's report.json
+  and .last-run.json independently confirm the final 86/86 pass.
+- **12 built-Electron tests passed (41.9 seconds)** after the build. These verify
+  ordinary production gameplay and native boundaries, not a native version of
+  the development-only trial. Earlier focused trial screenshots plus final
+  desktop/mobile captures were inspected; actual canvas/viewport checks pass.
+- The full desktop trial uses real controls to earn and complete twelve
+  commissions. At commission 9 on seed 42, three free owned-part replacements
+  raise 3,428 per drop to 11,584 against an 18,700 target. Its final best drop is
+  47,672. These are mainly better value choices on an existing route; they do
+  not establish that the physical-routing design is now solved.
+- Kept the preferred candidate available for play at
+  http://127.0.0.1:5173/?balanceTrial=space-pressure&seed=42. It is temporary,
+  fresh, in-memory, and labeled NOT SAVED; reload restarts it. Normal play and
+  its storage are untouched. No permanent old/private-machine rules introduced.
+  Capacity-only, bonus-socket, and compact-checkpoint variants stay diagnostic.
+- Updated BALANCE/DESIGN/VERIFICATION and the tracker with exact parameters,
+  methods, unique report paths, reproduction commands, and limitations. Pinned
+  the screening task to its original five variants/four policies so later CLI
+  additions cannot silently alter its 40-case scope. Documentation checks confirm
+  local evidence links and summary figures. Editor diagnostics are clear.
+- Content constants, geometry, native/audio code, dependencies, and original
+  balance reports match the user's pre-experiment staged checkpoint. New source
+  changes are explicit optional trial hooks and the shared UI trial entry.
+  All user-staged files remain staged; no index, commit, push, or reset operation
+  was performed. No store capture refresh or Windows package rebuild was needed.
+- **D09/D14 remain open:** the trial reduces automatic trail-filling success and
+  offers earned recovery, but 7/8 strong frozen machines still clear and some
+  informed builders remain extremely powerful. This is a candidate worth trying,
+  not a claim that every run now requires interesting late decisions. D16 and
+  unrelated deferred items remain unchanged.
+
+## H038 - 2026-09-12 - Reopen the Balance Trial
+
+- **Request:** Run the game again after the H037 trial handoff.
+- **Action:** Started the existing Pocket Cascade: Play task; Vite is serving
+  http://127.0.0.1:5173/. Opened the integrated browser at
+  http://127.0.0.1:5173/?balanceTrial=space-pressure&seed=42.
+- **Verification:** The game is visible, identifies the space-pressure trial,
+  shows TRIAL / NOT SAVED, and enables Launch token. No token was launched.
+- **Scope:** Restart/open only. Trial progress is still temporary; normal saves
+  and game rules are unchanged. No tests, balance runs, builds, task edits,
+  commits, or pushes were performed. D09/D14 and deferred items remain unchanged.
+
+## H039 - 2026-09-12 - Feedback Hitch and First Structural Trial Playtest
+
+### Request and Observations
+
+The user reports an opening FPS hitch while many numbers appear, easing as the
+ball reaches the lower board. They authorize a root-cause fix if found, otherwise
+an open item. Separately they ask to discuss all balance points: 1-9 still need
+almost no changes while favoring free x2/Crown, 10-12 require thought mainly
+because earlier buying was random, After Hours capacity/reward purpose, adding
+part types, and why Mint/Vault feel unappealing. Only the performance correction
+is authorized for implementation; balance ideas remain discussion proposals.
+
+Read the latest history/tracker, actual simulation/part rules, trial capacities,
+feedback renderer, UI icon generation, and palette resolution. Read the active
+trial state through the shared browser without changing it. The seed-42 machine
+was in After Hours 4 with 11/11 parts, max power 260, and last payout 85,375:
+five Doublers, two Crowns, two Echoes, and two Forks; eight spares include the
+three original Mints and repeated Echo/Crown choices. It banks zero on that drop.
+The user progressed from 73 launches/47 credits/256,125 points to the completed
+shop at 75 launches/62 credits/426,875 points during inspection. No assistant
+launch, reload, purchase, or board edit occurred. A post-fix read still showed
+that machine intact. The trial has no persistent local save; its current state
+does not contain earlier per-commission layouts or a purchase history.
+
+### Diagnosed Performance Work
+
+- Added an isolated actual-play profile using the same owned board layout,
+  seed, and power at the reported 1301x1006 viewport and 1x playback. It compares
+  normal rendering with only canvas number labels disabled, retaining all real
+  scoring events and checking the exact 85,375 result in both cases.
+- Canvas labels were not the main measured source. Normal feedback regenerated
+  96px part PNGs **316 times** and made **2,528 palette pixel reads** during one
+  drop. The rolling feed's index-based keys remounted existing icons, and each
+  icon draw resampled eight colors and encoded artwork, including repeated
+  effect/font-ready draws.
+- Changed only that hot path: stable event identity keys in App, a bounded
+  per-document palette cache keyed by current computed color/font inputs, and
+  bounded per-document part images keyed by kind/direction/palette/font status.
+  Theme/contrast/scoped colors and directional artwork remain distinct. No
+  labels, sounds, particles, tokens, or earned points were removed to speed it up.
+- After the fix, the same profile records **one PNG encode/eight pixel reads**.
+  Normal-rendering p95 frame interval goes from 43.1 ms to 27.9 ms; median is
+  essentially unchanged (22.6 to 22.9 ms). Disabling labels before the fix gives
+  p95 42.3 ms, supporting the distinction. These are instrumented headless
+  measurements, not guaranteed hardware FPS or proof of every hitch eliminated.
+- The first timing hook imported a second Vite module instance and failed to
+  capture renderer calls; corrected it to instrument the actual loaded module.
+  The valid baseline and after reports are separate ignored performance artifacts.
+  Work-count assertions and exact payout are regression gates; absolute timing
+  is recorded rather than used as a flaky pass threshold.
+- **Validation checkpoint:** all 15 focused performance/palette/workshop/board
+  cases pass; production build and 280 unit tests pass; 12 built-Electron tests
+  pass (50.9 seconds). The full browser run is still finishing at this checkpoint.
+  D17 retains player-side smoothness confirmation as open rather than promising
+  every display/GPU scenario is fixed. Current test browsers are isolated from
+  the user's trial and ordinary save.
+
+### Balance Discussion and Next Direction
+
+- The user's first-nine/last-three report confirms H037 did not establish early
+  meaningful decisions. It delayed pressure while leaving value stacking an
+  easy default. Do not promote the trial or keep raising quotas as a substitute
+  for deeper part/reward choices. D09/D14 remain open; earlier measured recovery
+  cases remain historical evidence, not disproven or relabeled as enjoyment.
+- The trial intentionally stays at 11 installed parts in After Hours; normal
+  play rises from campaign 18 to 20. Neither currently expands indefinitely.
+  This was a capacity experiment, not a finished endgame reward design. Scarce
+  slots can support interesting replacement, but repeated gifts are unexciting
+  when no offered part improves or changes the chosen build and power is maxed.
+- Mint's fixed +140% of base loses relative value against accumulated-value
+  multipliers: at base 260 it adds 364 versus a Doubler's +10,000 on a 10,000
+  token. An upstream Mint can still be worthwhile before other multipliers.
+  Vault's banking is extra score, not protection against loss that does not
+  occur; even timeout tokens are paid. Its half-value deposit often competes
+  poorly for a slot with doubling, although order/Crown variety can change an
+  individual comparison. This is not an asserted universal domination proof.
+- Recommend reviewing existing generator, amplifier, banking, and routing roles
+  plus earned installed-part upgrades/transformations before adding many types.
+  Duplicate gifts could help target an upgrade instead of filling the bench.
+  A few genuinely different parts could then enable deposit-powered finishes
+  or bringing split branches together, rather than adding more unconditional
+  multipliers. All are examples, not approved effects or numbers.
+- Discuss bounded capacity milestones and worthwhile rewards/goals for After
+  Hours alongside part progression. More space alone would mostly extend the
+  same easy loop. Do not treat this discussion as approval for D01/D02 expansion,
+  D16 animation, Steam/save redesign, or another automatic experiment run.
+- Added D18 for part roles and post-capacity reward usefulness. Updated the
+  balance/tracker discussion to distinguish observed live state, reported earlier
+  play, proposals, and implemented performance work. No game-rule change,
+  machine suggestion, new part, campaign trial, package, commit, or push here.
+
+### Final Validation and Discussion Boundary
+
+- The full browser run ended with **87 passes and one timeout** among 88 cases.
+  The 768x1024 smoke test reached its unchanged 45-second budget during an actual
+  launch; no application exception was reported. Its exact isolated rerun passed
+  in **3.3 seconds** without changing code, timeouts, or assertions. Contention is
+  plausible but not established; do not relabel the original full run as clean.
+- Final recorded checks are the production build, 280 unit tests / 16 files,
+  15 focused browser cases, and 12 built-native cases passed, with the full-suite
+  timeout and successful targeted rerun disclosed. Performance before/after
+  artifacts and limitations are linked in VERIFICATION. Editor diagnostics and
+  the discussion record checks passed.
+- Next design recommendation remains proposals only: meaningful existing-part
+  roles first, then targeted upgrades/transformations and a few distinct new
+  interactions. Upgrades should not simply make every multiplier stronger;
+  review amplifier conditions/order alongside generator and banking payoffs.
+  Keep deterministic launches and earned value, and require useful choices
+  earlier than commission 10. No new design prototype was begun here.
+- D17 stays open for player-side smoothness confirmation; D09/D14 stay open for
+  gameplay depth; D18 records part/reward work. D16 animation and unrelated
+  deferred features, staged user work, and the player's current run are retained.
+
+## H040 - 2026-09-12 - Approved Combined Part and Progression Redesign
+
+### Approval and Scope
+
+The user confirms the lag is gone and authorizes all of the previous response's
+balance suggestions together, requesting the old localhost game be stopped and
+a new one launched after the full changes. This supersedes H039's discussion-only
+boundary for part roles, new interactions, tuning/duplicate rewards, and bounded
+After Hours capacity progression. D17 is resolved by both the measured fix and
+this explicit player confirmation. D16 background animation, a larger physical
+board, hundreds of tokens, Steam/storage redesign, and Git publication are not
+part of this approval.
+
+Stopped the identified Vite process on 5173. The previous shared browser page
+was no longer available when close was requested; no claim that the close tool
+closed it. Browser validation runs separately on 5174, leaving the player server
+stopped until the final restart. Existing user-staged and unstaged work is retained.
+
+### Implemented Rules and Experience
+
+- Generators create per-token charge, capped at three: Mint adds 140% base plus
+  one charge, Relay adds value based on occupied neighbors plus charge, and
+  Kicker routes and recharges. Doubler spends one charge; Crown spends two and
+  still rewards distinct kinds. Unsupported amplifiers emit an explicit status
+  instead of producing free multiplication. Echo consumes its memory once and
+  spends charge for multiplication, ending self-feeding Echo chains.
+- Vault banks 50% of value plus 25% per stored charge, consuming charge but not
+  token value. Banked points remain earned; a per-token reserve powers the new
+  **Dividend**, which consumes that reserve for twice its value. The new
+  **Junction** banks the two entry values when two distinct branches hit it in
+  one launch. It does not wait, stall, merge away, or add tokens. Fork divides
+  existing charge/reserves across its branches; at the split-depth limit it
+  adds charge rather than another unconditional value multiplier.
+- Each of ten parts has one behavior-changing tuning, including Mint Dynamo,
+  Doubler Crossfeed, Vault Capacitor, Dividend Reinvest, and Junction Exchange.
+  A reward can grant a new offered part, tune a chosen matching owned copy, or
+  grant two credits. Paid tuning costs part price plus three. Free fusion
+  consumes one matching untuned spare to tune the target, preserving its ID,
+  direction, and socket. Trades/fusion clear edit undo to prevent duplication.
+- Tuned/untuned spares group separately; tuned artwork has a small mark. Added
+  original Dividend/Junction graphics and bounded audio timbres. Three charge
+  pips accompany moving-token values. The inspector, catalogue, guide, optional
+  manual, reward choices, and accessible names reflect the current rules. The
+  confirmed icon/palette performance fix remains intact.
+- The first three targets stay 100/300/550. After measuring the first combined
+  screen, one fixed calibration sets later targets to 1,500/3,000/6,000/10,000/
+  16,000/24,000/36,000/52,000/75,000. Capacity is 7/8/9/9/9/10/10/11/11/12/12/13.
+  Token power is 10/14/19/25/32/40/49/59/70; prices and power-cost formula stay
+  unchanged. After Hours starts at 97,500, grows 1.3x, and opens capacity 14 on
+  entry, then 15/16/17/18 at After Hours 4/7/10/13. No mandatory collector hit,
+  adaptive target, randomized launch, or reduced launch budget was introduced.
+- Removed the active development-only trial entry. The former query now opens
+  ordinary saved gameplay. The new roles are not a permanent second ruleset;
+  old experiment artifacts remain historical evidence.
+
+### Measurement Checkpoint
+
+Twelve initial combined-rule campaigns showed passive stacking still reaching
+commission 11. After the fixed earlier-target calibration, another twelve-run
+screen and a full eight-seed/six-policy report were completed. These are **72
+campaign attempts including repeated controls**, not 72 seeds or guaranteed wins.
+The final 48-run report includes six earned After Hours stages for winners:
+
+- Passive multiplier preference with only additions on observed empty sockets:
+  0/8 campaign wins, stopping after 6-8 clears. This policy has outcome knowledge
+  for those additions, so it is not a measured human novice.
+- Trail play with owned-part recovery and tuning: 8/8 campaigns and all 48
+  sampled continuation clears; fourteen necessary installed-part changes in
+  commissions 4-9 across all eight seeds.
+- Proactive charge-focused construction: 8/8 campaigns; banking preference:
+  7/8; branch preference: 4/8. Their automated heuristics still leave failures,
+  so no claim of equal build strength or universal accessibility.
+- Strong builds frozen after commission 6: 0/8 campaigns. A separate wider
+  three-decision owned-part audit finds a next-stage recovery for all eight,
+  but does not rewrite the failed campaign results.
+- The bank seed-42 stall recovers from 2,973 to 4,946 per drop against 16,000
+  with three free changes, same three credits and power. Three of four failed
+  branch campaigns also have a recovery in this bounded audit; one remains
+  unresolved. Seven of eight passive failures have such a recovery; one does
+  not. No money or additional uncapped retry power was injected.
+- All 48 runs report zero timeouts and enforce token/score/capacity accounting
+  during actual drops. Success is attainable with earlier choices, not proof
+  of human enjoyment or balanced win rates for every strategy.
+
+### Validation In Progress
+
+The reworked real-control campaign and saved After Hours milestone test passed,
+as did ten focused reward/tuning/fusion cases and two earned Dividend cash-out
+cases. The latter required actually arranging the earned generator/bank/cash-out
+sequence: a best-score empty placement could instead benefit Relay without
+activating Dividend. The test now exercises the intended interaction, not a
+fabricated reward or an assumed optimal route. All 311 unit tests and the
+production build passed at this checkpoint; the full browser run exposed those
+two now-corrected Dividend fixtures. Final browser/native gates and the fresh
+player launch remain to be recorded before completion.
+
+### Final Delivery and Validation
+
+- Production TypeScript/Vite build and **311 unit tests across 16 files** passed.
+  Main bundle is about 504 kB; the default chunk-size, theme-script, and dependency
+  annotation warnings are nonfatal and retained. No warning threshold was hidden.
+- Full browser checks covered all **91 cases**. Initial functional failures in
+  the earned Dividend fixture and hardcoded external-origin check were corrected
+  and their exact focused checks passed. A later two-worker full run had one
+  reward-reload timeout. The final single-worker run passed **90/91**, with one
+  restart-reload timeout after the reset/ownership assertions. The exact case
+  passed unchanged in **3.6 seconds** alone. No timeout or assertion was weakened;
+  do not claim a clean complete run. D19 records the intermittent load issue.
+- **13 built-Electron tests passed (44.6 seconds)**, including earned tuning,
+  preserved ID and paid/free possessions through native relaunch, and exact
+  subsequent tuned simulation results. Existing CSP/isolation/save/export checks
+  remain intact. Browser campaign passes all twelve commissions and four After
+  Hours stages with earned tuning, fusion, recovery, exact rewards, and reload.
+- Independently validated all **48 study end states** through the current save
+  parser and replayed all **24 recovery audits**, verifying exact before/after
+  payouts and unchanged owned IDs, credits, and power. Audit recovery is not
+  relabeled a campaign win. Raw unsuccessful policies remain in the report.
+- Updated current DESIGN/README/TESTING/BALANCE and verification/tracker records;
+  older reports are explicitly historical. Fixed the link to the retired trial
+  test without deleting the historical trial result. Checked 148 local document
+  links, patch whitespace, and preservation of the original 16-run reports,
+  dependency lockfile, and native security/save implementation. Existing staged
+  work was retained; no stage, commit, push, branch, or reset operation occurred.
+- Restarted Pocket Cascade: Play on **http://127.0.0.1:5173/** after validation.
+  The capture task successfully generated **13 validated gameplay/capsule/library
+  images and 20 achievement variants** from original art and current legal UI
+  actions. Inspected desktop/mobile tuning and milestone screens, current active
+  gameplay, and the small capsule. No store upload or Windows package rebuild.
+- Opened a new integrated browser page at the normal URL, not the retired trial.
+  Verified fresh seed **2457968940**, commission 1, ready, zero launches, zero
+  credits, power 0, autosave-ready true, no trial flag, and Launch token enabled.
+  No token was launched by the assistant in the player's new session. The old
+  unsaved trial is not resumed; this new machine now persists normally.
+- D17 resolved by explicit player confirmation. D18's implementation is delivered
+  and checked; D09/D14 remain open for human decision quality and weaker
+  banking/branch results. D01's greater chaos and D02/D16/platform work remain
+  deferred beyond the specifically approved bounded progression changes.
+
+## H041 - 2026-09-12 - Check the Current Run for an Impossible State
+
+- **Request / feedback:** The user says the redesign is better because it makes
+  them think, asks whether an impossible state is possible, and requests a check
+  of their current run. This is inspection/analysis, not permission to change the
+  machine, rebalance, restart, or apply a calculated solution automatically.
+- **Observed state:** Read the normal browser's current saved game without
+  changing it: seed 2457968940, commission 11 / Grand Design, target 52,000,
+  lost at 24,375, zero launches left, power 6, retries 1, nine credits, twelve
+  installed parts, two spares, 96 total drops. The last drop is 4,875. Reproduced
+  that exact payout from a gameplay-field snapshot stored in ignored local
+  diagnostic artifacts; no profile/private save file was written to tracked data.
+- **First discrimination:** On the next retry the base is 59 (+20%), score resets
+  to zero, and five launches are restored. None of the nine unchanged lanes can
+  clear: best drop 5,318, five-drop total 26,590. The next retry bonus alone and
+  aiming alone do not solve the failed machine. Purchases/tuning are unavailable
+  while lost, so no shop actions were assumed by the recovery search.
+- **Constructive recovery:** The existing detached whole-board audit evaluates
+  642 candidates across at most three improving decisions, without changing
+  owned IDs, credits, or power. Its first step alone is sufficient: swap Crown
+  from 4-3 with Mint at 4-2, keeping lane 5. Independently replayed the exact
+  `retryCommission`, `placePeg`, `launchDrop`, and `settleDrop` calls: four drops
+  of 14,364 yield 57,456 against 52,000, with one launch remaining. All fourteen
+  parts and nine credits are retained; no purchase, fusion, or new part.
+- **Remaining campaign witness:** The audit's other two edits replace the
+  Doubler at 5-2 with spare Echo part-14 and move the displaced Mint from 4-3
+  to 1-2. Verified 21,752 per drop, commission 11 clear in three launches, then
+  normal reward collection/credit alternative/advance. With no further purchase
+  or layout change, commission 12 pays 18,093 at reset base 49 and clears 75,000
+  in five launches. Real transitions and save parsing pass. This proves existence
+  for the inspected inventory, not an exhaustive optimum or universal safety.
+- **General risk confirmed:** A separate detached copy legally returns and
+  salvages all parts while lost. The resulting valid state cannot acquire parts
+  or power from the closed shop. Even an empty machine at maximum power plus
+  capped retry help can earn at most 910 over five launches, so it cannot clear
+  52,000. The game has no universal recoverability guarantee. This is an explicit
+  destructive counterexample, not a claim that all weak natural builds are
+  unsolvable; a failed heuristic search alone would not prove that.
+- **Changes / decision:** Added D20 for unwinnable inventories and a deliberate
+  safeguard or loss-recovery policy, and recorded the positive playtest and exact
+  check in BALANCE. No gameplay code, economy, save architecture, advisor UI,
+  trial mode, user task file, or deferred feature changed. General recovery
+  design requires a decision; the current run needs no such rescue feature.
+- **Validation / preservation:** Exact payout reproduction, all-lane comparison,
+  minimal swap replay, both remaining commission settlements, ownership/currency/
+  capacity/no-timeout checks, and save validation succeeded on detached states.
+  The follow-up browser read confirms the original savedAt timestamp, phase,
+  score, credits, power, retry count, and 96 total drops are unchanged. No live
+  launch, reload, retry, board edit, purchase, salvage, or save write occurred.
+  No build/full-suite rerun, staging, commit, or push is claimed for this check.
+
+## H042 - 2026-09-12 - Discuss Optional Assistance, Recovery, and Practice Access
+
+- **Request:** Discuss four questions: whether automatic retry tune-up should be
+  the player's choice or begin after several retries; how runtime can know a
+  state is unwinnable; whether the boost lasts for a commission or the whole run;
+  and whether typical players can finish and should be allowed specific-level
+  access despite the short campaign. The user reports completing the run and
+  attaches a screenshot in case the previous save is unavailable after restart.
+  This is discussion, not permission to implement another change.
+- **Evidence:** Read H041, the tracker, controlling engine functions, and nearby
+  restart tests. The screenshot shows After Hours 2 and +20% tune-up. No live page
+  is shared in this turn, so no save was inspected, loaded, or reconstructed from
+  the image. Do not mistake H041's older commission-11 state for the current run.
+- **Current behavior:** Retry increments retries after a loss, resets score and
+  launches, and raises base value by 10% per retry capped at 30%. Restart level
+  resets the attempt without increasing or clearing the existing retry count.
+  Advancing resets retries to zero, including between After Hours commissions.
+  Token-power purchases and tuned parts remain owned. The screenshot's +20% is
+  therefore local to the current commission, not accumulated campaign power.
+- **Assistance proposal:** Make ordinary Retry preserve current difficulty and
+  separate it from choosing an additional +10% tune-up, still bounded and local
+  to the commission. Offer help from the first loss but gently highlight it
+  after three failed attempts. Three losses are a reasonable prompt trigger,
+  not a reason to silently turn on help or require grinding failures. Accepted
+  assistance and attempts need separate counters. This changes no current rule.
+- **Unwinnability proposal:** Treat replayed legal witnesses as solvable, proven
+  upper-bound failures as impossible, and incomplete-search failures as unknown.
+  A failed route or several lost attempts do not prove all legal inventories,
+  swaps, fusions, and lanes fail. Determinism permits reproducible checking, not
+  a cheap exhaustive layout solver. Do not add a runtime advisor/auto-layout or
+  label a run impossible because bounded search failed. Diagnostics remain tools
+  for development; recovery need not wait for a universal runtime classifier.
+- **Practical recovery recommendation:** Consider a full rollback to the latest
+  pre-choice/pre-spending shop checkpoint, with the same stock and seed and
+  consistent restoration of credits, owned parts/IDs, tuning, and reward state.
+  No extra commission reward, duplicated items, or rerolled offers. This lets
+  players reconsider recent irreversible choices without replaying the entire
+  campaign, but does not mathematically guarantee a weak entry inventory is
+  winnable. A broader guaranteed-assistance versus explicit run-ending policy
+  remains undecided under D20; no checkpoint system is implemented here.
+- **Completion and access recommendation:** The reported player completion is
+  useful evidence, not a first-time-player completion-rate estimate, especially
+  with the prior recovery hint and outcome-aware diagnostic policies. Prefer
+  sequential campaign progression plus separate practice/replay of reached
+  commissions with appropriate entry builds. Practice must not replace the
+  active run, grant campaign currency/progression, or duplicate completion.
+  A naked stage jump with starter inventory would not test the real experience.
+  Keep campaign value in meaningful choices and build variety, not forced replay
+  or withholding convenience to inflate duration. Snapshot/unlock details remain
+  unselected; practice is not a new named-save-slot implementation.
+- **Changes / scope:** Added D21/D22 and linked the discussion to D20. All are
+  open proposals; D09/D14 retain player-evaluation follow-up. No gameplay code,
+  balance values, runtime solver, save, task file, server, browser, or deferred
+  feature changed. No gameplay simulations, tests, builds, packages, commits,
+  or pushes were run. Documentation checks passed for H042 ordering, unique open
+  D20/D21/D22 rows, explicit non-approval and screenshot-only scope, local tracker
+  links, and patch whitespace; earlier history entries are preserved.
+
+## H043 - 2026-09-14 - Authorized Commit and Push With Descriptive Messages
+
+- **Request / approval:** The user defers the retry/recovery/practice discussion,
+  explicitly asks to commit and push the current work, and requests descriptive
+  commit messages from now on. This authorizes publishing the current source
+  checkpoint to the existing origin/main, not implementing D20/D21/D22 or changing
+  branch protection, repository visibility, or other deferred features.
+- **Preference reversal:** The earlier short-message preference is superseded.
+  Project instructions and persistent user preferences now require a descriptive
+  subject and, for substantial work, a concise body covering changes, purpose,
+  relevant validation, and known limitations. Explicit approval is still needed
+  for future commits and pushes; this is not blanket publication permission.
+- **Scope:** Preserve and combine the existing staged and unstaged work: the
+  charge-based ten-part redesign, tuning/fusion and reward UI, After Hours
+  progression, feedback-performance fix, current artwork, diagnostic tooling,
+  tests, and design/playtest/discussion records through H042. Do not include
+  ignored dependencies, builds, packages, raw experiment reports, player saves,
+  or local credentials. No gameplay changes are made for this commit-only turn.
+- **Fresh validation:** TypeScript build check passed; all **311 unit tests in
+  16 files passed**. The unit JSON report is retained in ignored security
+  artifacts after terminal output initially omitted completion. Confirmed the
+  origin URL matches the already approved public pocket-cascade repository and
+  fetched its current state without a merge or branch change.
+- **Prior evidence, not rerun here:** H040 records the production build, thirteen
+  native passes, and 90/91 browser passes with one reload timeout whose exact
+  isolated recheck passed unchanged. Those caveats remain; no new browser/native,
+  balance-study, artwork-generation, or Windows-package result is claimed here.
+- **Publication checkpoint:** Stage the reviewed working state, check staged
+  whitespace and exclusions, export the exact index tree, and scan it with
+  Gitleaks before committing. Then push normally without force and verify the
+  remote main hash and final worktree. This entry is prepared before commit/push;
+  their completion and actual commit hash are verified from Git and reported in
+  the final response, not claimed in advance by this record.
+- **Open items:** D09/D14 balance/playtest follow-up, D19 reload investigation,
+  D20 recovery policy, D21 optional assistance, D22 practice access, and other
+  deferred work retain their existing statuses. No calculated advisor, rollback
+  feature, level selection, or change to retry assistance is implemented here.
+
+### Pre-commit Checks
+
+Staged all 74 changed files and exported the prospective 173-file tree. Gitleaks
+8.30.1 found zero leaks using the unchanged project configuration and its narrow
+public-storage-key exceptions. Staged whitespace and excluded-file checks passed;
+generated reports, credentials, saves, dependencies, and packages are absent.
+The remote main branch is an ancestor of local HEAD, permitting a normal push
+without rewriting history. This final documentation update is restaged and the
+complete exact snapshot rescanned before commit creation. The actual commit/tree
+and remote main hash are checked afterward; no push success is asserted early.

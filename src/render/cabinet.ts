@@ -601,7 +601,7 @@ export class CabinetRenderer {
         { x: token.x + 13, y: token.y - 18 + offset },
         { x: token.x - width - 13, y: token.y - 18 + offset },
       ]);
-      const bounds = fitLabel(width, 19, candidates, occupied);
+      const bounds = fitLabel(width, 27, candidates, occupied);
       if (!bounds) continue;
       const tint = token.depth > 0 ? this.material.rose : this.material.brass;
       context.beginPath();
@@ -610,7 +610,11 @@ export class CabinetRenderer {
       context.strokeStyle = ink(tint, 0.6);
       context.lineWidth = 0.8;
       context.stroke();
-      this.labelPlate(text, bounds, tint, 1, false);
+      this.labelPlate(text, { ...bounds, height: 19 }, tint, 1, false);
+      for (let charge = 0; charge < 3; charge += 1) {
+        roundRect(context, bounds.left + bounds.width / 2 - 10 + charge * 7, bounds.top + 21, 5, 4, 1,
+          ink(charge < (token.charge ?? 0) ? this.palette.success : this.material.recess), ink(this.material.steel, 0.8), 0.6);
+      }
     }
   }
 

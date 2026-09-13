@@ -17,6 +17,19 @@ const spares: Peg[] = [
 ];
 
 describe('spare-part display stacks', () => {
+  it('keeps tuned copies separate while retaining individual IDs and directions', () => {
+    const parts: Peg[] = [
+      { id: 'part-6', kind: 'mint', direction: 1 },
+      { id: 'part-7', kind: 'mint', direction: 1, tuned: true },
+      { id: 'part-8', kind: 'mint', direction: -1, tuned: true },
+      { id: 'part-9', kind: 'splitter', direction: -1, tuned: true },
+    ];
+    expect(groupSpareParts(parts).map((stack) => [stack.key, stack.parts.length])).toEqual([
+      ['mint', 1], ['mint:tuned', 2], ['splitter:left:tuned', 1],
+    ]);
+    expect(parts[2].direction).toBe(-1);
+  });
+
   it('shows nine equivalent spares as four stable stacks while preserving all original IDs', () => {
     const original = structuredClone(spares);
     const stacks = groupSpareParts(spares);

@@ -40,9 +40,9 @@ describe('physical contact feedback', () => {
 
   it.each([
     { name: 'empty', config: empty, hash: '55499e3fc8d6361a56fdfd1d171f5845ab0b27ba01d930f750d620036347807f' },
-    { name: 'mixed center', config: { ...empty, board: mixed, seed: 7 }, hash: '9e1e67c531e9f1bf1edb6934e06d8c1bbf3426a3dca4fecd003964f746397b23' },
-    { name: 'mixed edge', config: { ...empty, board: mixed, lane: 0 }, hash: '3d04e3a1a4b02f53a79cfaceb6f0c148fd8c2de8d7d60417bbb679c37467421f' },
-  ])('preserves the pre-impact scoring trace and payout for $name', ({ config, hash }) => {
+    { name: 'mixed center', config: { ...empty, board: mixed, seed: 7 }, hash: '9a6fcdd76b4aced79e5936d733eee21c4531b2e7f7dfa1d1cca5b0b5cee1bd42' },
+    { name: 'mixed edge', config: { ...empty, board: mixed, lane: 0 }, hash: '7d95c923d1b75daced31d4a21429ddae42ba02d8a9dfdae2526fce54d4549561' },
+  ])('pins the charged-rule trace and keeps impact feedback separate for $name', ({ config, hash }) => {
     const before = structuredClone(config);
     const { result, events } = trace(config);
     expect(createHash('sha256').update(JSON.stringify(result)).digest('hex')).toBe(hash);

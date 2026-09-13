@@ -1,16 +1,17 @@
 # Pocket Cascade
 
-A compact, active combo builder about arranging a tiny token machine and improving its chain reactions. Build routes through eight part types, meet minimum payout targets across twelve commissions, and spend earned Workshop credits on the next improvement. Excess output is rewarded, not punished.
+A compact, active combo builder about arranging a tiny token machine and improving its chain reactions. Build routes through ten interdependent part types, generate charge for amplifiers, bank and cash out reserves, and reconnect token branches. Meet minimum payout targets across twelve commissions and spend earned Workshop credits on the next improvement. Excess output is rewarded, not punished.
 
 The implemented game has one custom Canvas2D cabinet in an original clockwork inventor's workshop, repeatable Matter.js physics, a finite token-power track, a UTC daily seed, and optional After Hours continuation. The revised board has a neutral playfield, red housing, a rail-mounted token hopper, steel collectors, and clear colored mechanisms. Day/evening scenery and hit-driven animation frame the same deterministic game. It follows the minimum-payout direction from the Pocket Cascade research brief, not the original exact-total tray concept. This remains an unreleased prototype. There are no paid token purchases, wagering, online leaderboards, or runtime network-asset dependencies.
 
-**Status (2026-09-10):** the board refinement is implemented alongside the clockwork scene and earlier gameplay controls. **255 unit tests, 74 browser tests, and 12 native tests pass**, including one complete optimized campaign regression. [docs/VERIFICATION.md](docs/VERIFICATION.md) separates current build evidence from older packaged artifacts. The first balance experiment remains unadopted; text-quality, reading-load, and repositioning reviews remain open.
+**Status (2026-09-12):** the combined part-role redesign is normal saved gameplay,
+with targeted tuning, duplicate fusion, Dividend/Junction, and earned After Hours
+capacity milestones. The old unsaved trial entry is retired. The user confirmed
+the feedback hitch is gone. [docs/VERIFICATION.md](docs/VERIFICATION.md) owns the
+current test outcomes, and [docs/BALANCE.md](docs/BALANCE.md) separates the new
+48-run study from older experiments and their limitations.
 
-Latest collector follow-up: the bowls are now integrated recessed payout chutes.
-The production build and **13 focused browser tests** pass for this change; the
-full-suite totals above are the preceding H028 checkpoint, not a fresh full run.
-
-**Play now:** the running [browser game](http://127.0.0.1:5173/), or run `npm.cmd run desktop` against the current production build. The existing [Windows portable executable](release/Pocket-Cascade-1.0.0-win-x64-portable.exe) and [unpacked Windows executable](release/win-unpacked/Pocket%20Cascade.exe) are the earlier H026 clockwork builds, not the latest H028 board refinement. They were not rebuilt in this pass.
+**Play now:** the [browser game](http://127.0.0.1:5173/) after starting the Play task, or run `npm.cmd run desktop` against the current production build. The existing [Windows portable executable](release/Pocket-Cascade-1.0.0-win-x64-portable.exe) and [unpacked Windows executable](release/win-unpacked/Pocket%20Cascade.exe) are the earlier H026 builds, not the H040 part-role redesign. They were not rebuilt in this pass.
 
 ## Run Locally
 
@@ -21,7 +22,7 @@ npm ci
 npm run dev
 ```
 
-Open [http://127.0.0.1:5173](http://127.0.0.1:5173). If the port is occupied, use `npm run dev -- --port 5174`; strict port selection avoids silently attaching to a different server. Keep using the same origin because different hosts and ports have separate browser saves.
+Open [http://127.0.0.1:5173](http://127.0.0.1:5173). If the port is occupied, use `npm run dev -- --port 5175 --strictPort`; port 5174 is used by automated tests. Keep using the same origin because different hosts and ports have separate browser saves.
 
 For the standalone desktop game, build the renderer first:
 
@@ -36,17 +37,36 @@ Desktop launch loads the built files and does not require Vite or Steam. Fresh a
 
 The nonblocking **Quick Guide** introduces placing a part, launching, collecting, choosing a free gift, and optional spending. Skip it or replay it from Settings. Highlights identify the next action, never an optimal route; there is no calculated advisor, automatic solution, or extra currency.
 
-Select a part, choose a socket, and aim one of nine lanes. Each commission allows five launches. Collect a successful commission, choose the complimentary part, make any affordable purchases, and advance. Early shops introduce the remaining part types. After a loss, **Retry commission** retains the machine and still adds 10% base-value assistance per retry, capped at 30%. Loss review no longer offers a mid-run relaxed-target switch and never automatically lowers targets. The 35%-lower relaxed option remains available when creating a Workshop; existing assisted saves retain it, and Daily cannot start relaxed.
+Select a part, choose a socket, and aim one of nine lanes. Mint, Relay, and Kicker
+generate charge; Doubler, Echo multiplication, and Crown spend it. Each token
+holds three charge, shown beside its value. Vault banks spare charge into extra
+points and a reserve for Dividend. Junction rewards branches meeting at the same
+socket. Each commission allows five launches. After a loss, retry keeps your
+parts and credits and adds 10% base-value help, up to 30%. Relaxed targets are
+available when creating a Workshop, not as a mid-run prompt or in Daily.
 
 **Restart level**, the rotate-arrow toolbar control also available in the menu, resets the current attempt to zero score and five launches, discarding any live token. It keeps the machine, spares, credits, upgrades, seed, level, and existing assistance without adding rewards or retry bonuses. It is available while ready, dropping, or lost, but disabled during review, shopping, or victory to prevent collecting twice. **New workshop**, the plus control, opens the existing confirmation and seed choices: confirm to start at level 1 while preserving profile/settings, or cancel without replacing the machine.
 
-The ticket-icon wallet displays **Workshop credits**, with earned/spent receipts. The shop separates its one free gift from paid stock: claiming the gift costs nothing and removes the gift selector. Stock and power purchases are optional and use only earned credits. The currency name changed, not the economy or prices.
+The ticket-icon wallet displays **Workshop credits** with earned/spent receipts.
+Choose one new part, a specific owned copy to tune, or two credits from each
+reward. Each part has one tuning that changes its behavior. The inspector can
+fuse one matching untuned spare for free, or sell a tuning in the shop for the
+part price plus three credits. Paid stock and token power remain separate.
 
 Spare parts remain visible above the shop and other editing views without changing tabs. Identical spares share one icon with a corner **x2/x3 quantity badge**; the total at the top still counts every owned spare. Left/right Forks and Kickers have separate groups with direction arrows. Selecting a group selects one actual copy; placement, return, rotation, undo, and salvage preserve individual saved IDs. Newly acquired copies join their matching group, and singleton groups omit the quantity badge. The count is separate from the Doubler's x2 scoring symbol.
 
-Installed capacity sits beside the board toolbar at all supported viewport sizes. At a full machine, swap or return a part; spares stay available. The shop uses the completed level's cap and states when the next level's extra space opens on advance. This changes neither the cap progression nor the 46 physical sockets. Token power applies to **all tokens**, with **no part to place**.
+Installed capacity rises from 7 to 13 in the campaign. At a full machine, swap,
+return, or tune parts; extra copies remain on the bench. Tuned copies have their
+own inventory groups and visible marks. After Hours starts at 14 slots, adds one
+every three completed commissions, and stops at 18. There are still 46 physical
+sockets. Token power applies to all tokens but does not supply charge.
 
-Parts can be placed, swapped, rotated, and returned to the worktable for free. Undo/redo covers recent edits, not launches or trades. A spare salvages for 1 Workshop credit; at the 80-owned-part limit, a complimentary reward converts to 2 Workshop credits. Splits allow two generations and at most four tokens per launch. Each token triggers a part once, and split children inherit earlier visits. A 12-second simulation safety cutoff pays remaining tokens into their current collector rather than deleting points.
+Parts can be placed, swapped, rotated, and returned for free. Undo/redo covers
+recent edits, not launches, tuning, fusion, or trades. Fusion consumes one spare
+and cannot be undone to duplicate it. At 80 owned parts, rewards still offer
+eligible tuning or two credits. Fork allows two generations and at most four
+tokens; it shares charge/reserves and inherits earlier visits. A 12-second safety
+cutoff still collects remaining tokens rather than deleting earned points.
 
 **Workshop** is the twelve-commission campaign. **Daily** uses the current UTC date's shared seed without a leaderboard. **After Hours** extends the existing machine with increasing, capped quotas, not an unlimited authored campaign. Full rules and limits are in [docs/DESIGN.md](docs/DESIGN.md).
 
@@ -80,7 +100,11 @@ The optional version-1 setting `fullscreenPreferenceVersion: 1` marks an authori
 
 ## Development Commands
 
-[docs/VERIFICATION.md](docs/VERIFICATION.md) owns current test totals, build/package evidence, artifact hashes, and remaining release gates. Complete post-follow-up source and native verification pass, as do both rebuilt Windows launchers. The existing 16-run balance report is retained, not rerun for these follow-ups; scoring, prices, and the original progression are unchanged.
+[docs/VERIFICATION.md](docs/VERIFICATION.md) owns test and build evidence. Browser
+tests use port 5174 by default, separate from player port 5173; override with
+`POCKET_TEST_PORT`. The original 16-run report is retained as historical data,
+not a forecast for the new rules. Current role-aware studies write unique files
+under ignored experiment artifacts and never overwrite that reference.
 
 | Command | Purpose |
 | --- | --- |
@@ -93,6 +117,7 @@ The optional version-1 setting `fullscreenPreferenceVersion: 1` marks an authori
 | `npm run test:desktop` | Run real Electron integration tests after a build, on an interactive desktop. |
 | `npm run test:package` | Launch both actual executables, verify rendering/native saves, record hashes, and quit. Uses the ordinary native save location without changing the run. |
 | `npm run test:balance` | Regenerate the full affordable-action balance report. |
+| `node --import tsx scripts/roles-balance.ts` | Measure current charge/bank/branch/recovery/passive/frozen policies across eight seeds and six After Hours stages. |
 | `npm run assets:generate` | Regenerate the original app icon and day/evening workshop backgrounds. |
 | `npm run assets:steam` | Capture actual gameplay and generate Steam artwork; requires the local server. |
 | `npm run notices:generate` | Generate notices for production components and the Electron runtime. |
@@ -115,12 +140,18 @@ Use the complete unpacked directory for the Steam depot, not just the executable
 - [docs/REBUILD-HANDOFF.txt](docs/REBUILD-HANDOFF.txt): text-only exact-source transfer, destination setup, required design/history context, optional save transfer, and verification limits.
 - [docs/HISTORY.md](docs/HISTORY.md): chronological requests, decisions, reversals, implementation and test outcomes, and playtest observations; append after each substantive exchange.
 - [docs/DESIGN.md](docs/DESIGN.md): implemented rules, part interactions, determinism, safety limits, and architecture.
-- [docs/BALANCE.md](docs/BALANCE.md): economy, exact 16-run results, strategy limitations, reproduction, and human playtest gates.
+- [docs/BALANCE.md](docs/BALANCE.md): current economy and role-aware results, preserved historical reports, strategy limitations, and reproduction.
 - [docs/TESTING.md](docs/TESTING.md): focused/full commands, suite coverage, artifacts, and verified versus pending results.
 - [docs/STEAM.md](docs/STEAM.md): native API/security, real AppID setup, achievements, Auto-Cloud, private-branch SteamPipe workflow, and hardware caveats.
 - [docs/RELEASE-CHECKLIST.md](docs/RELEASE-CHECKLIST.md): ten evidence-backed gates before public distribution.
 - [docs/STORE.md](docs/STORE.md): proposed store copy, actual-play screenshots, capsule/library assets, and listing caveats.
-- [docs/OPEN-ITEMS.md](docs/OPEN-ITEMS.md): authoritative tracker. P01-P14, D03 clockwork theme, and D08 counted spare icons are resolved with evidence. D01-D02, D04-D07, and D09-D11 remain open or partial. The theme changes no balance values; the confirmed short-pane cabinet collapse is fixed, but exact low-zoom reproduction still needs confirmation.
+- [docs/OPEN-ITEMS.md](docs/OPEN-ITEMS.md): authoritative tracker for current balance/playtest follow-up, confirmed hitch fix, deferred animation, platform work, and remaining usability checks.
 - [docs/VERIFICATION.md](docs/VERIFICATION.md): current verification results and package hashes for this follow-up candidate.
 
-The balance sample is encouraging for route-aware automated play, but the beginner policy wins only two of four seeds and already searches the best lane. Its simulated watching time excludes planning and is not human session length. One user playtest reported that the game feels good; that is qualitative feedback, not evidence of demand or sales. Broader closed playtesting is still needed before charging. [THIRD_PARTY_NOTICES.txt](THIRD_PARTY_NOTICES.txt) is generated and bundled; [LICENSE.txt](LICENSE.txt) remains the unchanged private-project placeholder, not an approved player EULA. Distribution rights, a player-facing EULA, and Steam SDK terms still require owner approval.
+Current balance evidence separates passive, recovery, charge, bank, branch, and
+frozen-build policies. All use simulated outcome knowledge; their wins do not
+prove human enjoyment, session length, demand, or sales. Known weak cases remain
+in the report. [THIRD_PARTY_NOTICES.txt](THIRD_PARTY_NOTICES.txt) is generated and
+bundled; [LICENSE.txt](LICENSE.txt) is an unchanged private-project placeholder,
+not an approved player EULA. Distribution rights and Steam terms still require
+owner approval.

@@ -129,6 +129,168 @@
 			"isBackground": false,
 			"problemMatcher": [],
 			"group": "build"
+		},
+		{
+			"label": "Pocket Cascade: Study Progression Baseline",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"--import",
+				"tsx",
+				"scripts/progression-study.ts"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
+			"label": "Pocket Cascade: Study Repeat Prices",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"--import",
+				"tsx",
+				"scripts/progression-study.ts",
+				"--candidate"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
+			"label": "Pocket Cascade: Test Rewards",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"node_modules/@playwright/test/cli.js",
+				"test",
+				"tests/browser/rewards.spec.ts"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
+			"label": "Pocket Cascade: Screen Structural Balance",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"--import",
+				"tsx",
+				"scripts/structural-study.ts",
+				"--variants=baseline,space,sockets,space-sockets,checkpoints",
+				"--policies=trail,local,rebuild,frozen",
+				"--seeds=1,42",
+				"--continuation=3"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
+			"label": "Pocket Cascade: Calibrate Structural Balance",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"--import",
+				"tsx",
+				"scripts/structural-study.ts",
+				"--variants=pressure,space-pressure,space-sockets-pressure,checkpoints-pressure",
+				"--seeds=1,42",
+				"--continuation=3"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
+			"label": "Pocket Cascade: Verify Structural Holdouts",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"--import",
+				"tsx",
+				"scripts/structural-study.ts",
+				"--variants=baseline,space-pressure,space-sockets-pressure",
+				"--policies=trail,recovery,local,frozen",
+				"--seeds=2026,65537,7,13,99,2027",
+				"--continuation=3"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
+			"label": "Pocket Cascade: Check Structural Build Variety",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"--import",
+				"tsx",
+				"scripts/structural-build-variety.ts"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
+			"label": "Pocket Cascade: Screen Reworked Parts",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"--import",
+				"tsx",
+				"scripts/roles-balance.ts",
+				"--seeds=1,42",
+				"--continuation=3"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
+			"label": "Pocket Cascade: Verify Reworked Balance",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"--import",
+				"tsx",
+				"scripts/roles-balance.ts",
+				"--seeds=1,42,2026,65537,7,13,99,2027",
+				"--continuation=6"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
+			"label": "Pocket Cascade: Check Reworked Cash-out",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"node_modules/@playwright/test/cli.js",
+				"test",
+				"tests/browser/gift-variety.spec.ts",
+				"--workers=1",
+				"--reporter=list",
+				"--output=artifacts/reworked-dividend"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
+			"label": "Pocket Cascade: Verify Reworked UI",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"node_modules/@playwright/test/cli.js",
+				"test",
+				"--workers=1"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
 		}
 	]
 }

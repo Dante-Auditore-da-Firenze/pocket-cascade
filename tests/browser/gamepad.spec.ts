@@ -1,5 +1,6 @@
 import { test, expect, type Locator, type Page } from '@playwright/test';
-import { openGame, readRun, readSave } from './helpers';
+import { PARTS } from '../../src/game/content';
+import { drop, openGame, readRun, readSave } from './helpers';
 
 const buttons = { a: 0, b: 1, x: 2, y: 3, lb: 4, rb: 5, start: 9, up: 12, down: 13, left: 14, right: 15 } as const;
 type ButtonName = keyof typeof buttons;
@@ -73,7 +74,7 @@ test('detects a standard controller, opens the menu with Start, confines focus, 
   page.on('pageerror', (error) => errors.push(error.message));
   await expect(page.getByText('Controller detected', { exact: true })).toBeVisible();
   await pressButton(page, 'start');
-  const dialog = page.getByRole('dialog', { name: 'A moment in the workshop', exact: true });
+  const dialog = page.getByRole('dialog', { name: 'Workshop menu', exact: true });
   await expect(dialog).toBeVisible();
   const close = dialog.getByRole('button', { name: 'Close dialog', exact: true });
   const last = dialog.getByRole('button', { name: 'Machine manual', exact: true });
@@ -88,6 +89,33 @@ test('detects a standard controller, opens the menu with Start, confines focus, 
   await pressButton(page, 'b');
   await expect(dialog).toHaveCount(0);
   expect(errors).toEqual([]);
+});
+
+test('controller confines reward focus, dismisses and reopens, and claims only one free part', async ({ page }) => {
+  await page.getByRole('button', { name: '4x speed', exact: true }).click();
+  let run = await readRun(page);
+  while (run.phase === 'ready') run = await drop(page);
+  await page.getByRole('button', { name: 'Visit the workshop', exact: true }).click();
+  const shop = await readRun(page);
+  const dialog = page.getByRole('dialog', { name: 'Choose a reward', exact: true });
+  await expect(dialog).toBeVisible();
+  await focus(dialog.getByRole('button', { name: 'Close dialog', exact: true }));
+  await pressButton(page, 'lb');
+  await expect(dialog.getByRole('button', { name: 'Collect credits', exact: true })).toBeFocused();
+  await pressButton(page, 'y');
+  expect(await readRun(page)).toEqual(shop);
+  await pressButton(page, 'b');
+  await expect(dialog).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Choose free part', exact: true })).toBeFocused();
+  await pressButton(page, 'a');
+  await expect(dialog).toBeVisible();
+  await focus(dialog.getByRole('button', { name: `Choose ${PARTS[shop.rewardChoices[0]].name}`, exact: true }));
+  await pressButton(page, 'a', 400);
+  await expect(dialog).toHaveCount(0);
+  const claimed = await readRun(page);
+  expect(claimed.rewardClaimed).toBe(true);
+  expect(claimed.brass).toBe(shop.brass);
+  expect(claimed.bench).toHaveLength(shop.bench.length + 1);
 });
 
 test('A activates the currently focused part once, X rotates it, and directions and shoulders reach board controls', async ({ page }) => {
@@ -142,7 +170,7 @@ test('initial navigation prefers Launch token and paused gameplay does not move 
 
 test('range steps update React settings, up and down still navigate, and A toggles a switch', async ({ page }) => {
   await page.getByRole('button', { name: 'Settings', exact: true }).click();
-  const dialog = page.getByRole('dialog', { name: 'Make yourself comfortable', exact: true });
+  const dialog = page.getByRole('dialog', { name: 'Settings', exact: true });
   const volume = dialog.getByRole('slider', { name: 'Master volume', exact: true });
   const music = dialog.getByRole('slider', { name: 'Workshop music', exact: true });
   const initialVolume = Number(await volume.inputValue());

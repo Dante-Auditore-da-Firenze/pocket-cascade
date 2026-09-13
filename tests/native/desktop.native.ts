@@ -396,3 +396,40 @@ test('earned duplicate parts share one icon and retain their identities after na
   expect(placed.totalScore).toBe(acquired.totalScore);
   await expect(relaunched.page.getByRole('button', { name: `Select ${PARTS[kind].name}, 1 available`, exact: true })).toBeVisible();
 });
+
+test('an earned tuned reward retains its identity and effect across native relaunch', async ({ desktop }) => {
+  const { page } = desktop.game;
+  let run = JSON.parse((await readNativeSave(page)).data!).run as RunState;
+  const strongest = Array.from({ length: 9 }, (_, lane) => ({ lane, payout: simulateDrop({ ...dropConfig(run), lane }).total }))
+    .sort((first, second) => second.payout - first.payout)[0];
+  await page.getByRole('button', { name: `Aim lane ${strongest.lane + 1}`, exact: true }).click();
+  await page.getByRole('button', { name: '4x speed', exact: true }).click();
+  while (run.phase === 'ready') {
+    const nextDrop = run.totalDrops + 1;
+    await page.getByRole('button', { name: 'Launch token', exact: true }).click();
+    await expect.poll(async () => JSON.parse((await readNativeSave(page)).data!).run.totalDrops).toBe(nextDrop);
+    run = JSON.parse((await readNativeSave(page)).data!).run as RunState;
+  }
+  expect(run.phase).toBe('review');
+  await page.getByRole('button', { name: 'Visit the workshop', exact: true }).click();
+  const shop = JSON.parse((await readNativeSave(page)).data!).run as RunState;
+  await page.getByRole('button', { name: 'Tune owned part', exact: true }).click();
+  await page.getByLabel('Mint tuning target', { exact: true }).selectOption('part-1');
+  await page.getByRole('button', { name: 'Tune Mint', exact: true }).click();
+  await expect.poll(async () => JSON.parse((await readNativeSave(page)).data!).run.board['0-3'].tuned).toBe(true);
+  const tuned = JSON.parse((await readNativeSave(page)).data!).run as RunState;
+  expect(tuned.brass).toBe(shop.brass);
+  expect(tuned.bench).toEqual(shop.bench);
+  expect(tuned.nextId).toBe(shop.nextId);
+  expect(tuned.board['0-3'].id).toBe('part-1');
+  await desktop.game.close();
+  const relaunched = await desktop.launch();
+  expect(JSON.parse((await readNativeSave(relaunched.page)).data!).run).toEqual(tuned);
+  await expect(relaunched.page.getByRole('button', { name: 'Tuned Mint socket 0-3', exact: true })).toBeVisible();
+  await relaunched.page.getByRole('button', { name: 'Next commission', exact: true }).click();
+  const ready = JSON.parse((await readNativeSave(relaunched.page)).data!).run as RunState;
+  const expected = simulateDrop(dropConfig(ready));
+  await relaunched.page.getByRole('button', { name: 'Launch token', exact: true }).click();
+  await expect.poll(async () => JSON.parse((await readNativeSave(relaunched.page)).data!).run.totalDrops).toBe(ready.totalDrops + 1);
+  expect(JSON.parse((await readNativeSave(relaunched.page)).data!).run.lastDrop).toEqual(expected);
+});

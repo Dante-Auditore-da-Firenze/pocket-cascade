@@ -1,4 +1,4 @@
-import { COMMISSIONS, PARTS, PART_KINDS, POWER_VALUES, powerPrice, type Commission } from './content';
+import { COMMISSIONS, PARTS, PART_KINDS, POWER_VALUES, powerPrice, tuningPrice, type Commission } from './content';
 import { SLOT_MAP, random, type Board, type DropConfig, type DropResult, type Peg, type PegKind } from './model';
 
 export type Phase = 'ready' | 'dropping' | 'review' | 'shop' | 'lost' | 'won';
@@ -75,8 +75,8 @@ export function commission(run: Pick<RunState, 'stage' | 'assisted'>): Commissio
   const definition = COMMISSIONS[run.stage] ?? {
     title: `After Hours ${run.stage - 11}`,
     subtitle: 'The machine still has something to give.',
-    target: Math.min(1_000_000_000, Math.round(20000 * 1.38 ** (run.stage - 11))),
-    drops: 5, reward: 15, capacity: 20,
+    target: Math.min(1_000_000_000, Math.round(COMMISSIONS[11].target * 1.3 ** (run.stage - 11))),
+    drops: 5, reward: 15, capacity: Math.min(18, 14 + Math.floor((run.stage - 12) / 3)),
   };
   return { ...definition, target: Math.round(definition.target * (run.assisted ? 0.65 : 1)) };
 }
@@ -135,12 +135,12 @@ export function launchDrop(run: RunState): RunState {
   return { ...run, phase: 'dropping', dropsLeft: run.dropsLeft - 1, activeDrop: dropConfig(run) };
 }
 
-export function settleDrop(run: RunState, result: DropResult): RunState {
+export function settleDrop(run: RunState, result: DropResult, definition: Commission = commission(run)): RunState {
   if (run.phase !== 'dropping' || !run.activeDrop) return run;
   if (!Number.isSafeInteger(result.total) || result.total < 0
     || result.total !== result.banked + result.trayTotals.reduce((total, amount) => total + amount, 0)) return run;
   const score = run.score + result.total;
-  const phase: Phase = score >= commission(run).target ? 'review' : run.dropsLeft === 0 ? 'lost' : 'ready';
+  const phase: Phase = score >= definition.target ? 'review' : run.dropsLeft === 0 ? 'lost' : 'ready';
   return {
     ...run, score, phase, activeDrop: null, lastDrop: result,
     totalDrops: run.totalDrops + 1, totalScore: run.totalScore + result.total,
@@ -189,16 +189,15 @@ function makeOffers(run: RunState, reroll: number): Offer[] {
   return choices.map((kind, index) => ({ id: `${run.stage}-${reroll}-${index}`, kind, price: PARTS[kind].price, sold: false }));
 }
 
-export function commissionReward(run: RunState): { base: number; spare: number; overdrive: number; total: number } {
-  const definition = commission(run);
+export function commissionReward(run: RunState, definition: Commission = commission(run)): { base: number; spare: number; overdrive: number; total: number } {
   const spare = Math.min(3, run.dropsLeft);
   const overdrive = Math.min(3, Math.floor(Math.max(0, run.score / definition.target - 1) * 2));
   return { base: definition.reward, spare, overdrive, total: definition.reward + spare + overdrive };
 }
 
-export function collectCommission(run: RunState): RunState {
+export function collectCommission(run: RunState, definition: Commission = commission(run)): RunState {
   if (run.phase !== 'review') return run;
-  const reward = commissionReward(run).total;
+  const reward = commissionReward(run, definition).total;
   const won = run.stage === 11 && run.mode !== 'endless';
   return {
     ...run, phase: won ? 'won' : 'shop', brass: run.brass + reward,
@@ -221,6 +220,44 @@ export function claimPart(run: RunState, kind: PegKind): RunState {
     return { ...run, rewardClaimed: true, brass: run.brass + 2 };
   }
   return { ...grantPart(run, kind), rewardClaimed: true };
+}
+
+export function tuningTargets(run: RunState, kind?: PegKind): Peg[] {
+  return [...Object.values(run.board), ...run.bench].filter((part) => !part.tuned && (!kind || part.kind === kind));
+}
+
+function applyTuning(run: RunState, pegId: string): RunState {
+  return {
+    ...run,
+    board: Object.fromEntries(Object.entries(run.board).map(([slotId, part]) => [slotId, part.id === pegId ? { ...part, tuned: true } : part])),
+    bench: run.bench.map((part) => part.id === pegId ? { ...part, tuned: true } : part),
+  };
+}
+
+export function claimTuning(run: RunState, pegId: string): RunState {
+  if (run.phase !== 'shop' || run.rewardClaimed) return run;
+  const target = tuningTargets(run).find((part) => part.id === pegId && run.rewardChoices.includes(part.kind));
+  return target ? { ...applyTuning(run, pegId), rewardClaimed: true } : run;
+}
+
+export function claimCredits(run: RunState): RunState {
+  return run.phase === 'shop' && !run.rewardClaimed ? { ...run, brass: run.brass + 2, rewardClaimed: true } : run;
+}
+
+export function tunePeg(run: RunState, pegId: string): RunState {
+  if (run.phase !== 'shop') return run;
+  const target = tuningTargets(run).find((part) => part.id === pegId);
+  if (!target || run.brass < tuningPrice(target.kind)) return run;
+  return { ...applyTuning(run, pegId), brass: run.brass - tuningPrice(target.kind) };
+}
+
+export function fusePeg(run: RunState, pegId: string, donorId: string): RunState {
+  if (!editable(run) || pegId === donorId) return run;
+  const target = tuningTargets(run).find((part) => part.id === pegId);
+  const donor = run.bench.find((part) => part.id === donorId && !part.tuned);
+  if (!target || !donor || target.kind !== donor.kind) return run;
+  const tuned = applyTuning(run, pegId);
+  return { ...tuned, bench: tuned.bench.filter((part) => part.id !== donorId) };
 }
 
 export function buyPart(run: RunState, offerId: string): RunState {

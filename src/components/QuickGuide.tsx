@@ -9,20 +9,21 @@ interface QuickGuideProps {
   selected: boolean;
   onSkip: () => void;
   onLocate: (step: TutorialStep) => void;
+  definition?: ReturnType<typeof commission>;
 }
 
-export function QuickGuide({ step, run, selected, onSkip, onLocate }: QuickGuideProps) {
+export function QuickGuide({ step, run, selected, onSkip, onLocate, definition = commission(run) }: QuickGuideProps) {
   if (step === 'done') return null;
-  const target = commission(run).target;
+  const target = definition.target;
   const completed = run.phase === 'review';
   const lost = run.phase === 'lost';
   const dropping = run.phase === 'dropping';
   const steps = [
-    { id: 'place', title: selected ? 'Choose a socket. Make it yours.' : 'Start with one spare part.', detail: selected ? 'Place the selected part anywhere on the machine.' : 'Choose a spare part, then a socket. You decide where it belongs.', icon: MousePointer2, action: selected ? 'Find the machine' : 'Choose a part' },
-    { id: 'launch', title: `Make ${formatNumber(target)} points.`, detail: `You have ${run.dropsLeft} launches to fill the target. Drop a token to see your machine work.`, icon: ArrowDown, action: 'Find the launch button' },
-    { id: 'collect', title: completed ? 'Your points earned an upgrade.' : lost ? 'Keep the machine. Try another arrangement.' : dropping ? 'Every payout fills the target.' : `${formatNumber(run.score)} of ${formatNumber(target)} points.`, detail: completed ? `Collect ${commissionReward(run).total} Workshop credits. Credits buy upgrades; points complete commissions.` : lost ? 'Your parts and credits stay yours. Rewire freely, then retry.' : 'Points fill this target. They are not the credits you spend in the shop.', icon: completed ? Ticket : Target, action: completed ? 'Find your reward' : lost ? 'Find retry' : 'Find the target' },
-    { id: 'gift', title: 'Choose one free part.', detail: 'Your commission includes one gift. It costs no credits, and the other two choices go away.', icon: Gift, action: 'Find the free choices' },
-    { id: 'spend', title: 'Spend credits, or keep them.', detail: `Your ${run.brass} Workshop credits buy parts or token-value upgrades. Unspent credits carry forward.`, icon: Ticket, action: 'Find paid upgrades' },
+    { id: 'place', title: selected ? 'Choose a socket.' : 'Place a spare part.', detail: selected ? 'Select any available socket.' : 'Select a spare, then a socket. Moving parts is free.', icon: MousePointer2, action: selected ? 'Find sockets' : 'Choose a part' },
+    { id: 'launch', title: `Reach ${formatNumber(target)} points.`, detail: `Generators supply charge; amplifiers spend it. ${run.dropsLeft} launches available.`, icon: ArrowDown, action: 'Find launch' },
+    { id: 'collect', title: completed ? 'Collect your reward.' : lost ? 'Adjust and retry.' : dropping ? 'Cascade in progress' : `${formatNumber(run.score)} / ${formatNumber(target)} points`, detail: completed ? `${commissionReward(run, definition).total} Workshop credits, used to buy upgrades.` : lost ? 'Keep your parts and credits. Rewire, then retry.' : 'Points complete commissions; credits buy upgrades.', icon: completed ? Ticket : Target, action: completed ? 'Find reward' : lost ? 'Find retry' : 'Find target' },
+    { id: 'gift', title: 'Choose a reward.', detail: 'New part, tuning, or credits.', icon: Gift, action: 'View rewards' },
+    { id: 'spend', title: 'Buy upgrades or continue.', detail: `${run.brass} credits available. Unspent credits carry forward.`, icon: Ticket, action: 'View upgrades' },
   ];
   const current = steps.find((item) => item.id === step)!;
   const Icon = current.icon;

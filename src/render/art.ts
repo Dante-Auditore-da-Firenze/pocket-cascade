@@ -150,6 +150,12 @@ function partShape(kind: PegKind): Path2D {
     case 'crown':
       polygon([[-15, 12], [-16, -10], [-7, -4], [0, -17], [7, -4], [16, -10], [15, 12]]);
       break;
+    case 'dividend':
+      polygon([[-9, -17], [9, -17], [16, -8], [16, 8], [9, 17], [-9, 17], [-16, 8], [-16, -8]]);
+      break;
+    case 'junction':
+      polygon([[-16, -14], [0, -5], [16, -14], [16, 14], [0, 5], [-16, 14]]);
+      break;
   }
   return shape;
 }
@@ -235,6 +241,22 @@ function partGlyph(context: CanvasRenderingContext2D, kind: PegKind, palette: Ca
       context.closePath();
       context.moveTo(-6, 7);
       context.lineTo(6, 7);
+      break;
+    case 'dividend':
+      context.font = `700 18px ${palette.font}`;
+      context.textAlign = 'center';
+      context.textBaseline = 'middle';
+      context.fillText('$', 0, 1);
+      break;
+    case 'junction':
+      context.moveTo(-10, -6);
+      context.lineTo(0, 1);
+      context.lineTo(10, -6);
+      context.moveTo(0, 1);
+      context.lineTo(0, 9);
+      context.moveTo(-4, 6);
+      context.lineTo(0, 10);
+      context.lineTo(4, 6);
       break;
   }
   context.stroke();
@@ -330,6 +352,11 @@ export function paintMechanism(context: CanvasRenderingContext2D, peg: Peg, pale
   context.translate(peg.kind === 'kicker' || peg.kind === 'echo' ? motion * 2 : 0, peg.kind === 'mint' ? motion * 1.5 : 0);
   if (peg.kind === 'crown') context.rotate(motion * 0.13);
   partGlyph(context, peg.kind, palette, material);
+  if (peg.tuned) {
+    roundRect(context, -8, 17, 16, 4, 1, ink(material.brass), ink(material.light));
+    context.fillStyle = ink(material.dark);
+    context.fillRect(-1, 17, 2, 4);
+  }
   context.restore();
 }
 

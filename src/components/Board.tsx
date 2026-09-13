@@ -1,5 +1,5 @@
 import { useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
-import { PARTS } from '../game/content';
+import { partName } from '../game/content';
 import { placePeg, type RunState } from '../game/engine';
 import {
   BOARD_HEIGHT, BOARD_WIDTH, FIXED_STEP, SLOTS, lanePosition,
@@ -23,6 +23,7 @@ export interface BoardProps {
   speed: 1 | 2 | 4;
   reducedMotion: boolean;
   trails: boolean;
+  maxInstalled?: number;
 }
 
 interface Playback {
@@ -61,7 +62,10 @@ export function Board(props: BoardProps) {
   const editable = !run.activeDrop && (run.phase === 'ready' || run.phase === 'shop' || run.phase === 'lost');
   const destinations = new Set<string>();
   if (editable && selectedPegId) {
+    const full = Object.keys(run.board).length >= (props.maxInstalled ?? Infinity);
+    const movingInstalled = Object.values(run.board).some((part) => part.id === selectedPegId);
     for (const slot of SLOTS) {
+      if (full && !movingInstalled && !run.board[slot.id]) continue;
       if (placePeg(run, selectedPegId, slot.id) !== run) destinations.add(slot.id);
     }
   }
@@ -277,7 +281,7 @@ export function Board(props: BoardProps) {
       <div className="socket-grid" role="group" aria-label="Machine sockets">
         {SLOTS.map((slot) => {
           const peg = view.board[slot.id];
-          const name = `${peg ? PARTS[peg.kind].name : 'Empty'} socket ${slot.id}`;
+          const name = `${peg ? partName(peg) : 'Empty'} socket ${slot.id}`;
           return (
             <button
               key={slot.id}

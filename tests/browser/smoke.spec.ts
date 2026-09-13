@@ -3,11 +3,12 @@ import sharp from 'sharp';
 import { SAVE_KEY } from '../../src/game/save';
 import { canvasPixels, drop, openGame, readRun, readSave } from './helpers';
 
-test('first screen is a painted, playable machine with no external runtime requests', async ({ page }, testInfo) => {
+test('first screen is a painted, playable machine with no external runtime requests', async ({ page, baseURL }, testInfo) => {
   const errors: string[] = [];
   const external: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
-  page.on('request', (request) => { if (request.url().startsWith('http') && !request.url().startsWith('http://127.0.0.1:5173')) external.push(request.url()); });
+  const origin = new URL(baseURL!).origin;
+  page.on('request', (request) => { if (request.url().startsWith('http') && new URL(request.url()).origin !== origin) external.push(request.url()); });
   await openGame(page);
   await expect(page.getByRole('heading', { name: 'Loose Change', exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Launch token', exact: true })).toBeEnabled();

@@ -1,34 +1,28 @@
 import { test, expect } from '@playwright/test';
 import { PARTS } from '../../src/game/content';
-import { claimPart, dropConfig, nextCommission, type RunState } from '../../src/game/engine';
+import { claimPart, dropConfig, nextCommission, placePeg, removePeg } from '../../src/game/engine';
 import { freshSave, parseSave, SAVE_KEY, updateProgress, type SaveData } from '../../src/game/save';
 import { simulateDrop } from '../../src/game/simulation';
-import { collectWithGiftVariety } from '../../scripts/experiments/gift-variety';
-import { bestPlacement, evaluateMachine, playCampaign } from '../../scripts/strategies';
-import { canvasPixels, readRun, selectSpareStack } from './helpers';
+import { evaluateMachine, type BuildAction } from '../../scripts/strategies';
+import { playRoleCampaign } from '../../scripts/roles-balance';
+import { observeDrop } from '../../scripts/structural-study';
+import { applyBuild, canvasPixels, readRun } from './helpers';
 
 let fixture: SaveData;
 
 test.beforeAll(() => {
   test.setTimeout(120_000);
-  let earnedShop: RunState | undefined;
-  const report = playCampaign(42, 'conservative', 7, {
-    collect(run) {
-      const shop = collectWithGiftVariety(run);
-      if (run.stage === 6) earnedShop = shop;
-      return shop;
-    },
-  });
-  expect(report.stagesCleared).toBe(7);
+  const report = playRoleCampaign(1, 'bank', 5, 0);
+  expect(report.cleared).toBe(5);
   expect(report.timeouts).toBe(0);
-  expect(earnedShop?.rewardChoices).toEqual(['crown', 'kicker', 'echo']);
-  fixture = updateProgress(freshSave(42), earnedShop!);
+  expect(report.finalRun.rewardChoices).toContain('dividend');
+  fixture = updateProgress(freshSave(1), report.finalRun);
   fixture.profile.seenTutorial = true;
   expect(parseSave(JSON.stringify(fixture))).not.toBeNull();
 });
 
 for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) {
-  test(`earned candidate gift stays free, placeable, and plays a real cascade at ${viewport.width}px`, async ({ page }, testInfo) => {
+  test(`earned Dividend reward cashes a bank reserve in real play at ${viewport.width}px`, async ({ page }, testInfo) => {
     test.setTimeout(90_000);
     const errors: string[] = [];
     page.on('pageerror', (error) => errors.push(error.message));
@@ -53,22 +47,37 @@ for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 
     await expect(page.getByTestId('game-ready')).toHaveAttribute('data-save-ready', 'true');
     expect((await readRun(page)).rewardChoices).toEqual(before.rewardChoices);
 
-    await page.getByRole('button', { name: 'Choose Echo', exact: true }).click();
+    await page.getByRole('button', { name: 'Choose Dividend', exact: true }).click();
     const claimed = await readRun(page);
     expect(claimed.brass).toBe(before.brass);
     expect(claimed.offers).toEqual(before.offers);
     expect(claimed.bench).toHaveLength(before.bench.length + 1);
     await expect(page.locator('.free-offer')).toHaveCount(0);
-    const expectedReady = nextCommission(claimPart(before, 'echo'));
+    let arranged = nextCommission(claimPart(before, 'dividend'));
     const gift = claimed.bench.find((peg) => peg.id === `part-${before.nextId}`)!;
-    const placement = bestPlacement(expectedReady, gift.id);
-    expect(placement.slotId).not.toBeNull();
-    expect(evaluateMachine(placement.run)).toBeGreaterThan(evaluateMachine(expectedReady));
+    const actions: BuildAction[] = [];
+    for (const slotId of Object.keys(arranged.board)) {
+      actions.push({ type: 'remove', slotId });
+      arranged = removePeg(arranged, slotId);
+    }
+    const route = observeDrop(arranged, 'baseline').contacts;
+    const generator = arranged.bench.find((part) => part.kind === 'mint')!;
+    const bank = arranged.bench.find((part) => part.kind === 'vault')!;
+    expect(generator).toBeDefined();
+    expect(bank).toBeDefined();
+    for (const [index, part] of [generator, bank].entries()) {
+      actions.push({ type: 'place', pegId: part.id, slotId: route[index] });
+      arranged = placePeg(arranged, part.id, route[index]);
+    }
+    const bankOnly = evaluateMachine(arranged);
+    arranged = placePeg(arranged, gift.id, route[2]);
+    actions.push({ type: 'place', pegId: gift.id, slotId: route[2] });
+    expect(evaluateMachine(arranged)).toBeGreaterThan(bankOnly);
     await page.getByRole('button', { name: 'Next commission', exact: true }).click();
-    await selectSpareStack(page, gift);
-    await page.locator(`[data-slot="${placement.slotId}"]`).click();
+    await applyBuild(page, actions);
     const installed = await readRun(page);
-    expect(installed.board[placement.slotId!].id).toBe(gift.id);
+    expect(installed).toEqual(arranged);
+    expect(installed.board[route[2]].id).toBe(gift.id);
     expect(installed.brass).toBe(before.brass);
 
     const expectedPayout = simulateDrop(dropConfig(installed)).total;
@@ -81,7 +90,8 @@ for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 
     const settled = await readRun(page);
     expect(settled.lastDrop?.total).toBe(expectedPayout);
     expect(settled.score).toBe(expectedPayout);
-    expect(settled.lastDrop?.events.some((event) => event.kind === 'echo')).toBe(true);
+    expect(settled.lastDrop?.events.some((event) => event.kind === 'dividend' && event.amount > 0)).toBe(true);
+    expect(settled.lastDrop?.banked).toBeGreaterThan(0);
     expect((await canvasPixels(page)).colors).toBeGreaterThan(100);
     await page.reload();
     await expect(page.getByTestId('game-ready')).toHaveAttribute('data-save-ready', 'true');
