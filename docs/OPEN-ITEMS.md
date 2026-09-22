@@ -1,6 +1,6 @@
 # Open Items and Decisions
 
-Updated: 2026-09-12. This is the working decision and implementation tracker.
+Updated: 2026-09-23. This is the working decision and implementation tracker.
 An item is resolved only when its agreed outcome is implemented and checked, or
 when an explicit decision closes it without implementation. Retain the outcome
 and evidence so decisions are not lost.
@@ -68,6 +68,19 @@ was requested in this clarification. See HISTORY.md H027.
 
 ## Deferred and Follow-up
 
+### Current Approved Pass - 2026-09-23
+
+H047 explicitly approves the five H046 priorities: D20 recovery, D09/D14 balance
+follow-up, D16 livelier presentation, D21 optional help, and D22 practice. Their
+earlier discussion-only boundaries below are historical and superseded for this
+pass. Recovery, optional help, practice, and livelier presentation are implemented
+and covered by focused browser/native checks. Balance follow-up is measured;
+human decision quality remains open. Final integration results are recorded in
+VERIFICATION.md. Other endgame, board expansion, theme-change,
+and Steam/Cloud work remains outside scope. H047 did not authorize Git publication;
+H048 separately authorizes a working-condition check, detailed commit, and normal
+push of the current checkpoint. No unrelated feature or release approval is implied.
+
 | ID | Item | Status | Question / Boundary |
 | --- | --- | --- | --- |
 | D01 | Endgame and much greater cascade chaos | Open: larger endgame deferred | H040 delivers bounded After Hours slot milestones and tuning rewards as part of the approved balance pass. A more authored ending, much greater chaos, or hundreds/thousands of tokens remains deferred; reconsider performance, sound density, and accounting before expanding the split limit. |
@@ -76,27 +89,57 @@ was requested in this clarification. See HISTORY.md H027.
 | D05 | Dedicated menu/gameplay music | Open: deferred | Evaluate separate compositions or transitions later. Current decision is continuous existing music. |
 | D06 | Named workshop save slots | Open: deferred | Decide how players save and load multiple named machines. Current autosave/export remains; no save-slot UI or storage redesign in this pass. |
 | D07 | Playback-speed control visibility | Open: review | Player-facing 1x, 2x, and 4x controls already exist beside Drop Token, below Pause; testing uses these same controls, not a hidden speed cheat. Fresh saves start at 1x and the chosen speed is saved. Speed changes playback time while retaining fixed-step physics and scoring. Review whether the controls need clearer placement or emphasis so players notice them. No new speed modes or UI changes authorized yet. |
-| D09 | Late-game growth and meaningful difficulty | Open: combined redesign delivered; playtest quality pending | H040 adopts ten interdependent charge/banking/branch parts, tuning/fusion rewards, earlier fixed targets, slower global power, and After Hours slot milestones. Final eight-seed campaigns: passive stack 0/8, recovery 8/8, charge 8/8, bank 7/8, branch 4/8, frozen 0/8. Recovery has fourteen needed installed changes during 4-9 across all eight seeds. The earlier human feedback drove this redesign; automated success does not establish enjoyment or equal build strength. Known weak banking/branch cases and bounded recovery audits remain in BALANCE. New normal saved game launched; old trial retired. |
+| D09 | Late-game growth and meaningful difficulty | Open: measured follow-up delivered; human feedback pending | H047 repeats 48 campaigns with explicitly zero help: stack 0/8, recovery 8/8, charge 8/8, bank 6/8, branch 3/8, frozen 0/8. Twenty-two of the 23 failed campaign inventories have an unassisted owned-parts recovery witness; the remaining branch seed 99 clears with chosen +10% help. Two witnesses require full rebuilds, not simple hints; audits are not extra campaign wins or proof of human enjoyment. Missing-input feedback, rollback, and practice improve experimentation. Keep current effects/targets/prices after this check; see BALANCE for exact evidence and remaining uneven build-policy results. |
 | D10 | Post-level part-selection visibility | Resolved: prominent earned-reward dialog | H034's prominent reward flow is extended in H040: take a new offered part, tune a specific matching owned copy, or take two credits. Inspect/Escape/controller Back dismiss without claiming and focus the reopen control. Effects, owned counts, tuning targets, and accessible descriptions are visible; paid stock stays separate. Ten reward cases plus campaign/controller/native checks cover actual earned choices, full storage, persistence, and After Hours. |
 | D11 | Low-zoom cabinet/text scaling and control overlap | Open: short-pane collapse fixed; exact zoom confirmation pending | The theme pass confirmed that the desktop height-based width formula could shrink the cabinet below its controls. Added a 320px desktop track floor with vertical scrolling in short panes; 1280x360, 1100x240, and 1920x360 browser checks pass for sizing, non-overlapping controls, lane input, and launch access. Normal mobile/desktop/ultrawide layout checks also pass. The reported zoom mechanism/percentage is still unknown; short-viewport tests are not genuine browser/editor zoom verification, so D11 remains open. No physical board geometry or rule change. See HISTORY.md H020/H026. |
 | D12 | Review generic or AI-slop-looking text and images | Resolved: focused quality pass | H034 replaces forced-whimsy menu/result/guide/part copy with direct language; removes the unrelated chemistry illustration, idle recipe, victory ornaments, and promotional footer/credits slogans. Retained the coherent clockwork room, real mechanism art, local fonts, and recognizable UI icons rather than reskinning again. Reviewed desktop/mobile screens and small/header store capsules; regenerated current gameplay/capsules to remove stale bowls. Quality judgment, not authorship detection or a claim of universal player taste. Full browser/layout/art checks and screenshot inspection pass. |
 | D13 | Review overall text load and reading demands | Resolved: contextual concise information | H034 removes repeated subtitles, installed counts, idle instructions, wallet filler, and reward status text; shortens guide and effect descriptions while retaining costs, numbers, key exceptions, accessible names, and the optional manual. Actual chute/token/Vault results move into a collapsed Last cascade receipt available on mobile and desktop; the live event feed is shown during drops only. New receipt checks, onboarding, reward accessibility, controller, layout, and actual-play tests pass. No solver or automatic spending. |
-| D14 | Does completing a run require useful repositioning? | Open: earlier recovery demonstrated; human decision quality pending | H040's recovery policy needs installed changes during commissions 4-9 on all eight sampled seeds; actual UI campaign verifies those changes and saved progression. Every frozen-after-six sample fails later without edits, with owned-part recovery possible in the separate bounded audit. Charge, deposits, and convergence now add ordering/routing dependencies, but expert proactive play can still be very powerful and not every required change is an interesting human decision. Retain D09/D14 for new player feedback and weak-case follow-up rather than treating automation as final fun validation. |
+| D14 | Does completing a run require useful repositioning? | Open: unassisted recovery verified; human decision quality pending | H047's unassisted recovery policy still needs fourteen installed changes during commissions 4-9 across all eight seeds; all frozen-after-six campaigns fail later and have found owned-part recoveries. The real-control campaign regression retains progression and exact payouts. Optional practice and observed missing-input receipts are implemented without a runtime advisor. Strong proactive builds remain powerful; automated need for edits is not proof those edits are interesting or obvious to a player. |
 | D15 | Dropper aiming and center-chute relevance | Resolved: diagnostic and observed feedback; rules retained | H034 evaluates all nine lanes on 360 earned boards: aiming rescues 230 centered-lane misses, yet eight independently center-locked builders also finish all twelve commissions. All sampled boards have a center-reaching lane; 20 best-paying routes skip it. Removing just the x2 bonus affects five-drop completion on 16 snapshots, not 99 (the latter removes the whole center payout). Implemented an optional actual chute-by-chute payout/arrival receipt, tested at desktop/mobile widths. No compulsory center hit, suggested lane, or multiplier/target change. This does not resolve D09/D14 or reconstruct the user's private play/timing. |
-| D16 | Livelier animated workshop background | Open: deferred | Requested 2026-09-11: make the background feel more alive through ambient mechanical activity, such as slowly turning connected gears and subtle moving workshop mechanisms. Keep the motion coherent with the clockwork setting and secondary to the board, with unobstructed controls, reduced-motion support, and acceptable desktop/mobile performance. Exact animation scope and any color changes remain undecided. Backlog request only; no artwork, animation, physics, or balance changes authorized now. See HISTORY.md H036. |
+| D16 | Livelier machine and workshop presentation | Resolved: implemented and checked | Approved in H047. Ten distinct activation poses, stronger contact/edge definition, Junction arrival lamps, quieter blocked effects, and payout emphasis within existing caps. Original clock hands and meshing bench gears use four local transparent bitmap layers registered to the room. Pause/hidden/reduced-motion/high-contrast stop ambient motion. Eighteen final workshop/board/performance browser checks pass, including desktop/mobile pixels and exact payouts; one icon encode/eight palette reads retain the feedback-cache fix. Clockwork identity and deterministic rules remain unchanged; visual taste and hardware comfort are not certified. |
 | D17 | Opening hit-feedback hitch | Resolved: user confirms hitch gone | H040 explicitly confirms the lag is gone. H039's bounded icon/palette caches and stable feed identities removed a measured repeated-rasterization/readback hotspot; the improvement remains in the redesigned game. Previous timing measurements and validation caveats remain in VERIFICATION, not generalized hardware certification. |
 | D18 | Part roles and rewards after capacity | Resolved: implemented and checked; balance follow-up retained | H040 delivers charge-dependent generators/amplifiers, consumable Echo memory, Vault reserves, Dividend cash-out, Junction convergence, ten bounded tunings, targeted free tuning, paid tuning, duplicate fusion, and After Hours capacity 14/15/16/17/18 at stages 1/4/7/10/13. New rules use normal autosave; the temporary trial is retired. Build, 311 unit, 13 native, focused reward/cash-out, and full real-control campaign pass. Final full browser: 90 pass/one reload timeout; exact case passes unchanged alone. Fresh player game opened. D09/D14 retain uneven build results and player evaluation. |
-| D19 | Intermittent browser reload test timeouts | Open: not consistently reproduced | H040's full browser runs each had an isolated reload timeout in different already-validated workflows. Final single-worker run: 90/91 passed, restart reload timed out; the exact case passed unchanged in 3.6 seconds alone. No timeout increase or assertion weakening. Functional restart/save/native regressions pass; cause of intermittent full-run loading delay is unconfirmed. See VERIFICATION for the actual run history; this is not a reopening of the user-confirmed D17 hit-feedback fix. |
-| D20 | Unwinnable inventory states and recovery policy | Open: confirmed general risk; current player run recoverable | H041 user says the redesign makes them think and asks whether a run can become impossible. Read-only inspection of their commission-11 loss found a legal one-swap recovery: next Retry, Crown 4-3 swapped with Mint 4-2, four drops of 14,364 clear 52,000 with no purchases or fusion. A separate three-edit witness finishes both remaining commissions with existing inventory. However, returning/salvaging every part while lost is legal; even an empty machine at maximum power/retry cannot exceed 910 points in five launches. Shop-only acquisitions and capped retry help cannot recover that 52,000 target. Decide on safeguards or a deliberate run-ending/recovery policy; no protection, assistance, automatic solver, or balance change is approved or implemented by this check. |
-| D21 | Player-controlled retry assistance | Open: discussion proposal | H042 asks whether tune-up should be a choice or start after several retries. Recommend Retry at the current difficulty by default, with separately accepted +10% help capped at +30% for that commission. Assistance could be available from the first loss and highlighted after three failed attempts, not silently activated or gated behind deliberate failures. Count attempts separately from accepted assistance. Current code still boosts every Retry, preserves existing help on Restart level, and clears help on advance. No behavior change approved or made. |
-| D22 | Practice replay versus campaign level selection | Open: discussion proposal | H042 reports campaign completion and asks about access to specific levels and short playtime. Recommend keeping normal campaign progression sequential, with a separate replay/practice option for reached commissions using an appropriate saved entry build. Practice must not overwrite the active run, advance the campaign, duplicate rewards, or count as a new campaign clear. Arbitrary late-level starts with starter parts would not be representative. Do not extend playtime through forced repetition. Exact unlock rules, snapshot storage, and UI are unselected; no implementation approved. |
+| D19 | Intermittent browser reload test timeouts | Open: not consistently reproduced | H047's initial full 98-case run passed 96 with one onboarding reload timeout and one obsolete salvage fixture. The fixture was corrected for shop-only salvage; all fourteen smoke/onboarding rechecks passed, with the reload case unchanged. H040 had similar intermittent reload delays. No timeout increase or assertion weakening. See VERIFICATION for final run evidence; cause remains unconfirmed, separate from the resolved D17 feedback hitch. |
+| D20 | Unwinnable inventory states and recovery policy | Resolved: rollback and safeguards implemented | H047 adds exact latest-shop snapshots before choices/spending, confirmed rollback from that shop or the following unfinished commission, and shop-only salvage that cannot sell the final Mint/Relay/Kicker. Returning to a checkpoint restores IDs, tuning, power, credits, stock, reward state, seed, and run totals rather than granting duplicates. Unit, actual browser, reload, and native relaunch tests pass; absent legacy checkpoints are not fabricated. This is a defined recovery policy, not universal solvability: a confirmed New workshop remains available if the saved inventory is still inadequate. No runtime solver or automatic impossible-state verdict. |
+| D21 | Player-controlled retry assistance | Resolved: explicit help implemented | Ordinary Retry counts another attempt but preserves difficulty. A separate Retry with +10% help command accepts one bounded step, capped at +30% for the current commission. It is available from the first loss and emphasized after repeated retries. Restart preserves current help; advance clears it; permanent power/tunings remain. Old saves retain existing assistance. Save/unit and actual-play reload checks pass; no silently enabled help or mid-run relaxed-target prompt. |
+| D22 | Practice replay versus campaign level selection | Resolved: isolated recorded-build practice implemented | Menu chooser lists actual recorded commission-entry builds. Practice is a detached in-memory run with manual editing and normal simulation but no campaign rewards, achievements, or progress; exit/reload/quit leaves the campaign intact. Engine/save guards and desktop/mobile/native tests verify isolation. Retain current-workshop campaign entries plus the latest twelve After Hours entries, at most 24; new workshops replace that collection. Old saves acquire entries as play continues, without invented earlier builds. Separate named workshop slots remain deferred. |
+
+## D16 Livelier Machine and Workshop
+
+Recorded in full at the user's request on 2026-09-14; approved and implemented
+under H047 on 2026-09-23. **Resolved: implemented and checked.** The original
+proposal below remains the design rationale.
+Use [The Loopler](https://store.steampowered.com/app/4150860/The_Loopler/) as a
+reference for responsive presentation, not its racing theme, assets, exact UI,
+pixel-art treatment, or CRT effects. Retain our original clockwork workshop.
+
+1. **Expressive part reactions:** Make parts visibly do their jobs, building on
+  the existing animations. Examples: a more noticeable Mint stamp, a Vault latch
+  snapping on a deposit, and a distinct Junction response to the second arrival.
+  Give each mechanism its own physical behavior tied to actual game events.
+2. **Quiet ambient motion:** Add a few connected gears, a working clock, or a
+  restrained mechanism near the bench. Keep this motion slow and secondary to
+  the board, with calm time and no need for every prop to move.
+3. **Connected feedback:** Make the activated part, token, chute, and score feel
+  like stages of one event. Emphasize meaningful payouts while keeping ordinary
+  hits compact. Keep scored points separate from workshop-credit rewards.
+4. **More tactile art:** Refine contact shadows, edge highlights, and material
+  contrast so components feel mounted in the machine. A theme or palette change
+  is not required; any specific artwork changes still need scope approval.
+
+Recommended order: strengthen the machine's reactions first, then add a little
+ambient movement. Preserve stable readable controls, reduced-motion support,
+bounded effects, and the resolved feedback-performance improvement. No changes
+to board geometry, deterministic physics, earned scoring, or balance are implied.
+H045 recorded this as a proposal only; H047 later explicitly approved and delivered
+the pass. The earlier boundary is preserved in HISTORY.md, not current deferral.
 
 ## Retry and Recovery Discussion - 2026-09-12
 
-H042 is discussion only. The user reports completing the campaign and supplies a
+H042 was discussion only; H047 later implements the selected scope above. The user reported completing the campaign and supplied a
 screenshot of After Hours 2 with +20% tune-up. No browser page is currently shared;
 the image is presentation evidence, not a fresh save inspection or a complete
-record of the run. Current code confirms +10% per Retry up to +30%, retained by
+record of the run. At H042, code applied +10% per Retry up to +30%, retained by
 Restart level but reset by nextCommission, including between After Hours stages.
 Permanent token-power purchases and part tunings are separate and persist.
 
@@ -246,7 +289,32 @@ performed for H035. Earlier trial evidence remains unchanged.
 
 ## Recommended Priorities - Discussion Only
 
-### Current Top Three - 2026-09-11
+### Approved Top Five - 2026-09-23
+
+H047 approved and delivered this work. D20/D16/D21/D22 are implemented and checked;
+D09/D14's measured follow-up is complete but human decision-quality feedback remains
+open. The following H046 ranking is retained as historical rationale, not a list
+of five unstarted items or a new implementation decision.
+
+H046 recommends the following order for improving the current game, grouping
+D09/D14 as one closely related balance follow-up. This is not implementation
+approval or a change to any deferred status; the postponed recovery/help/practice
+discussion is not resumed by ranking it.
+
+| Order | Work | Reason / Next Step |
+| --- | --- | --- |
+| 1 | Unwinnable states and recovery: D20 | Legal inventory decisions can leave a run permanently stuck, even though the previously inspected player run was recoverable. Decide on safeguards and an explicit recovery or run-ending policy. Restoring the last shop is a proposal, not an implemented feature or universal solvability guarantee. |
+| 2 | Balance and meaningful building: D09, D14 | The charge/tuning redesign is implemented and the player reports more thought is required. Check fairness, understandable recovery, and useful choices across build families, especially weaker banking/branch cases. This is targeted follow-up, not a presumption that another broad rebalance is needed. |
+| 3 | Livelier machine and workshop: D16 | Improve how the existing game feels through expressive part reactions, coordinated feedback, then restrained ambient motion and tactile art. Use The Loopler as a responsiveness reference while retaining our theme and performance safeguards. |
+| 4 | Player-controlled retry assistance: D21 | Let players choose extra help rather than automatically changing difficulty on every Retry. Define attempt counting, accepted assistance, and commission-local limits together with D20 when that discussion resumes. Current retry behavior is unchanged. |
+| 5 | Practice and replay access: D22 | Let players revisit reached commissions and experiment without replacing the active campaign, duplicating rewards, or replaying the entire run. Entry snapshots, unlock rules, and UI remain undecided. |
+
+D19's intermittent reload-test timeout remains a separate technical follow-up,
+not a confirmed player-facing freeze or a reopening of the resolved D17 hitch.
+D01's larger endgame, D04 Steam/Cloud, and other deferred items retain their
+existing boundaries. Earlier rankings below are historical, not current work.
+
+### Earlier Top Three - 2026-09-11
 
 H033 updates the recommended working order now that D03's board and collectors
 are implemented. This is a prioritization answer, not approval to implement

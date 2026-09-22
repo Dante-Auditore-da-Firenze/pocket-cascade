@@ -16,6 +16,30 @@
       "output": "public/workshop/dark.webp",
       "width": 2400,
       "height": 1600
+    },
+    {
+      "source": "assets/workshop/gear-large-source.svg",
+      "output": "public/workshop/gear-large.webp",
+      "width": 208,
+      "height": 208
+    },
+    {
+      "source": "assets/workshop/gear-small-source.svg",
+      "output": "public/workshop/gear-small.webp",
+      "width": 148,
+      "height": 148
+    },
+    {
+      "source": "assets/workshop/clock-minute-source.svg",
+      "output": "public/workshop/clock-minute.webp",
+      "width": 332,
+      "height": 332
+    },
+    {
+      "source": "assets/workshop/clock-second-source.svg",
+      "output": "public/workshop/clock-second.webp",
+      "width": 332,
+      "height": 332
     }
   ]
 }

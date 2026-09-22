@@ -6,6 +6,7 @@ import {
   ShieldCheck, Shuffle, Sparkles, Trophy, Undo2, Upload, Volume2, VolumeX, X, Ticket, Gift, Accessibility,
 } from 'lucide-react';
 import { Board } from './components/Board';
+import { WorkshopScene } from './components/WorkshopScene';
 import { QuickGuide } from './components/QuickGuide';
 import { CreditWallet } from './components/CreditWallet';
 import { PartInventory } from './components/PartInventory';
@@ -18,12 +19,12 @@ import {
   dailySeed, enterEndless, launchDrop, newRun, nextCommission, placePeg, removePeg,
   rerollShop, retryCommission, rotatePeg, setLane, settleDrop, upgradePower,
   MAX_OWNED_PARTS, salvagePeg, parseMachineSeed, canRestartCommission, restartCommission,
-  claimTuning, claimCredits, tuningTargets, tunePeg, fusePeg,
+  claimTuning, claimCredits, tuningTargets, tunePeg, fusePeg, canSalvagePeg, retryHelpLevel,
   type RunMode, type RunState,
 } from './game/engine';
 import type { CascadeEvent, DropResult, PegKind } from './game/model';
 import {
-  freshSave, loadBrowserSave, migrateDesktopSave, parseSave, updateProgress, writeBrowserSave,
+  freshSave, loadBrowserSave, migrateDesktopSave, parseSave, updateProgress, writeBrowserSave, canRestoreShop, restoreShop, createPractice,
   type SaveData, type Settings,
 } from './game/save';
 import { GameAudio } from './audio/synth';
@@ -32,7 +33,7 @@ import { advanceTutorial, currentTutorialStep, startingTutorialStep, type Tutori
 import './polish.css';
 import './render/workshop.css';
 
-type Modal = 'menu' | 'settings' | 'accessibility' | 'collection' | 'achievements' | 'new' | 'credits' | 'rules' | 'reward' | null;
+type Modal = 'menu' | 'settings' | 'accessibility' | 'collection' | 'achievements' | 'new' | 'credits' | 'rules' | 'reward' | 'recovery' | 'practice' | null;
 
 async function loadGame(): Promise<{ save: SaveData; message: string | null }> {
   if (window.pocketDesktop) {
@@ -83,6 +84,7 @@ export default function App() {
 function Game({ initial, initialMessage }: { initial: SaveData; initialMessage: string | null }) {
   const commissionFor = commission;
   const [save, setSave] = useState(initial);
+  const [practice, setPractice] = useState<RunState | null>(null);
   const [modal, setModal] = useState<Modal>(initial.run.phase === 'shop' && !initial.run.rewardClaimed ? 'reward' : null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [paused, setPaused] = useState(false);
@@ -101,13 +103,13 @@ function Game({ initial, initialMessage }: { initial: SaveData; initialMessage: 
   const [future, setFuture] = useState<RunState[]>([]);
   const [audio] = useState(() => new GameAudio());
   const fileInput = useRef<HTMLInputElement>(null);
-  const run = save.run;
+  const run = practice ?? save.run;
   const settings = save.settings;
   const definition = commissionFor(run);
   const selectedSlot = Object.entries(run.board).find(([, peg]) => peg.id === selectedId)?.[0];
   const selectedPeg = Object.values(run.board).find((peg) => peg.id === selectedId) ?? run.bench.find((peg) => peg.id === selectedId);
-  const latest = useRef({ save, modal, paused, selectedId });
-  latest.current = { save, modal, paused, selectedId };
+  const latest = useRef({ save, run, modal, paused, selectedId });
+  latest.current = { save, run, modal, paused, selectedId };
   const achieved = useRef(new Set(initial.profile.achievements));
 
   useEffect(() => {
@@ -187,6 +189,10 @@ function Game({ initial, initialMessage }: { initial: SaveData; initialMessage: 
   });
 
   function changeRun(action: (current: RunState) => RunState): void {
+    if (latest.current.run.practice) {
+      setPractice((current) => current ? action(current) : null);
+      return;
+    }
     setSave((current) => {
       const next = action(current.run);
       return next === current.run ? current : updateProgress(current, next, commissionFor(next));
@@ -194,7 +200,7 @@ function Game({ initial, initialMessage }: { initial: SaveData; initialMessage: 
   }
 
   function editBoard(action: (current: RunState) => RunState): void {
-    const current = latest.current.save.run;
+    const current = latest.current.run;
     const changed = action(current);
     if (changed === current) return;
     setHistory((items) => [...items, current].slice(-30));
@@ -208,6 +214,7 @@ function Game({ initial, initialMessage }: { initial: SaveData; initialMessage: 
   }
 
   function learn(action: TutorialAction): void {
+    if (latest.current.run.practice) return;
     setSave((current) => {
       if (current.profile.seenTutorial) return current;
       const tutorialStep = advanceTutorial(current.profile.tutorialStep ?? startingTutorialStep(current.run), action);
@@ -216,6 +223,7 @@ function Game({ initial, initialMessage }: { initial: SaveData; initialMessage: 
   }
 
   function replayGuide(): void {
+    if (practice) return;
     const tutorialStep = startingTutorialStep(run);
     if (tutorialStep === 'done') { setToast('Start a new machine to replay the quick guide.'); return; }
     setSave((current) => ({ ...current, profile: { ...current.profile, seenTutorial: false, tutorialStep } }));
@@ -247,7 +255,7 @@ function Game({ initial, initialMessage }: { initial: SaveData; initialMessage: 
 
   function launch(): void {
     const current = latest.current;
-    if (current.save.run.phase !== 'ready' || current.paused || current.modal) return;
+    if (current.run.phase !== 'ready' || current.paused || current.modal) return;
     setSelectedId(null);
     setHistory([]);
     setFuture([]);
@@ -259,7 +267,7 @@ function Game({ initial, initialMessage }: { initial: SaveData; initialMessage: 
   }
 
   function restartLevel(): void {
-    const current = latest.current.save.run;
+    const current = latest.current.run;
     const restarted = restartCommission(current);
     if (restarted === current) return;
     changeRun(() => restarted);
@@ -271,6 +279,51 @@ function Game({ initial, initialMessage }: { initial: SaveData; initialMessage: 
     setLivePayout(0);
     setFeed([]);
     setTab('bench');
+    audio.click();
+  }
+
+  function resetControls(): void {
+    setPaused(false);
+    setSelectedId(null);
+    setHistory([]);
+    setFuture([]);
+    setLivePayout(0);
+    setFeed([]);
+  }
+
+  function retry(addHelp = false): void {
+    changeRun((current) => retryCommission(current, addHelp));
+    resetControls();
+    setTab('bench');
+    audio.click();
+  }
+
+  function recoverShop(): void {
+    const restored = restoreShop(latest.current.save);
+    if (restored === latest.current.save || practice) return;
+    setSave(restored);
+    resetControls();
+    setTab('shop');
+    setModal(restored.run.rewardClaimed ? null : 'reward');
+    audio.click();
+  }
+
+  function startPractice(stage: number): void {
+    const entry = createPractice(latest.current.save, stage);
+    if (!entry) return;
+    setPractice(entry);
+    resetControls();
+    setTab('bench');
+    setModal(null);
+    audio.click();
+  }
+
+  function leavePractice(): void {
+    setPractice(null);
+    resetControls();
+    const campaign = latest.current.save.run;
+    setTab(campaign.phase === 'shop' ? 'shop' : 'bench');
+    setModal(campaign.phase === 'shop' && !campaign.rewardClaimed ? 'reward' : null);
     audio.click();
   }
 
@@ -293,7 +346,7 @@ function Game({ initial, initialMessage }: { initial: SaveData; initialMessage: 
   }
 
   function finishDrop(result: DropResult): void {
-    const current = latest.current.save.run;
+    const current = latest.current.run;
     const next = settleDrop(current, result, commissionFor(current));
     if (next.phase === 'review') audio.success();
     setLivePayout(0);
@@ -319,7 +372,7 @@ function Game({ initial, initialMessage }: { initial: SaveData; initialMessage: 
   }
 
   function collect(): void {
-    const current = latest.current.save.run;
+    const current = latest.current.run;
     const collected = collectCommission(current, commissionFor(current));
     if (collected === current) return;
     changeRun(() => collected);
@@ -332,7 +385,7 @@ function Game({ initial, initialMessage }: { initial: SaveData; initialMessage: 
   }
 
   function chooseGift(kind: PegKind): void {
-    const current = latest.current.save.run;
+    const current = latest.current.run;
     const claimed = claimPart(current, kind);
     if (claimed === current) return;
     const converted = current.bench.length + Object.keys(current.board).length >= MAX_OWNED_PARTS;
@@ -352,7 +405,7 @@ function Game({ initial, initialMessage }: { initial: SaveData; initialMessage: 
   }
 
   function chooseTuning(partId: string): void {
-    const current = latest.current.save.run;
+    const current = latest.current.run;
     const tuned = claimTuning(current, partId);
     if (tuned === current) return;
     trade(() => tuned);
@@ -392,7 +445,8 @@ function Game({ initial, initialMessage }: { initial: SaveData; initialMessage: 
 
   function startNew(): void {
     const seed = newMode === 'daily' ? dailySeed() : parseMachineSeed(newSeed);
-    changeRun(() => newRun(seed, newMode, assisted));
+    setPractice(null);
+    setSave((current) => updateProgress({ ...current, checkpoints: undefined }, newRun(seed, newMode, assisted)));
     setModal(null);
     setPaused(false);
     setSelectedId(null);
@@ -448,6 +502,7 @@ function Game({ initial, initialMessage }: { initial: SaveData; initialMessage: 
       catch { setToast('The imported display preference could not be applied.'); return; }
     }
     setSave(restored);
+    setPractice(null);
     setHistory([]);
     setFuture([]);
     setSelectedId(null);
@@ -467,7 +522,7 @@ function Game({ initial, initialMessage }: { initial: SaveData; initialMessage: 
   const fusionDonor = selectedPeg && !selectedPeg.tuned ? run.bench.find((part) => part.id !== selectedPeg.id && part.kind === selectedPeg.kind && !part.tuned) : undefined;
   const nextExpansion = run.mode === 'endless' && definition.capacity < 18 ? 12 + (definition.capacity - 13) * 3 : null;
   const canRestart = canRestartCommission(run);
-  const tutorialStep = currentTutorialStep(save.profile, run);
+  const tutorialStep = practice ? 'done' : currentTutorialStep(save.profile, run);
   const displayFullscreen = window.pocketDesktop ? settings.fullscreen : browserFullscreen;
   const gamepad = useGamepadNavigation({
     onMenu: () => setModal('menu'),
@@ -486,8 +541,8 @@ function Game({ initial, initialMessage }: { initial: SaveData; initialMessage: 
     onActivity: () => { void audio.unlock().catch(() => undefined); },
   });
 
-  return <div className="game-app" data-testid="game-ready" data-save-ready={saved} data-tutorial-active={tutorialStep !== 'done'} data-tutorial-step={tutorialStep}>
-    <div className="workshop-scene" aria-hidden="true"><img src={`./workshop/${settings.theme}.webp`} alt="" width="2400" height="1600" decoding="async" /></div>
+  return <div className="game-app" data-testid="game-ready" data-save-ready={saved} data-practice={Boolean(practice)} data-phase={run.phase} data-visible-drops={run.totalDrops} data-tutorial-active={tutorialStep !== 'done'} data-tutorial-step={tutorialStep}>
+    <WorkshopScene theme={settings.theme} stopped={settings.reducedMotion || settings.highContrast || paused || Boolean(modal)} />
     <header className="topbar">
       <button className="wordmark" onClick={() => setModal('menu')} aria-label="Pocket Cascade menu">
         <span className="brand-symbol"><Cog size={30} strokeWidth={1.5} /></span>
@@ -506,6 +561,7 @@ function Game({ initial, initialMessage }: { initial: SaveData; initialMessage: 
     </header>
 
     <QuickGuide step={tutorialStep} run={run} definition={definition} selected={Boolean(selectedPeg)} onSkip={() => learn('skip')} onLocate={locateGuide} />
+    {practice && <section className="practice-strip" aria-label="Practice session"><span><BookOpen size={16} /><strong>PRACTICE</strong><span>No rewards</span></span><div><button className="text-button" onClick={() => setModal('practice')}><Shuffle size={15} />Change commission</button><button className="button subtle" onClick={leavePractice}><ArrowLeft size={16} />Back to campaign</button></div></section>}
 
     <main className="workspace">
       <aside className="commission-panel" aria-label="Commission">
@@ -518,12 +574,12 @@ function Game({ initial, initialMessage }: { initial: SaveData; initialMessage: 
           <div className="progress-track" role="progressbar" aria-label="Commission progress" aria-valuemin={0} aria-valuemax={definition.target} aria-valuenow={Math.min(score, definition.target)}><span style={{ width: `${progress}%` }} /></div>
           {overshoot && <div className="overdrive-label"><Sparkles size={13} />{(score / definition.target).toFixed(2)}x TARGET</div>}
         </div>
-        <div className="commission-facts">
+        {!practice && <div className="commission-facts">
           <div><span><Ticket size={14} />Completion reward</span><strong>{definition.reward} credits</strong></div>
           <div><span><Plus size={14} />Excess bonus</span><strong>up to 3 credits</strong></div>
-        </div>
+        </div>}
         {run.assisted && <div className="quiet-badge"><ShieldCheck size={13} />RELAXED WORKSHOP</div>}
-        {run.retries > 0 && <div className="quiet-badge"><Hammer size={13} />TUNE-UP +{Math.min(run.retries, 3) * 10}%</div>}
+        {retryHelpLevel(run) > 0 && <div className="quiet-badge"><Hammer size={13} />CHOSEN HELP +{retryHelpLevel(run) * 10}%</div>}
         {nextExpansion !== null && <p className="capacity-milestone" data-testid="capacity-milestone">After Hours {nextExpansion - 11}: {definition.capacity + 1} installed parts</p>}
         {(run.lastDrop || run.phase === 'dropping') && <section className="last-cascade" aria-label="Last cascade">
           {run.phase === 'dropping' ? <div className="event-feed" aria-live="off">{feed.slice(-4).map((event) => <div key={`${event.tick}-${event.tokenId}-${event.type}-${event.slotId ?? event.tray}`} className={`feed-item event-${event.type}`}>{event.kind ? <PartSymbol kind={event.kind} small /> : <Coins size={15} />}<span>{event.kind ? PARTS[event.kind].name : 'Collector'}</span><strong>{event.label}</strong></div>)}</div> : run.lastDrop && <CascadeReceipt result={run.lastDrop} />}
@@ -542,7 +598,7 @@ function Game({ initial, initialMessage }: { initial: SaveData; initialMessage: 
           </div>
         </div>
         <div className="machine-frame">
-          <Board run={run} maxInstalled={definition.capacity} selectedPegId={selectedId} onSlot={handleSlot} onLane={(lane) => changeRun((current) => setLane(current, lane))}
+          <Board key={practice ? 'practice' : 'campaign'} run={run} maxInstalled={definition.capacity} selectedPegId={selectedId} onSlot={handleSlot} onLane={(lane) => changeRun((current) => setLane(current, lane))}
             onDropComplete={finishDrop} onEvent={handleEvent} onImpact={(impact) => audio.impact(impact)} paused={paused || Boolean(modal)} speed={settings.speed} reducedMotion={settings.reducedMotion} trails={settings.trails} />
           {paused && !modal && <div className="pause-overlay"><Pause size={30} /><strong>Paused</strong><button className="button primary" onClick={() => setPaused(false)}><Play size={17} />Resume</button></div>}
         </div>
@@ -556,10 +612,10 @@ function Game({ initial, initialMessage }: { initial: SaveData; initialMessage: 
       </section>
 
       <aside className="worktable-panel" aria-label="Worktable">
-        <div className="worktable-header"><h2>{run.phase === 'review' ? 'Commission reward' : run.phase === 'won' ? 'Run complete' : 'Worktable'}</h2></div>
-        <CreditWallet credits={run.brass} reducedMotion={settings.reducedMotion} />
+        <div className="worktable-header"><h2>{practice ? 'Practice' : run.phase === 'review' ? 'Commission reward' : run.phase === 'won' ? 'Run complete' : 'Worktable'}</h2></div>
+        {!practice && <CreditWallet credits={run.brass} reducedMotion={settings.reducedMotion} />}
         {(canEdit || run.phase === 'dropping') && <PartInventory run={run} capacity={definition.capacity} nextCapacity={commissionFor({ ...run, stage: run.stage + 1 }).capacity} selectedId={selectedId} editable={canEdit} onSelect={(id) => { setSelectedId(selectedId === id ? null : id); audio.click(); }} />}
-        {run.phase === 'review' ? <div className="result-panel">
+        {practice && run.phase === 'review' ? <div className="result-panel"><h3>Practice complete</h3><p>{formatNumber(run.score)} points from {5 - run.dropsLeft} launches.</p><button className="button primary full" onClick={() => startPractice(run.stage)}><RotateCcw size={16} />Restart practice</button><button className="button subtle full" onClick={leavePractice}><ArrowLeft size={16} />Return to campaign</button></div> : run.phase === 'review' ? <div className="result-panel">
           <h3>Target reached</h3>
           <p>{formatNumber(run.score)} points from {5 - run.dropsLeft} {5 - run.dropsLeft === 1 ? 'launch' : 'launches'}.</p>
           <dl className="reward-ledger"><div><dt>Completion reward</dt><dd>+{reward.base}</dd></div><div><dt>Spare launches</dt><dd>+{reward.spare}</dd></div><div><dt>Excess payout</dt><dd>+{reward.overdrive}</dd></div><div className="ledger-total"><dt>Workshop credits earned</dt><dd>+{reward.total}</dd></div></dl>
@@ -571,7 +627,7 @@ function Game({ initial, initialMessage }: { initial: SaveData; initialMessage: 
           <button className="button primary full" onClick={() => { changeRun(enterEndless); setTab('shop'); setModal('reward'); }}>Stay after hours<ArrowRight size={17} /></button>
           <button className="button subtle full" onClick={() => openNew('workshop')}><RotateCcw size={16} />A new machine</button>
         </div> : <>
-          {run.phase === 'lost' && <div className="retry-panel"><h3>{formatNumber(Math.max(0, definition.target - run.score))} points short</h3><p>Adjust the machine, then retry.</p><button className="button primary full" onClick={() => { changeRun(retryCommission); setFeed([]); setHistory([]); setFuture([]); }}><RotateCcw size={16} />Retry commission</button><small>Retry: +10% base value, up to +30%.</small></div>}
+          {run.phase === 'lost' && <div className="retry-panel"><h3>{formatNumber(Math.max(0, definition.target - run.score))} points short</h3><p>Attempt {run.retries + 1}</p><button className="button primary full" onClick={() => retry()}><RotateCcw size={16} />Retry commission</button>{retryHelpLevel(run) < 3 && <button className={`button subtle full ${run.retries >= 2 ? 'help-suggested' : ''}`} title="Add 10% base value for this commission only, up to 30%." onClick={() => retry(true)}><Hammer size={16} />Retry with +10% help</button>}{!practice && (canRestoreShop(save) ? <button className="button subtle full" onClick={() => setModal('recovery')}><Undo2 size={16} />Restore last shop</button> : <><small>No saved shop available.</small><button className="text-button" onClick={() => openNew('workshop')}><Plus size={15} />New workshop</button></>)}</div>}
           {run.phase === 'shop' && <div className="worktable-tabs" role="tablist" aria-label="Workshop views"><button role="tab" aria-selected={tab === 'shop'} onClick={() => setTab('shop')}><Hammer size={14} />Parts counter</button><button role="tab" aria-selected={tab === 'bench'} onClick={() => setTab('bench')}><Cog size={14} />Workbench{run.bench.length > 0 && <span>{run.bench.length}</span>}</button></div>}
           {run.phase === 'shop' && tab === 'shop' ? <div className="shop-panel">
             <div className="free-reward-section" aria-label="Free commission reward">
@@ -585,7 +641,7 @@ function Game({ initial, initialMessage }: { initial: SaveData; initialMessage: 
             </div>
             {selectedPeg && <div className="selected-inline"><PartSymbol kind={selectedPeg.kind} tuned={selectedPeg.tuned} small /><span>{partName(selectedPeg)} ready to place</span><IconButton icon={X} label="Deselect part" onClick={() => setSelectedId(null)} /></div>}
           </div> : <div className="bench-panel">
-            {selectedPeg ? <div className="part-inspector"><div className="inspector-heading"><PartSymbol kind={selectedPeg.kind} direction={selectedPeg.direction} tuned={selectedPeg.tuned} /><div><span className="eyebrow">{PARTS[selectedPeg.kind].family}</span><h3>{partName(selectedPeg)}</h3></div><IconButton icon={X} label="Deselect part" onClick={() => setSelectedId(null)} /></div><p>{PARTS[selectedPeg.kind].description}</p><small>{PARTS[selectedPeg.kind].detail}</small><div className="inspector-actions">{(selectedPeg.kind === 'kicker' || selectedPeg.kind === 'splitter') && <button className="button subtle" onClick={() => editBoard((current) => rotatePeg(current, selectedPeg.id))}><RotateCw size={15} />{selectedPeg.direction === 1 ? 'Right' : 'Left'}</button>}{selectedSlot ? <button className="button subtle" onClick={() => { editBoard((current) => removePeg(current, selectedSlot)); setSelectedId(null); }}><ArrowLeft size={15} />To worktable</button> : <button className="button subtle" aria-label="Salvage part for 1 credit" title="Recycle this spare part for 1 Workshop credit" onClick={() => { trade((current) => salvagePeg(current, selectedPeg.id)); setSelectedId(null); audio.click(); }}><Recycle size={15} />1 credit</button>}</div>
+            {selectedPeg ? <div className="part-inspector"><div className="inspector-heading"><PartSymbol kind={selectedPeg.kind} direction={selectedPeg.direction} tuned={selectedPeg.tuned} /><div><span className="eyebrow">{PARTS[selectedPeg.kind].family}</span><h3>{partName(selectedPeg)}</h3></div><IconButton icon={X} label="Deselect part" onClick={() => setSelectedId(null)} /></div><p>{PARTS[selectedPeg.kind].description}</p><small>{PARTS[selectedPeg.kind].detail}</small><div className="inspector-actions">{(selectedPeg.kind === 'kicker' || selectedPeg.kind === 'splitter') && <button className="button subtle" onClick={() => editBoard((current) => rotatePeg(current, selectedPeg.id))}><RotateCw size={15} />{selectedPeg.direction === 1 ? 'Right' : 'Left'}</button>}{selectedSlot ? <button className="button subtle" onClick={() => { editBoard((current) => removePeg(current, selectedSlot)); setSelectedId(null); }}><ArrowLeft size={15} />To worktable</button> : <button className="button subtle" aria-label="Salvage part for 1 credit" disabled={!canSalvagePeg(run, selectedPeg.id)} title={run.phase !== 'shop' ? 'Salvage is available at the shop.' : 'Recycle this spare for 1 credit. Keep at least one charge generator.'} onClick={() => { trade((current) => salvagePeg(current, selectedPeg.id)); setSelectedId(null); audio.click(); }}><Recycle size={15} />1 credit</button>}</div>
               <div className="part-tuning"><strong><Hammer size={14} />{selectedPeg.tuned ? 'Tuned: ' : ''}{TUNINGS[selectedPeg.kind].name}</strong><small>{TUNINGS[selectedPeg.kind].description}</small>{!selectedPeg.tuned && <div className="tuning-actions">
                 {run.phase === 'shop' && <button className="button subtle" disabled={run.brass < tuningPrice(selectedPeg.kind)} aria-label={`Tune ${PARTS[selectedPeg.kind].name} for ${tuningPrice(selectedPeg.kind)} credits`} onClick={() => { trade((current) => tunePeg(current, selectedPeg.id)); learn('purchase'); audio.success(); }}><Hammer size={14} />Tune<Ticket size={12} />{tuningPrice(selectedPeg.kind)}</button>}
                 <button className="button subtle" disabled={!canEdit || !fusionDonor} aria-label={`Fuse spare ${PARTS[selectedPeg.kind].name}`} title={`Consume one untuned spare ${PARTS[selectedPeg.kind].name} to tune this copy`} onClick={() => { if (fusionDonor) { trade((current) => fusePeg(current, selectedPeg.id, fusionDonor.id)); audio.success(); } }}><Combine size={15} />Fuse 1 spare {PARTS[selectedPeg.kind].name}</button>
@@ -604,7 +660,11 @@ function Game({ initial, initialMessage }: { initial: SaveData; initialMessage: 
 
     {modal === 'reward' && run.phase === 'shop' && !run.rewardClaimed && <RewardDialog run={run} onChoose={chooseGift} onTune={chooseTuning} onCredits={chooseCredits} onClose={closeReward} />}
 
-    {modal === 'menu' && <Dialog title="Workshop menu" onClose={() => setModal(null)}><div className="menu-brand"><Cog size={32} strokeWidth={1.5} /><h3>POCKET CASCADE</h3></div><button className="button primary full" onClick={() => { setModal(null); setPaused(false); }}><Play size={17} />Back to the machine</button><div className="menu-actions"><button disabled={!canRestart} onClick={restartLevel}><RotateCcw size={18} />Restart level<ChevronRight size={16} /></button><button onClick={() => openNew('workshop')}><Plus size={18} />New workshop<ChevronRight size={16} /></button><button onClick={() => openNew('daily')}><Award size={18} />Daily machine<span>{new Date().toISOString().slice(5, 10)}</span></button><button onClick={() => setModal('settings')}><Settings2 size={18} />Settings<ChevronRight size={16} /></button><button onClick={() => setModal('rules')}><BookOpen size={18} />Machine manual<ChevronRight size={16} /></button>{window.pocketDesktop && <button onClick={() => { void persistGame(save).then((error) => { if (error) setToast(error); else window.pocketDesktop?.quit(); }); }}><X size={18} />Save and quit</button>}</div><div className="menu-record"><span>Best cascade</span><strong>{formatNumber(save.profile.bestDrop)}</strong></div></Dialog>}
+    {modal === 'menu' && <Dialog title="Workshop menu" onClose={() => setModal(null)}><div className="menu-brand"><Cog size={32} strokeWidth={1.5} /><h3>POCKET CASCADE</h3></div><button className="button primary full" onClick={() => { setModal(null); setPaused(false); }}><Play size={17} />Back to the machine</button><div className="menu-actions"><button disabled={!canRestart} onClick={restartLevel}><RotateCcw size={18} />Restart level<ChevronRight size={16} /></button>{!practice && <button disabled={!canRestoreShop(save)} onClick={() => setModal('recovery')}><Undo2 size={18} />Restore last shop<ChevronRight size={16} /></button>}<button disabled={!save.checkpoints?.entries.length || (!practice && run.phase === 'dropping')} onClick={() => setModal('practice')}><BookOpen size={18} />Practice commissions<ChevronRight size={16} /></button>{practice && <button onClick={leavePractice}><ArrowLeft size={18} />Back to campaign</button>}<button onClick={() => openNew('workshop')}><Plus size={18} />New workshop<ChevronRight size={16} /></button><button onClick={() => openNew('daily')}><Award size={18} />Daily machine<span>{new Date().toISOString().slice(5, 10)}</span></button><button onClick={() => setModal('settings')}><Settings2 size={18} />Settings<ChevronRight size={16} /></button><button onClick={() => setModal('rules')}><BookOpen size={18} />Machine manual<ChevronRight size={16} /></button>{window.pocketDesktop && <button onClick={() => { void persistGame(save).then((error) => { if (error) setToast(error); else window.pocketDesktop?.quit(); }); }}><X size={18} />Save and quit</button>}</div><div className="menu-record"><span>Best cascade</span><strong>{formatNumber(save.profile.bestDrop)}</strong></div></Dialog>}
+
+    {modal === 'recovery' && <Dialog title="Restore last shop?" onClose={() => setModal(null)}><p className="dialog-intro">Return to the saved shop after {COMMISSION_LABEL(save.checkpoints?.shop?.stage ?? 0)}? Later purchases, tuning, fusion, salvage, and launches will be discarded. Credits, parts, stock, and reward choices return to that checkpoint.</p><div className="button-row confirmation-actions"><button className="button subtle" onClick={() => setModal(null)}>Keep current machine</button><button className="button primary" disabled={!canRestoreShop(save)} onClick={recoverShop}><Undo2 size={16} />Restore shop</button></div></Dialog>}
+
+    {modal === 'practice' && <Dialog title="Practice commissions" onClose={() => setModal(null)}><div className="practice-list">{save.checkpoints?.entries.map((entry) => <button key={entry.stage} aria-label={`Practice commission ${entry.stage + 1}`} onClick={() => startPractice(entry.stage)}><span className="practice-number">{String(entry.stage + 1).padStart(2, '0')}</span><span><strong>{COMMISSION_LABEL(entry.stage)}</strong><small>{formatNumber(commission(entry).target)} points / {Object.keys(entry.board).length + entry.bench.length} owned parts</small></span><Play size={18} /></button>)}</div></Dialog>}
 
     {modal === 'settings' && <Dialog title="Settings" onClose={() => setModal(null)}>
       <div className="settings-group"><h3>Sound</h3>
@@ -622,7 +682,7 @@ function Game({ initial, initialMessage }: { initial: SaveData; initialMessage: 
         <button className="button subtle full accessibility-link" onClick={() => setModal('accessibility')}><Accessibility size={16} />Accessibility options<ChevronRight size={15} /></button>
       </div>
       <div className="settings-group"><h3>Your machine</h3>
-        <button className="button subtle full" onClick={replayGuide}><CircleHelp size={16} />Replay quick guide</button>
+        <button className="button subtle full" disabled={Boolean(practice)} onClick={replayGuide}><CircleHelp size={16} />Replay quick guide</button>
         <div className="button-row save-actions"><button className="button subtle" onClick={exportSave}><Download size={15} />Export save</button><button className="button subtle" onClick={() => fileInput.current?.click()}><Upload size={15} />Import save</button></div>
         <p className="fine-print">Import replaces this machine. Export a backup first to keep both.</p>
         <input ref={fileInput} className="visually-hidden" type="file" accept="application/json,.json" aria-label="Import save file" onChange={(event) => { void importSave(event); }} />
@@ -641,7 +701,7 @@ function Game({ initial, initialMessage }: { initial: SaveData; initialMessage: 
 
     {modal === 'new' && <Dialog title={newMode === 'daily' ? 'Daily machine' : 'New workshop'} onClose={() => setModal('menu')}><p className="dialog-intro">Replace this machine? Your collection and achievements stay.</p>{newMode === 'daily' ? <div className="daily-card"><Award size={34} /><strong>{new Date().toISOString().slice(0, 10)}</strong><span>Shared daily seed. No leaderboard.</span>{save.profile.dailyCompleted.includes(new Date().toISOString().slice(0, 10)) && <span className="success-text"><Check size={15} />Already completed today</span>}</div> : <><label className="text-field">Machine seed <span className="muted">optional</span><input value={newSeed} onChange={(event) => setNewSeed(event.target.value)} maxLength={64} placeholder="Word or number" /></label><Toggle label="Relaxed targets (-35%)" value={assisted} onChange={setAssisted} /></>}<div className="button-row confirmation-actions"><button className="button subtle" onClick={() => setModal('menu')}>Keep this machine</button><button className="button primary" onClick={startNew}>Start fresh<ArrowRight size={16} /></button></div></Dialog>}
 
-    {modal === 'rules' && <Dialog title="The machine manual" wide onClose={() => setModal(null)}><div className="manual-layout"><section><span className="manual-number">01</span><h3>Generate, then amplify</h3><p>Mint, Relay, and Kicker generate charge. The three marks beside each token show its charge. Doubler spends one; Crown spends two. Place generators between amplifiers. Echo repeats an effect once, not another Echo.</p><p>Move, swap, rotate, and return parts for free between launches. Each token hits each installed part once. Fork shares charge and reserves across up to four tokens.</p></section><section><span className="manual-number">02</span><h3>Bank and reconnect</h3><p>Vault turns spare charge into extra banked points. Dividend turns a token's unused deposit reserve into value; earned banked points remain. Junction rewards two branches reaching the same socket.</p><p>Five launches per commission. Collectors pay x1, x2, x1. All deposits and collector points count; excess is success. Identical launch conditions repeat throughout the run.</p></section><section><span className="manual-number">03</span><h3>Parts and tuning</h3><p>Each commission offers one new part, a tuning for an owned offered kind, or two credits. A tuning changes a part's behavior once. Fuse a matching untuned spare in the inspector, or pay credits at the shop. Fusion consumes the spare; the target keeps its socket and direction.</p><p>Credits also buy stock and token power. After Hours opens an extra installation space on entry and every three completed commissions, up to 18 parts. Tuning remains useful when space is full.</p></section><section><span className="manual-number">04</span><h3>Retry and resume</h3><p>Miss a target? Keep parts and credits, adjust, and retry with +10% base value up to +30%. Restart resets an attempt without adding a bonus. Playback speed never changes physics or scoring.</p><p>Progress saves automatically. Interrupted launches are refunded. There are no purchases, bets, or payouts involving real money.</p></section></div></Dialog>}
+    {modal === 'rules' && <Dialog title="The machine manual" wide onClose={() => setModal(null)}><div className="manual-layout"><section><span className="manual-number">01</span><h3>Generate, then amplify</h3><p>Mint, Relay, and Kicker generate charge. The three marks beside each token show its charge. Doubler spends one; Crown spends two. Place generators between amplifiers. Echo repeats an effect once, not another Echo.</p><p>Move, swap, rotate, and return parts for free between launches. Each token hits each installed part once. Fork shares charge and reserves across up to four tokens.</p></section><section><span className="manual-number">02</span><h3>Bank and reconnect</h3><p>Vault turns spare charge into extra banked points. Dividend turns a token's unused deposit reserve into value; earned banked points remain. Junction rewards two branches reaching the same socket.</p><p>Five launches per commission. Collectors pay x1, x2, x1. All deposits and collector points count; excess is success. Identical launch conditions repeat throughout the run.</p></section><section><span className="manual-number">03</span><h3>Parts and tuning</h3><p>Each commission offers one new part, a tuning for an owned offered kind, or two credits. A tuning changes a part's behavior once. Fuse a matching untuned spare in the inspector, or pay credits at the shop. Fusion consumes the spare; the target keeps its socket and direction.</p><p>Credits also buy stock and token power. Salvage is shop-only and retains your last charge generator. After Hours adds installation space on entry and every three commissions, up to 18.</p></section><section><span className="manual-number">04</span><h3>Retry, recover, practice</h3><p>Retry keeps the current difficulty. Extra help is your choice: +10% base value, up to +30% for this commission. Help resets on advance; permanent token power stays. Restart resets an attempt without adding help.</p><p>Restore last shop returns its saved parts, credits, stock, and reward choices, discarding later decisions. It does not guarantee a winning build. Practice uses recorded entry builds without campaign rewards or progress. Older saves only gain entries as you continue. Interrupted launches are refunded; playback speed never changes scoring.</p></section></div></Dialog>}
 
     {modal === 'credits' && <Dialog title="Pocket Cascade" onClose={() => setModal(null)}><div className="credits-list"><div><span>Game, artwork & sound</span><strong>Pocket Cascade</strong></div><div><span>Physics</span><strong>Matter.js</strong></div><div><span>Interface icons</span><strong>Lucide</strong></div><div><span>Type</span><strong>Barlow Condensed / DM Sans</strong></div><div><span>Version</span><strong>1.0.0</strong></div></div><p className="fine-print">Original procedural artwork and synthesized music. Offline play; no analytics or accounts.</p></Dialog>}
   </div>;

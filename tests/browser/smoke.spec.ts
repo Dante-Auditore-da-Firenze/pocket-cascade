@@ -76,13 +76,19 @@ test('settings and backup recovery survive reload', async ({ page }) => {
 
 test('salvage commits ownership and clears placement undo history', async ({ page }) => {
   await openGame(page);
+  await page.getByRole('button', { name: '4x speed', exact: true }).click();
+  while ((await readRun(page)).phase === 'ready') await drop(page);
+  await page.getByRole('button', { name: 'Visit the workshop', exact: true }).click();
+  await page.getByRole('button', { name: 'Collect credits', exact: true }).click();
+  await page.getByRole('tab', { name: /^Workbench/ }).click();
+  const credits = (await readRun(page)).brass;
   await page.getByRole('button', { name: 'Mint socket 0-3', exact: true }).click();
   await page.getByRole('button', { name: 'To worktable', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Undo placement', exact: true })).toBeEnabled();
   await page.getByRole('button', { name: 'Select Mint, 1 available', exact: true }).click();
   await page.getByRole('button', { name: 'Salvage part for 1 credit', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Undo placement', exact: true })).toBeDisabled();
-  expect((await readRun(page)).brass).toBe(1);
+  expect((await readRun(page)).brass).toBe(credits + 1);
   expect((await readRun(page)).bench.some((peg) => peg.id === 'part-1')).toBe(false);
 });
 

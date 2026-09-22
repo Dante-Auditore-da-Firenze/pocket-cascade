@@ -1,5 +1,48 @@
 # Candidate Verification
 
+## Recovery, Practice, and Liveliness - 2026-09-23
+
+H047 explicitly authorizes the five H046 priorities. Implemented exact last-shop
+rollback and salvage safeguards, opt-in commission-local help, detached practice
+from recorded entry builds, factual missing-input receipts, and stronger original
+mechanical/ambient artwork. The scoring effects, target/price/capacity curves,
+120 Hz physics, and four-token limit remain unchanged.
+
+| Check | Actual Outcome |
+| --- | --- |
+| Final production build | TypeScript/Vite passed through the standard Verify Game task. Main JS is 513.31 kB, gzip 159.29 kB; existing theme-script, Zod annotation, and default 500 kB chunk warnings remain nonfatal. |
+| Final full unit suite | **320 passed in 16 files**. Includes explicit/legacy help, exact no-farming shop restoration, shop-only salvage/last-generator protection, bounded checkpoint retention, immutable retry entries, practice save/progress rejection, and actual blocked-trigger metadata. |
+| Recovery/practice/inventory slice | **19 browser cases passed** before full integration: desktop/mobile practice, no campaign/profile changes, quit/reload behavior, opt-in help, rollback confirmation/cancellation, observed missed inputs, and one-copy shop salvage. |
+| Final presentation/performance slice | **18 passed** after restoring a clean cached mounting layer under moving parts. Includes all ten poses, exact real-drop results, clock/gear registration at desktop/mobile sizes, pause/reduced motion, contrast, short panes, and bounded feedback work. |
+| Initial complete browser pass | **96 passed / 2 failed / 98 total**, one worker. One obsolete smoke fixture attempted salvage outside the shop; one onboarding case timed out during reload after its gameplay assertions. The fixture was corrected to earn a shop; fourteen focused smoke/onboarding cases then passed. |
+| Final standard Verify Game browser pass | **96 passed / 2 failed / 98 total**, two workers, 12.2 minutes. The desktop practice case timed out waiting for reload after its isolation/return assertions; a desktop reward case exhausted the test budget at reload with ERR_ABORTED. No game assertion failure was reported in those cases. This is not a clean full-suite pass. |
+| Exact failure-path rechecks | **4 passed**, one worker: unchanged onboarding reload, unchanged desktop practice/reload, unchanged desktop reward/reload, and corrected earned-shop salvage. No timeout increases, retries, or weaker assertions. D19 remains open; load-related causes are unconfirmed. |
+| Final built Electron | **13 passed in 1.1 minutes** against the final build. Expanded earned-tuning case checks persisted shop/practice entries, closes during practice, resumes the unchanged campaign, and restores the original shop/reward on relaunch. CSP, renderer isolation, trusted IPC, saves/export, and native lifecycle tests pass. |
+| Balance | **48 campaigns**, eight seeds, six policies, no automatic help and no recorded simulation timeouts. Recovery/charge win 8/8, banking 6/8, branching 3/8; passive/frozen 0/8. All 48 final states validate as saves. Broader owned-parts audits and explicit help witnesses are documented in BALANCE. |
+| Art and display | Two original 2400x1600 room bitmaps plus four transparent motion bitmaps generated and pixel-checked; editable sources/provenance retained. Desktop/mobile, daylight, full board, and practice captures inspected. No external runtime assets or art downloads. |
+| Player handoff | Play task started successfully on **http://127.0.0.1:5173/**. Tests use separate browser contexts and native temporary directories. No live player launch, reset, purchase, or save replacement was performed. |
+
+Final focused dense-feedback measurement: **one icon encode, eight palette pixel
+reads**, exact payout 309. Normal measured median frame interval 28 ms, p95
+35.2 ms; mechanism drawing maximum 0.3 ms in that run. The label-disabled comparison
+was 26.1/33 ms with the same cache counts and payout. These headless, concurrent
+measurements are not hardware FPS certification or a controlled before/after
+timing comparison. The bounded-work cache regression passes.
+
+Artifacts: final full browser report/trace under `artifacts/playwright-report`
+and `artifacts/playwright`; focused captures and timings under
+`artifacts/workshop-verification`; failure-path rechecks under
+`artifacts/recovery-regressions` with `artifacts/recovery-regressions-results.json`.
+The earlier `artifacts/units-2026-09-23.json` records the 318-test checkpoint;
+the subsequent standard task output records all 320 final unit passes.
+
+Limitations: older saves cannot reconstruct unrecorded shop/commission entries;
+rollback is not a universal winning-build guarantee. Practice records belong to
+the current workshop, not named save slots. D09/D14 retain human balance feedback.
+No Windows package rebuild or new Steam/Cloud, hardware, controller, or Deck claim.
+Existing packages remain the H026 builds; use the dev server or current built
+Electron source. No commit, push, or branch change. Earlier dated evidence follows.
+
 ## Combined Role Redesign - 2026-09-12
 
 H040 implements the authorized combined pass as normal saved gameplay: bounded

@@ -1,7 +1,7 @@
 import { test, expect, type Page } from '@playwright/test';
 import type { Peg } from '../../src/game/model';
 import { freshSave, SAVE_KEY } from '../../src/game/save';
-import { openGame, readRun } from './helpers';
+import { drop, openGame, readRun } from './helpers';
 
 const duplicateSpares: Peg[] = [
   { id: 'part-6', kind: 'mint', direction: 1 },
@@ -95,16 +95,25 @@ test('salvage decrements only one copy and the last copy removes the stack', asy
   ]);
   const mint = page.getByTestId('part-inventory').locator('[data-stack="mint"]');
   await mint.click();
+  await expect(page.getByRole('button', { name: 'Salvage part for 1 credit', exact: true })).toBeDisabled();
+  await page.getByRole('button', { name: 'Deselect part', exact: true }).click();
+  await page.getByRole('button', { name: '4x speed', exact: true }).click();
+  while ((await readRun(page)).phase === 'ready') await drop(page);
+  await page.getByRole('button', { name: 'Visit the workshop', exact: true }).click();
+  await page.getByRole('button', { name: 'Collect credits', exact: true }).click();
+  await page.getByRole('tab', { name: /^Workbench/ }).click();
+  const credits = (await readRun(page)).brass;
+  await mint.click();
   await page.getByRole('button', { name: 'Salvage part for 1 credit', exact: true }).click();
   await expect(mint).toHaveAttribute('data-count', '1');
-  expect((await readRun(page)).brass).toBe(1);
+  expect((await readRun(page)).brass).toBe(credits + 1);
   expect((await readRun(page)).bench.map((part) => part.id)).toEqual(['part-7']);
   await expect(page.getByRole('button', { name: 'Undo placement', exact: true })).toBeDisabled();
   await mint.click();
   await page.getByRole('button', { name: 'Salvage part for 1 credit', exact: true }).click();
   await expect(mint).toHaveCount(0);
   await expect(page.getByTestId('part-inventory')).toContainText('No spare parts.');
-  expect((await readRun(page)).brass).toBe(2);
+  expect((await readRun(page)).brass).toBe(credits + 2);
   expect((await readRun(page)).bench).toHaveLength(0);
 });
 

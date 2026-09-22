@@ -397,7 +397,7 @@ test('earned duplicate parts share one icon and retain their identities after na
   await expect(relaunched.page.getByRole('button', { name: `Select ${PARTS[kind].name}, 1 available`, exact: true })).toBeVisible();
 });
 
-test('an earned tuned reward retains its identity and effect across native relaunch', async ({ desktop }) => {
+test('earned tuning, shop recovery, and isolated practice survive native relaunch', async ({ desktop }) => {
   const { page } = desktop.game;
   let run = JSON.parse((await readNativeSave(page)).data!).run as RunState;
   const strongest = Array.from({ length: 9 }, (_, lane) => ({ lane, payout: simulateDrop({ ...dropConfig(run), lane }).total }))
@@ -432,4 +432,24 @@ test('an earned tuned reward retains its identity and effect across native relau
   await relaunched.page.getByRole('button', { name: 'Launch token', exact: true }).click();
   await expect.poll(async () => JSON.parse((await readNativeSave(relaunched.page)).data!).run.totalDrops).toBe(ready.totalDrops + 1);
   expect(JSON.parse((await readNativeSave(relaunched.page)).data!).run.lastDrop).toEqual(expected);
+  const campaign = JSON.parse((await readNativeSave(relaunched.page)).data!);
+  expect(campaign.checkpoints.shop).toEqual(shop);
+  expect(campaign.checkpoints.entries.map((entry: RunState) => entry.stage)).toEqual([0, 1]);
+  await relaunched.page.getByRole('button', { name: 'Pause menu', exact: true }).click();
+  await relaunched.page.getByRole('button', { name: 'Practice commissions', exact: true }).click();
+  await relaunched.page.getByRole('button', { name: 'Practice commission 1', exact: true }).click();
+  await expect(relaunched.page.getByTestId('game-ready')).toHaveAttribute('data-practice', 'true');
+  await relaunched.page.getByRole('button', { name: 'Launch token', exact: true }).click();
+  expect(JSON.parse((await readNativeSave(relaunched.page)).data!)).toEqual(campaign);
+  await relaunched.close();
+
+  const resumed = await desktop.launch();
+  await expect(resumed.page.getByTestId('game-ready')).toHaveAttribute('data-practice', 'false');
+  expect(JSON.parse((await readNativeSave(resumed.page)).data!)).toEqual(campaign);
+  await resumed.page.getByRole('button', { name: 'Pause menu', exact: true }).click();
+  await resumed.page.getByRole('button', { name: 'Restore last shop', exact: true }).click();
+  await resumed.page.getByRole('button', { name: 'Restore shop', exact: true }).click();
+  await expect(resumed.page.getByRole('dialog', { name: 'Choose a reward', exact: true })).toBeVisible();
+  await expect.poll(async () => JSON.parse((await readNativeSave(resumed.page)).data!).run).toEqual(shop);
+  expect(JSON.parse((await readNativeSave(resumed.page)).data!).profile).toEqual(campaign.profile);
 });

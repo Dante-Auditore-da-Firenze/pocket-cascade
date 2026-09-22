@@ -15,6 +15,92 @@ async function firstShop(page: Page) {
   return readRun(page);
 }
 
+test('retry stays at the same difficulty unless the player explicitly accepts help', async ({ page }) => {
+  await openGame(page);
+  await firstShop(page);
+  await page.getByRole('button', { name: 'Collect credits', exact: true }).click();
+  await page.getByRole('button', { name: 'Next commission', exact: true }).click();
+  for (const slot of Object.keys((await readRun(page)).board)) {
+    await page.locator(`[data-slot="${slot}"]`).click();
+    await page.getByRole('button', { name: 'To worktable', exact: true }).click();
+  }
+  await page.getByRole('button', { name: 'Aim lane 1', exact: true }).click();
+  for (let launch = 0; launch < 5; launch += 1) await drop(page);
+  expect((await readRun(page)).phase).toBe('lost');
+  await page.getByRole('button', { name: 'Retry commission', exact: true }).click();
+  expect((await readRun(page)).retries).toBe(1);
+  expect((await readRun(page)).retryHelp).toBe(0);
+  await expect(page.getByRole('button', { name: 'Launch token', exact: true })).toContainText('10 BASE VALUE');
+  for (let launch = 0; launch < 5; launch += 1) await drop(page);
+  await page.getByRole('button', { name: 'Retry with +10% help', exact: true }).click();
+  expect((await readRun(page)).retries).toBe(2);
+  expect((await readRun(page)).retryHelp).toBe(1);
+  await page.reload();
+  await expect(page.getByRole('button', { name: 'Launch token', exact: true })).toContainText('11 BASE VALUE');
+  await expect(page.locator('.quiet-badge')).toContainText('CHOSEN HELP +10%');
+});
+
+test('restoring the last earned shop confirms the loss of later choices and never duplicates credits', async ({ page }) => {
+  await openGame(page);
+  const shop = await firstShop(page);
+  await page.getByRole('button', { name: 'Collect credits', exact: true }).click();
+  await page.getByRole('button', { name: `Buy ${PARTS[shop.offers[0].kind].name} for ${shop.offers[0].price} credits`, exact: true }).click();
+  await page.getByRole('button', { name: 'Next commission', exact: true }).click();
+  const before = await readSave(page);
+  await page.getByRole('button', { name: 'Pause menu', exact: true }).click();
+  await page.getByRole('button', { name: 'Restore last shop', exact: true }).click();
+  await page.getByRole('button', { name: 'Keep current machine', exact: true }).click();
+  expect(await readSave(page)).toEqual(before);
+  await page.getByRole('button', { name: 'Pause menu', exact: true }).click();
+  await page.getByRole('button', { name: 'Restore last shop', exact: true }).click();
+  await page.getByRole('button', { name: 'Restore shop', exact: true }).click();
+  await expect(page.getByRole('dialog', { name: 'Choose a reward', exact: true })).toBeVisible();
+  expect((await readSave(page)).run).toEqual(shop);
+  expect((await readSave(page)).profile).toEqual(before.profile);
+  await page.reload();
+  await expect(page.getByRole('dialog', { name: 'Choose a reward', exact: true })).toBeVisible();
+  expect((await readRun(page)).brass).toBe(shop.brass);
+  await page.getByRole('button', { name: 'Collect credits', exact: true }).click();
+  expect((await readRun(page)).brass).toBe(shop.brass + 2);
+});
+
+for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) {
+  test(`practice plays a recorded build without changing campaign or rewards at ${viewport.width}px`, async ({ page }, testInfo) => {
+    await page.setViewportSize(viewport);
+    await openGame(page);
+    await firstShop(page);
+    await page.getByRole('button', { name: 'Collect credits', exact: true }).click();
+    await page.getByRole('button', { name: 'Next commission', exact: true }).click();
+    const before = await readSave(page);
+    await page.getByRole('button', { name: 'Pause menu', exact: true }).click();
+    await page.getByRole('button', { name: 'Practice commissions', exact: true }).click();
+    await expect(page.getByRole('button', { name: 'Practice commission 1', exact: true })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Practice commission 3', exact: true })).toHaveCount(0);
+    await page.getByRole('button', { name: 'Practice commission 1', exact: true }).click();
+    const game = page.getByTestId('game-ready');
+    await expect(game).toHaveAttribute('data-practice', 'true');
+    while (await game.getAttribute('data-phase') === 'ready') {
+      const launches = Number(await game.getAttribute('data-visible-drops'));
+      await page.getByRole('button', { name: 'Launch token', exact: true }).click();
+      await expect(game).toHaveAttribute('data-visible-drops', String(launches + 1));
+    }
+    await expect(page.getByRole('heading', { name: 'Practice complete', exact: true })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Visit the workshop', exact: true })).toHaveCount(0);
+    expect(await readSave(page)).toEqual(before);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    await page.screenshot({ path: testInfo.outputPath(`practice-${viewport.width}.png`), fullPage: true });
+    await page.getByRole('button', { name: 'Back to campaign', exact: true }).click();
+    await expect(game).toHaveAttribute('data-practice', 'false');
+    expect(await readSave(page)).toEqual(before);
+    await page.getByRole('button', { name: 'Pause menu', exact: true }).click();
+    await page.getByRole('button', { name: 'Practice commissions', exact: true }).click();
+    await page.getByRole('button', { name: 'Practice commission 1', exact: true }).click();
+    await page.reload();
+    await expect(game).toHaveAttribute('data-practice', 'false');
+    expect(await readSave(page)).toEqual(before);
+  });
+}
+
 test('quick restart resets only this attempt and persists unchanged possessions and difficulty', async ({ page }) => {
   await openGame(page);
   await page.getByRole('button', { name: 'Select Fork facing right, 1 available', exact: true }).click();

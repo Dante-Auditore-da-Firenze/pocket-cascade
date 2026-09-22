@@ -21,13 +21,13 @@ active player mechanics. No permanent old/new balance profiles are maintained.
 2. Launch from a five-drop commission budget. Parts change token value or route; the outer collectors pay x1 and the center pays x2, subject to the numeric cap.
 3. Reach the minimum target to collect Workshop credits. Unused drops and excess payout each add a bounded bonus. Unspent score does not carry into the next commission.
 4. Choose one complimentary part, tune a matching owned part, or take two credits. Buy optional stock, token power, or targeted tuning; fuse matching spares and rearrange before advancing. The first eleven shops lead to the next commission; the twelfth ends the campaign.
-5. If five drops are insufficient, **Retry commission** retains the machine and purchases, adding the existing +10% base value per retry up to +30%. Loss review no longer offers **Continue with relaxed targets (-35%)** and never automatically lowers targets. The initial New Workshop relaxed option still lowers targets by 35%; existing assisted saves retain their setting, and Daily cannot start relaxed.
+5. If five drops are insufficient, **Retry commission** retains the machine, purchases, and current difficulty. **Retry with +10% help** explicitly increases base value, capped at +30% for this commission. Attempts and accepted help are separate; advancing resets both. Loss review never automatically lowers targets. The initial New Workshop relaxed option still lowers targets by 35%; existing assisted saves retain their setting, and Daily cannot start relaxed.
 
 Placement, swapping, returning installed parts to the worktable, and rotation are free while ready, shopping, or recovering from a loss. Capacity is 7/8/9/9/9/10/10/11/11/12/12/13 over the campaign. After Hours opens 14 slots, then 15/16/17/18 at After Hours 4/7/10/13. The physical cabinet still has 46 sockets and unchanged geometry.
 
 The installed/capacity indicator sits beside the board toolbar across viewport sizes. The shop still uses the completed commission's cap: at 7/7, swap or return an installed part, with spares retained. Its notice explicitly says **Next level: 8 installed parts. 1 extra space opens when you advance.** This is clarification, not a capacity, board-dimension, or geometry increase.
 
-The worktable and installed parts share an 80-part ownership limit. A spare salvages for one credit. At full storage, the reward dialog disables new copies but still offers eligible tuning or two credits; it never adds beyond the limit.
+The worktable and installed parts share an 80-part ownership limit. A spare salvages for one credit only in the shop; the last Mint, Relay, or Kicker cannot be sold. An older generatorless inventory may still sell non-generators to fund recovery. At full storage, the reward dialog disables new copies but still offers eligible tuning or two credits; it never adds beyond the limit.
 
 `PartInventory` stays visible above the shop and other editing views without a tab change; it is disabled during a drop. Equivalent spares share one selection button with an xN quantity badge. Tuned/untuned copies are separate, as are left/right Forks and Kickers. Saved IDs remain individual; quantity is separate from the scoring glyph and tuning mark.
 
@@ -47,6 +47,44 @@ mode; tuning identifies a specific installed socket or spare copy. **2 credits
 instead** is always available. Only one reward can be claimed. Paid stock stays
 separate. Inspect/Escape/controller Back dismisses without claiming and focuses
 the reopen control. Pending reload/import and After Hours use the same flow.
+
+## Recovery and Practice
+
+H047 (2026-09-23) implements the approved recovery policy without a runtime
+solver or an automatic impossible-state verdict. Save data records the latest
+earned shop before reward selection/spending. Restore last shop confirms the
+discarded decisions and clones that exact run state, including IDs, tuning,
+currency, power, reward status, offers, seed, and run totals. The profile keeps
+its actual earned history; rollback does not award points or completion again.
+Restore is available in the same shop or the immediately following unfinished
+commission, not during a drop or after completing that next commission.
+Buying, fusing, salvaging, rerolling, and reclaiming after restoration cannot
+accumulate resources across rollbacks. No missing legacy checkpoint is invented.
+Rollback and the last-generator guard reduce avoidable dead ends but do not prove
+all inventories solvable; New workshop remains a confirmed player-controlled exit.
+
+`retries` counts Retry actions; optional `retryHelp` records accepted help from
+zero to three. Absent legacy help derives from the old capped retry count until
+an explicit Retry writes it. Restart keeps both; next commission resets them.
+The optional help command remains available from the first loss and gains visual
+emphasis after repeated retries, without being silently enabled.
+
+Practice entry snapshots are captured at a fresh workshop and each shop advance,
+before commission edits. They retain that entry's actual inventory, power, lane,
+and difficulty. Save validation bounds them to 24: up to twelve campaign entries
+and twelve most recent After Hours entries. They contain no nested checkpoints.
+The practice chooser only lists recorded stages; old saves start recording as
+play continues. A new workshop clears the prior workshop's entry collection.
+Restoring a shop preserves reached entries, then replaces a re-entered stage with
+its new entry build if the player changes purchases.
+
+Practice lives in a separate React run state, identified by an explicit practice
+flag. Engine collection and save progress reject that flag; the persisted campaign
+schema rejects a practice run. Tutorial/achievement updates are suppressed, no
+shop/reward progression is exposed, and export/quit always use the campaign save.
+Changing settings can persist preferences but not the practice run. Exit, reload,
+or closing during a practice drop resumes the campaign without settling practice
+points. Shared simulation/rendering and manual arrangement still apply.
 
 ## Part Tuning
 
@@ -164,6 +202,13 @@ The fixed room layer is decorative, hidden from assistive technology, and cannot
 intercept controls. High contrast hides the scenery; narrow layouts increase the
 quiet background behind the playable content. There is no countdown mechanic.
 
+H047 separates the original clock hands and connected bench gears into four small
+transparent WebP layers. The room retains a fixed 2400x1600 coordinate system,
+scaled as one covering image so the moving pieces remain mounted. CSS transforms
+drive motion without per-frame React updates. Pause/menu, page visibility, reduced
+motion, and high contrast suspend the layers. The generator retains editable
+original SVG sources and a provenance manifest; gameplay downloads no art.
+
 All ten mechanism illustrations share `paintMechanism` between the cabinet and
 inventory/shop/catalogue images. Directional spares retain their real direction
 and separate quantity metadata. UI images are local 96px PNG data URLs generated
@@ -173,6 +218,14 @@ from Doubler and Echo, while Relay retains its functional gear identity. During
 actual hits, mechanisms move using the existing short-lived event flashes;
 reduced motion disables this added motion. No extra physics steps, tokens, scoring
 events, or audio voices are created for the theme.
+
+Successful activations now have stronger per-kind poses: Mint stamp compression,
+Vault latch/face movement, Relay rotor motion, branching levers, and Junction
+arrival lamps. Contact shadows and edge definition keep parts mounted and tactile.
+Blocked effects retain a quiet outline and factual label rather than success
+sparks. Payout emphasis scales within the unchanged particle cap; all poses settle
+back to a quiet board. Structured `blocked` and `arrivals` event annotations are
+validated in saves and do not alter event amounts, collision order, or scores.
 
 Tuned copies show a small marker in both artwork and accessible names. Moving
 token values include three charge pips; failed amplifiers show the missing-charge

@@ -76,6 +76,8 @@ export interface CascadeEvent {
   kind?: PegKind;
   tray?: number;
   charge?: number;
+  blocked?: 'charge' | 'memory' | 'reserve';
+  arrivals?: number;
 }
 
 export interface TokenView {

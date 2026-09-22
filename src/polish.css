@@ -53,6 +53,20 @@
 .display-mode { display: flex; border: 1px solid var(--cp-border); border-radius: 5px; overflow: hidden; margin-bottom: 14px; }
 .display-mode button { flex: 1; padding: 10px; display: flex; justify-content: center; align-items: center; gap: 7px; font-size: 11px; background: transparent; color: var(--cp-text-muted); }
 .display-mode button[aria-pressed="true"] { background: var(--cp-sheen); color: var(--cp-warning); }
+.practice-strip { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; padding: 10px 28px; border-bottom: 1px solid var(--cp-accent); background: var(--cp-surface); }
+.practice-strip > span, .practice-strip > div { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; min-width: 0; }
+.practice-strip strong { font: 600 20px 'Barlow Condensed', sans-serif; color: var(--cp-accent); }
+.practice-strip > span > span { font-size: 11px; color: var(--cp-text-muted); }
+.practice-strip .button { min-height: 36px; }
+.practice-list { display: grid; gap: 0; }
+.practice-list > button { display: grid; grid-template-columns: 32px minmax(0, 1fr) 20px; gap: 14px; align-items: center; min-height: 64px; padding: 12px 4px; text-align: left; border-bottom: 1px solid var(--cp-border); background: transparent; color: var(--cp-text); }
+.practice-list > button:hover { background: var(--cp-sheen); }
+.practice-number { font: 600 24px 'Barlow Condensed', sans-serif; color: var(--cp-accent); }
+.practice-list strong, .practice-list small { display: block; overflow-wrap: anywhere; }
+.practice-list small { margin-top: 5px; color: var(--cp-text-muted); font-size: 11px; }
+.retry-panel .button + .button { margin-top: 8px; }
+.retry-panel .help-suggested { border-color: var(--cp-warning); color: var(--cp-warning); }
+@media (max-width: 650px) { .practice-strip { padding: 10px 16px; } .practice-strip > div { width: 100%; justify-content: space-between; } }
 @keyframes wallet-receipt { from { opacity: .35; transform: translateY(7px); } to { opacity: 1; transform: translateY(0); } }
 @media (max-width: 930px) { .onboarding-inner { padding: 12px 20px; gap: 12px; } .guide-actions { display: none; } .guide-copy p { font-size: 11px; } .onboarding-inner > .icon-button { margin-left: auto; } }
 @media (max-width: 650px) { .onboarding-inner { padding: 12px 16px; align-items: flex-start; gap: 10px; min-height: 112px; } .guide-symbol { width: 29px; height: 29px; margin-top: 5px; } .guide-symbol svg { width: 17px; } .guide-copy > strong { font-size: 22px; } .guide-copy p { font-size: 11px; line-height: 1.5; } .onboarding-inner > .icon-button { width: 26px; height: 28px; } .credits-wallet { padding-bottom: 14px; } }

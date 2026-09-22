@@ -19,6 +19,8 @@ const eventSchema = z.object({
   amount: z.number().finite().max(Number.MAX_SAFE_INTEGER), tokenId: integer,
   slotId: z.string().optional(), kind: kindSchema.optional(), tray: integer.max(2).optional(),
   charge: integer.max(3).optional(),
+  blocked: z.enum(['charge', 'memory', 'reserve']).optional(),
+  arrivals: integer.min(1).max(4).optional(),
 });
 const resultSchema = z.object({
   total: integer, banked: integer, trayTotals: z.tuple([integer, integer, integer]),
@@ -31,7 +33,8 @@ const runSchema = z.object({
   stage: integer.max(10000), phase: z.enum(['ready', 'dropping', 'review', 'shop', 'lost', 'won']),
   board: boardSchema, bench: z.array(pegSchema).max(100), lane: integer.max(8),
   score: integer, dropsLeft: integer.max(5), brass: integer.max(1_000_000),
-  power: integer.max(8), retries: integer, totalDrops: integer, totalScore: integer,
+  power: integer.max(8), retries: integer, retryHelp: integer.max(3).optional(), totalDrops: integer, totalScore: integer,
+  practice: z.literal(false).optional(),
   bestDrop: integer, nextId: integer.min(6).max(1_000_000), assisted: z.boolean(),
   rewardChoices: z.array(kindSchema).max(3), rewardClaimed: z.boolean(),
   offers: z.array(z.object({ id: z.string().max(40), kind: kindSchema, price: integer.max(100), sold: z.boolean() })).max(3),
@@ -73,6 +76,20 @@ export type Profile = z.infer<typeof profileSchema>;
 export const saveSchema = z.object({
   version: z.literal(1), savedAt: z.string().max(40), run: runSchema,
   settings: settingsSchema, profile: profileSchema,
+  checkpoints: z.object({ shop: runSchema.nullable(), entries: z.array(runSchema).max(24) }).optional(),
+}).superRefine((save, context) => {
+  const checkpoints = save.checkpoints;
+  if (!checkpoints) return;
+  const entries = checkpoints.entries;
+  if (new Set(entries.map((entry) => entry.stage)).size !== entries.length
+    || entries.some((entry) => !sameWorkshop(save.run, entry) || entry.phase !== 'ready' || entry.score !== 0
+      || entry.dropsLeft !== commission(entry).drops || entry.lastDrop !== null)) {
+    context.addIssue({ code: 'custom', message: 'Invalid practice entries' });
+  }
+  const shop = checkpoints.shop;
+  if (shop && (!sameWorkshop(save.run, shop) || shop.phase !== 'shop' || shop.stage > save.run.stage || shop.stage < save.run.stage - 1)) {
+    context.addIssue({ code: 'custom', message: 'Invalid shop checkpoint' });
+  }
 });
 
 export interface SaveData {
@@ -81,11 +98,14 @@ export interface SaveData {
   run: RunState;
   settings: Settings;
   profile: Profile;
+  checkpoints?: { shop: RunState | null; entries: RunState[] };
 }
 
 export function freshSave(seed?: number): SaveData {
+  const run = newRun(seed);
   return {
-    version: 1, savedAt: new Date().toISOString(), run: newRun(seed),
+    version: 1, savedAt: new Date().toISOString(), run,
+    checkpoints: { shop: null, entries: [structuredClone(run)] },
     settings: { volume: 0.65, musicVolume: 0.28, muted: false, reducedMotion: false, trails: true, highContrast: false, speed: 1, theme: 'dark', fullscreen: true, fullscreenPreferenceVersion: 1 },
     profile: { seenTutorial: false, tutorialStep: 'place', completedRuns: 0, lifetimeScore: 0, bestDrop: 0, achievements: [], discovered: ['mint', 'doubler', 'splitter'], dailyCompleted: [], history: [] },
   };
@@ -108,6 +128,7 @@ export function parseSave(json: string): SaveData | null {
 }
 
 export function updateProgress(save: SaveData, run: RunState, definition = commission(run)): SaveData {
+  if (run.practice) return save;
   const previous = save.run;
   const profile = { ...save.profile };
   const achievements = new Set(profile.achievements);
@@ -132,7 +153,42 @@ export function updateProgress(save: SaveData, run: RunState, definition = commi
   }
   if (run.stage >= 16 && run.phase === 'review') achievements.add('ENDLESS_FIVE');
   profile.achievements = [...achievements].filter((id) => ACHIEVEMENTS.some((achievement) => achievement.id === id));
-  return { ...save, run, profile, savedAt: new Date().toISOString() };
+  return { ...save, run, profile, checkpoints: recordCheckpoints(save, run), savedAt: new Date().toISOString() };
+}
+
+function sameWorkshop(run: RunState, snapshot: RunState): boolean {
+  return run.seed === snapshot.seed && run.date === snapshot.date && run.assisted === snapshot.assisted
+    && (run.mode === snapshot.mode || run.mode === 'endless');
+}
+
+function recordCheckpoints(save: SaveData, run: RunState): SaveData['checkpoints'] {
+  const previous = save.run;
+  const fresh = !sameWorkshop(run, previous) || (run.stage === 0 && run.totalDrops === 0 && previous.totalDrops > 0);
+  const checkpoints = fresh ? { shop: null, entries: [] } : save.checkpoints ?? { shop: null, entries: [] };
+  let entries = checkpoints.entries;
+  if (run.phase === 'ready' && run.score === 0 && run.dropsLeft === commission(run).drops
+    && (fresh || entries.length === 0 || (previous.phase === 'shop' && run.stage === previous.stage + 1))) {
+    entries = [...entries.filter((entry) => entry.stage !== run.stage), structuredClone({ ...run, lastDrop: null })].sort((first, second) => first.stage - second.stage);
+    entries = [...entries.filter((entry) => entry.stage < 12), ...entries.filter((entry) => entry.stage >= 12).slice(-12)];
+  }
+  const shop = run.phase === 'shop' && (previous.phase !== 'shop' || fresh) ? structuredClone(run) : checkpoints.shop;
+  return { shop, entries };
+}
+
+export function canRestoreShop(save: SaveData): boolean {
+  const shop = save.checkpoints?.shop;
+  return Boolean(shop && sameWorkshop(save.run, shop) && ['ready', 'lost', 'shop'].includes(save.run.phase)
+    && shop.stage <= save.run.stage && shop.stage >= save.run.stage - 1);
+}
+
+export function restoreShop(save: SaveData): SaveData {
+  if (!canRestoreShop(save)) return save;
+  return { ...save, run: structuredClone(save.checkpoints!.shop!), savedAt: new Date().toISOString() };
+}
+
+export function createPractice(save: SaveData, stage: number): RunState | null {
+  const entry = save.checkpoints?.entries.find((candidate) => candidate.stage === stage);
+  return entry ? structuredClone({ ...entry, practice: true }) : null;
 }
 
 export interface LoadResult {

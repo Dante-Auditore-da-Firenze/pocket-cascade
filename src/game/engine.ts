@@ -26,6 +26,8 @@ export interface RunState {
   brass: number;
   power: number;
   retries: number;
+  retryHelp?: number;
+  practice?: boolean;
   totalDrops: number;
   totalScore: number;
   bestDrop: number;
@@ -64,7 +66,7 @@ export function newRun(seed = Date.now() >>> 0, mode: RunMode = 'workshop', assi
       '2-3': { id: 'part-4', kind: 'doubler', direction: 1 },
     },
     bench: [{ id: 'part-5', kind: 'splitter', direction: 1 }],
-    lane: 4, score: 0, dropsLeft: 5, brass: 0, power: 0, retries: 0,
+    lane: 4, score: 0, dropsLeft: 5, brass: 0, power: 0, retries: 0, retryHelp: 0,
     totalDrops: 0, totalScore: 0, bestDrop: 0, nextId: 6, assisted: mode === 'daily' ? false : assisted,
     rewardChoices: [], rewardClaimed: false, offers: [], rerolls: 0,
     lastDrop: null, activeDrop: null, lastReward: 0, discovered: ['mint', 'doubler', 'splitter'],
@@ -81,8 +83,12 @@ export function commission(run: Pick<RunState, 'stage' | 'assisted'>): Commissio
   return { ...definition, target: Math.round(definition.target * (run.assisted ? 0.65 : 1)) };
 }
 
-export function baseValue(run: Pick<RunState, 'power' | 'retries'>): number {
-  return Math.round(POWER_VALUES[run.power] * (1 + Math.min(run.retries, 3) * 0.1));
+export function retryHelpLevel(run: Pick<RunState, 'retries' | 'retryHelp'>): number {
+  return Math.min(3, run.retryHelp ?? run.retries);
+}
+
+export function baseValue(run: Pick<RunState, 'power' | 'retries' | 'retryHelp'>): number {
+  return Math.round(POWER_VALUES[run.power] * (1 + retryHelpLevel(run) * 0.1));
 }
 
 export function dropConfig(run: RunState): DropConfig {
@@ -148,11 +154,12 @@ export function settleDrop(run: RunState, result: DropResult, definition: Commis
   };
 }
 
-export function retryCommission(run: RunState): RunState {
+export function retryCommission(run: RunState, addHelp = false): RunState {
   if (run.phase !== 'lost') return run;
   return {
     ...run, phase: 'ready', score: 0, dropsLeft: commission(run).drops,
-    retries: run.retries + 1, lastDrop: null, activeDrop: null,
+    retries: run.retries + 1, retryHelp: Math.min(3, retryHelpLevel(run) + (addHelp ? 1 : 0)),
+    lastDrop: null, activeDrop: null,
   };
 }
 
@@ -165,8 +172,16 @@ export function restartCommission(run: RunState): RunState {
   return { ...run, phase: 'ready', score: 0, dropsLeft: commission(run).drops, lastDrop: null, activeDrop: null };
 }
 
+export function canSalvagePeg(run: RunState, pegId: string): boolean {
+  const spare = run.bench.find((part) => part.id === pegId);
+  if (run.phase !== 'shop' || run.practice || !spare) return false;
+  const generators: PegKind[] = ['mint', 'relay', 'kicker'];
+  return !generators.includes(spare.kind)
+    || [...Object.values(run.board), ...run.bench].some((part) => part.id !== pegId && generators.includes(part.kind));
+}
+
 export function salvagePeg(run: RunState, pegId: string): RunState {
-  if (!editable(run)) return run;
+  if (!canSalvagePeg(run, pegId)) return run;
   const peg = run.bench.find((item) => item.id === pegId);
   if (!peg) return run;
   return { ...run, bench: run.bench.filter((item) => item.id !== pegId), brass: run.brass + 1 };
@@ -196,7 +211,7 @@ export function commissionReward(run: RunState, definition: Commission = commiss
 }
 
 export function collectCommission(run: RunState, definition: Commission = commission(run)): RunState {
-  if (run.phase !== 'review') return run;
+  if (run.phase !== 'review' || run.practice) return run;
   const reward = commissionReward(run, definition).total;
   const won = run.stage === 11 && run.mode !== 'endless';
   return {
@@ -285,7 +300,7 @@ export function nextCommission(run: RunState): RunState {
   const next = { ...run, stage: run.stage + 1 };
   return {
     ...next, phase: 'ready', score: 0, dropsLeft: commission(next).drops,
-    retries: 0, lastDrop: null, offers: [], rewardChoices: [], rewardClaimed: false,
+    retries: 0, retryHelp: 0, lastDrop: null, offers: [], rewardChoices: [], rewardClaimed: false,
   };
 }
 

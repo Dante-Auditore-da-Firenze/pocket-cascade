@@ -1,12 +1,52 @@
 import { describe, expect, it } from 'vitest';
 import {
   baseValue, canRestartCommission, collectCommission, commission, dropConfig,
-  launchDrop, newRun, placePeg, restartCommission, settleDrop, type Phase,
+  launchDrop, newRun, placePeg, restartCommission, retryCommission, settleDrop, type Phase,
 } from '../src/game/engine';
 import { freshSave, parseSave, updateProgress } from '../src/game/save';
 import { simulateDrop } from '../src/game/simulation';
 
 describe('same-difficulty level restart', () => {
+  it('counts retries without silently adding help and caps explicitly accepted help', () => {
+    const initial = { ...newRun(42), phase: 'lost' as const, dropsLeft: 0 };
+    let run = initial;
+    for (let attempt = 0; attempt < 5; attempt += 1) {
+      const retried = retryCommission(run);
+      expect(baseValue(retried)).toBe(10);
+      run = { ...retried, phase: 'lost', dropsLeft: 0 };
+    }
+    expect(run.retries).toBe(5);
+    for (let accepted = 0; accepted < 5; accepted += 1) {
+      const retried = retryCommission(run, true);
+      expect(baseValue(retried)).toBe(10 + Math.min(accepted + 1, 3));
+      run = { ...retried, phase: 'lost', dropsLeft: 0 };
+    }
+    expect(run.retryHelp).toBe(3);
+    expect(run.brass).toBe(initial.brass);
+    expect(run.board).toEqual(initial.board);
+    expect(baseValue(retryCommission(run))).toBe(13);
+  });
+
+  it('preserves legacy saved help without increasing it on ordinary Retry', () => {
+    const save = freshSave(42);
+    delete save.run.retryHelp;
+    save.run = { ...save.run, retries: 2, phase: 'lost', dropsLeft: 0 };
+    const loaded = parseSave(JSON.stringify(save))!;
+    expect(baseValue(loaded.run)).toBe(12);
+    const retried = retryCommission(loaded.run);
+    expect(retried.retries).toBe(3);
+    expect(retried.retryHelp).toBe(2);
+    expect(baseValue(retried)).toBe(12);
+    expect(parseSave(JSON.stringify({ ...loaded, run: retried }))?.run).toEqual(retried);
+  });
+
+  it('only accepts extra help after a loss', () => {
+    const initial = newRun(42);
+    expect(retryCommission(initial, true)).toBe(initial);
+    const save = freshSave(42);
+    expect(parseSave(JSON.stringify({ ...save, run: { ...save.run, retryHelp: 4 } }))).toBeNull();
+  });
+
   it('resets only the attempt after real play and preserves earned possessions and totals', () => {
     const initial = placePeg(newRun(42), 'part-5', '6-0');
     const result = simulateDrop(dropConfig(initial));

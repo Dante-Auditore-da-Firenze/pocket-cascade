@@ -64,7 +64,9 @@
 				"node_modules/@playwright/test/cli.js",
 				"test",
 				"tests/browser/workshop.spec.ts",
-				"tests/browser/board-presentation.spec.ts"
+				"tests/browser/board-presentation.spec.ts",
+				"tests/browser/feedback-performance.spec.ts",
+				"--output=artifacts/workshop-verification"
 			],
 			"isBackground": false,
 			"problemMatcher": [],
@@ -289,6 +291,51 @@
 				"--workers=1"
 			],
 			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
+			"label": "Pocket Cascade: Test Recovery and Practice",
+			"type": "process",
+			"command": "node",
+			"args": [
+				"node_modules/@playwright/test/cli.js",
+				"test",
+				"tests/browser/restarts-inventory.spec.ts",
+				"tests/browser/cascade-receipt.spec.ts",
+				"tests/browser/part-stacks.spec.ts",
+				"--workers=1",
+				"--reporter=list,json"
+			],
+			"options": {
+				"env": {
+					"PLAYWRIGHT_JSON_OUTPUT_FILE": "artifacts/recovery-practice-results.json"
+				}
+			},
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
+			"label": "Pocket Cascade: Check Recovery Regressions",
+			"type": "process",
+			"command": "node",
+			"args": [
+				"node_modules/@playwright/test/cli.js",
+				"test",
+				"tests/browser/smoke.spec.ts",
+				"tests/browser/onboarding.spec.ts",
+				"tests/browser/restarts-inventory.spec.ts",
+				"tests/browser/rewards.spec.ts",
+				"--grep=first-run guide teaches|salvage commits|practice plays.*1440px|earned free reward.*1440px",
+				"--workers=1",
+				"--reporter=list,json",
+				"--output=artifacts/recovery-regressions"
+			],
+			"options": {
+				"env": {
+					"PLAYWRIGHT_JSON_OUTPUT_FILE": "artifacts/recovery-regressions-results.json"
+				}
+			},
 			"problemMatcher": [],
 			"group": "test"
 		}

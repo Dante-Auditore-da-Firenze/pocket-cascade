@@ -4,12 +4,12 @@ A compact, active combo builder about arranging a tiny token machine and improvi
 
 The implemented game has one custom Canvas2D cabinet in an original clockwork inventor's workshop, repeatable Matter.js physics, a finite token-power track, a UTC daily seed, and optional After Hours continuation. The revised board has a neutral playfield, red housing, a rail-mounted token hopper, steel collectors, and clear colored mechanisms. Day/evening scenery and hit-driven animation frame the same deterministic game. It follows the minimum-payout direction from the Pocket Cascade research brief, not the original exact-total tray concept. This remains an unreleased prototype. There are no paid token purchases, wagering, online leaderboards, or runtime network-asset dependencies.
 
-**Status (2026-09-12):** the combined part-role redesign is normal saved gameplay,
-with targeted tuning, duplicate fusion, Dividend/Junction, and earned After Hours
-capacity milestones. The old unsaved trial entry is retired. The user confirmed
-the feedback hitch is gone. [docs/VERIFICATION.md](docs/VERIFICATION.md) owns the
-current test outcomes, and [docs/BALANCE.md](docs/BALANCE.md) separates the new
-48-run study from older experiments and their limitations.
+**Status (2026-09-23):** normal play now includes optional retry help, exact
+last-shop recovery, isolated commission practice, and livelier original workshop
+art. Charge, tuning, Dividend/Junction, targets, and physics are unchanged in this
+pass. [docs/VERIFICATION.md](docs/VERIFICATION.md) owns the actual test outcomes;
+[docs/BALANCE.md](docs/BALANCE.md) records the new 48-run unassisted study and
+separate weak-build recovery checks without claiming human enjoyment is proven.
 
 **Play now:** the [browser game](http://127.0.0.1:5173/) after starting the Play task, or run `npm.cmd run desktop` against the current production build. The existing [Windows portable executable](release/Pocket-Cascade-1.0.0-win-x64-portable.exe) and [unpacked Windows executable](release/win-unpacked/Pocket%20Cascade.exe) are the earlier H026 builds, not the H040 part-role redesign. They were not rebuilt in this pass.
 
@@ -41,11 +41,27 @@ Select a part, choose a socket, and aim one of nine lanes. Mint, Relay, and Kick
 generate charge; Doubler, Echo multiplication, and Crown spend it. Each token
 holds three charge, shown beside its value. Vault banks spare charge into extra
 points and a reserve for Dividend. Junction rewards branches meeting at the same
-socket. Each commission allows five launches. After a loss, retry keeps your
-parts and credits and adds 10% base-value help, up to 30%. Relaxed targets are
+socket. Each commission allows five launches. After a loss, ordinary Retry keeps
+parts, credits, and difficulty unchanged. **Retry with +10% help** explicitly adds
+base-value assistance, capped at 30% for that commission and reset on advance.
+Legacy saves keep their existing help. Relaxed targets are
 available when creating a Workshop, not as a mid-run prompt or in Daily.
 
 **Restart level**, the rotate-arrow toolbar control also available in the menu, resets the current attempt to zero score and five launches, discarding any live token. It keeps the machine, spares, credits, upgrades, seed, level, and existing assistance without adding rewards or retry bonuses. It is available while ready, dropping, or lost, but disabled during review, shopping, or victory to prevent collecting twice. **New workshop**, the plus control, opens the existing confirmation and seed choices: confirm to start at level 1 while preserving profile/settings, or cancel without replacing the machine.
+
+**Restore last shop** in the menu or loss panel asks for confirmation, then
+restores the recorded parts, credits, power, stock, and reward choices before
+later spending. It discards later decisions rather than adding a second reward.
+Salvage is available only at the shop and cannot remove the final charge generator.
+These safeguards do not guarantee every inventory can win; a new workshop remains
+an explicit player choice. Older saves cannot recover an unrecorded past shop.
+
+**Practice commissions** in the menu opens recorded entry builds separately from
+the campaign. Practice has no currency rewards, achievements, or progression;
+returning, reloading, or closing it leaves the campaign untouched. The current
+workshop retains its campaign entries and the latest twelve After Hours entries.
+Older saves acquire entries as play continues. Starting a new workshop replaces
+its practice collection; these are not named save slots.
 
 The ticket-icon wallet displays **Workshop credits** with earned/spent receipts.
 Choose one new part, a specific owned copy to tune, or two credits from each
@@ -83,6 +99,12 @@ Controller navigation is implemented and covered by injected-gamepad tests. Phys
 Settings include volume/music levels, mute, trails, theme, 1x/2x/4x playback, fullscreen, and guide replay. Reduced motion and high contrast are in a separate **Accessibility** dialog. Reduced motion defaults off, does not automatically follow the OS preference, and preserves an explicitly saved enabled setting.
 
 **Physical-impact audio** now gives passive peg/wall hits and repeated contacts prominent mechanical feedback, alongside distinct part and payout transients. Voices are bounded and output is soft-limited without changing earned payouts. Defaults remain 65% volume and 28% music. Music continues at 80% of the selected gain while paused or in the menu, on the same musical clock. Digital production-audio checks are not proof of physical speaker audibility.
+
+Original clock hands and connected gears add quiet room motion. Parts have
+distinct, brief activation poses; failed effects remain readable without success
+sparks. The optional Last cascade receipt retains observed missing charge, effect,
+or reserve counts. It reports actual events, not suggested layouts. Room motion
+stops while paused/hidden and under reduced motion or high contrast.
 
 ## Saves and Backups
 

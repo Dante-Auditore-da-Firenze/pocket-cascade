@@ -45,7 +45,13 @@ describe('physical contact feedback', () => {
   ])('pins the charged-rule trace and keeps impact feedback separate for $name', ({ config, hash }) => {
     const before = structuredClone(config);
     const { result, events } = trace(config);
-    expect(createHash('sha256').update(JSON.stringify(result)).digest('hex')).toBe(hash);
+    const scoringTrace = { ...result, events: result.events.map((event) => {
+      const original = { ...event };
+      delete original.blocked;
+      delete original.arrivals;
+      return original;
+    }) };
+    expect(createHash('sha256').update(JSON.stringify(scoringTrace)).digest('hex')).toBe(hash);
     expect(result).toEqual(simulateDrop(config));
     expect(events).toEqual(result.events);
     expect(result.total).toBe(result.banked + result.trayTotals.reduce((sum, value) => sum + value, 0));

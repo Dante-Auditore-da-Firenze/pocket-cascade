@@ -300,22 +300,28 @@ export function paintGear(context: CanvasRenderingContext2D, centerX: number, ce
   context.restore();
 }
 
-export function paintMechanism(context: CanvasRenderingContext2D, peg: Peg, palette: CabinetPalette, material: Materials, activation = 1): void {
+export function paintMechanism(context: CanvasRenderingContext2D, peg: Peg, palette: CabinetPalette, material: Materials, activation = 1, arrivals = 0): void {
   context.save();
   if (peg.kind === 'kicker') context.scale(peg.direction, 1);
   const shape = partShape(peg.kind);
   const tint = palette[PARTS[peg.kind].color];
-  const motion = Math.sin(activation * Math.PI * 4) * (1 - activation);
+  const phase = Math.max(0, Math.min(1, activation));
+  const pulse = phase >= 1 ? 0 : Math.sin(phase * Math.PI) * (1 - phase * 0.3);
+  const motion = Math.sin(phase * Math.PI * 3) * (1 - phase);
   const metal = context.createLinearGradient(-12, -16, 14, 17);
   metal.addColorStop(0, ink(material.light));
   metal.addColorStop(0.42, ink(material.steel));
   metal.addColorStop(0.48, ink(mix(material.steel, material.dark, 0.5)));
   metal.addColorStop(1, ink(material.steel));
-  if (peg.kind === 'relay') paintGear(context, 0, 0, 20, material, motion * 0.5);
-  context.translate(0, 2.5);
+  if (peg.kind === 'relay') paintGear(context, 0, 0, 20, material, pulse * 1.2);
+  context.translate(0, 3.2);
   context.fillStyle = ink(material.dark, 0.85);
   context.fill(shape);
-  context.translate(0, -2.5);
+  context.translate(0, -3.2);
+  if (peg.kind === 'mint') context.translate(0, pulse * 3);
+  if (peg.kind === 'kicker') context.translate(pulse * 4, 0);
+  if (peg.kind === 'crown' || peg.kind === 'dividend') context.translate(0, -pulse * 3);
+  context.scale(1 + pulse * 0.07, 1 + pulse * 0.04);
   context.fillStyle = metal;
   context.fill(shape);
   context.strokeStyle = ink(material.light, 0.85);
@@ -325,11 +331,13 @@ export function paintMechanism(context: CanvasRenderingContext2D, peg: Peg, pale
   context.scale(0.82, 0.82);
   context.fillStyle = ink(mix(tint, material.dark, 0.12));
   context.fill(shape);
-  context.strokeStyle = ink(material.dark, 0.7);
+  context.strokeStyle = ink(material.dark, 0.85);
+  context.lineWidth = 1.8;
   context.stroke(shape);
   context.restore();
   if (peg.kind === 'mint') {
-    roundRect(context, -8, -19 + motion * 2, 16, 4, 1, ink(material.brass), ink(material.light, 0.5));
+    roundRect(context, -2, -20, 4, 9, 1, ink(material.steel));
+    roundRect(context, -8, -20 + pulse * 8, 16, 4, 1, ink(material.brass), ink(material.light, 0.7));
     context.fillStyle = ink(material.brass);
     context.fillRect(-10, 12, 3, 5);
     context.fillRect(7, 12, 3, 5);
@@ -337,7 +345,11 @@ export function paintMechanism(context: CanvasRenderingContext2D, peg: Peg, pale
   if (peg.kind === 'vault') {
     roundRect(context, -18, -8, 4, 6, 1, ink(material.brass));
     roundRect(context, -18, 3, 4, 6, 1, ink(material.brass));
-    roundRect(context, 11 + motion, -6, 3, 12, 1, ink(material.brass));
+    context.save();
+    context.translate(12, 0);
+    context.rotate(pulse * 1.1);
+    roundRect(context, -1.5, -7, 3, 14, 1, ink(material.brass), ink(material.light, 0.7));
+    context.restore();
   }
   if (peg.kind === 'splitter') {
     context.strokeStyle = ink(material.light);
@@ -345,13 +357,24 @@ export function paintMechanism(context: CanvasRenderingContext2D, peg: Peg, pale
     context.beginPath();
     const direction = peg.direction;
     context.moveTo(direction * 7, 15);
-    context.lineTo(direction * (18 + motion * 2), 15);
-    context.lineTo(direction * (15 + motion * 2), 12);
+    context.lineTo(direction * (18 + pulse * 4), 15 - pulse * 5);
+    context.lineTo(direction * (15 + pulse * 4), 12 - pulse * 5);
     context.stroke();
   }
-  context.translate(peg.kind === 'kicker' || peg.kind === 'echo' ? motion * 2 : 0, peg.kind === 'mint' ? motion * 1.5 : 0);
-  if (peg.kind === 'crown') context.rotate(motion * 0.13);
+  context.save();
+  if (peg.kind === 'echo') context.translate(motion * 5, 0);
+  if (peg.kind === 'vault') { context.translate(pulse * 3, 0); context.scale(1 - pulse * 0.2, 1); }
+  if (peg.kind === 'doubler' || peg.kind === 'crown') context.rotate(motion * 0.25);
   partGlyph(context, peg.kind, palette, material);
+  context.restore();
+  if (peg.kind === 'dividend') roundRect(context, -7, 13 - pulse * 4, 14, 3, 1, ink(material.brass));
+  if (peg.kind === 'junction') {
+    for (let arrival = 0; arrival < 2; arrival += 1) {
+      circle(context, arrival ? 11 : -11, -12, 2.7);
+      context.fillStyle = ink(arrivals > arrival ? arrivals >= 2 ? palette.success : material.brass : material.dark);
+      context.fill();
+    }
+  }
   if (peg.tuned) {
     roundRect(context, -8, 17, 16, 4, 1, ink(material.brass), ink(material.light));
     context.fillStyle = ink(material.dark);

@@ -1,6 +1,15 @@
 .game-app { position: relative; isolation: isolate; }
 .workshop-scene { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; user-select: none; }
-.workshop-scene img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center 62%; }
+.workshop-room { position: absolute; left: 50%; top: 62%; width: max(100vw, 150vh); aspect-ratio: 3 / 2; transform: translate(-50%, -62%); }
+.workshop-backdrop { display: block; width: 100%; height: 100%; }
+.workshop-part { position: absolute; display: block; object-fit: contain; animation: workshop-turn 30s linear infinite; }
+.workshop-gear-large { left: .916667%; top: 63.5%; width: 4.333333%; height: 6.5%; }
+.workshop-gear-small { left: 4.708333%; top: 66.0625%; width: 3.083333%; height: 4.625%; animation-duration: 22.5s; animation-direction: reverse; }
+.workshop-clock-minute, .workshop-clock-second { left: 90.5%; top: 10.4375%; width: 6.916667%; height: 10.375%; }
+.workshop-clock-minute { animation-duration: 3600s; animation-delay: var(--minute-offset); }
+.workshop-clock-second { animation-duration: 60s; animation-timing-function: steps(60, end); animation-delay: var(--second-offset); }
+.workshop-scene[data-still="true"] .workshop-part { animation-play-state: paused !important; }
+@keyframes workshop-turn { to { transform: rotate(360deg); } }
 .game-app:has(.workshop-scene) { background: transparent; }
 .game-app:has(.workshop-scene) .workspace { background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--cp-surface) 92%, transparent) 12% 88%, transparent); }
 .game-app:has(.workshop-scene) .topbar { background: color-mix(in srgb, var(--cp-surface) 94%, transparent); }

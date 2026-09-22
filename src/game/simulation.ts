@@ -139,6 +139,8 @@ export class DropSimulation {
     const boosted = this.boostedSockets.has(slotId);
     if (boosted) token.value = money(token.value * 2);
     let label = '';
+    let blocked: CascadeEvent['blocked'];
+    let arrivals: number | undefined;
     if (peg.kind === 'mint') {
       const added = Math.round(this.config.baseValue * 1.4);
       token.value = money(token.value + added);
@@ -156,7 +158,7 @@ export class DropSimulation {
           const recipient = [...this.tokens.values()].find((other) => other.id !== token.id && other.charge < MAX_CHARGE);
           if (recipient) recipient.charge += 1;
         }
-      } else { token.lastEffect = null; label = 'NEEDS CHARGE'; }
+      } else { token.lastEffect = null; label = 'NEEDS CHARGE'; blocked = 'charge'; }
     } else if (peg.kind === 'splitter') {
       if (token.depth < MAX_SPLIT_DEPTH) {
         token.depth += 1;
@@ -198,8 +200,8 @@ export class DropSimulation {
     } else if (peg.kind === 'echo') {
       const effect = token.lastEffect;
       token.lastEffect = null;
-      if (!effect) label = 'NO EFFECT';
-      else if (effect.operation === 'multiply' && token.charge === 0) label = 'NEEDS CHARGE';
+      if (!effect) { label = 'NO EFFECT'; blocked = 'memory'; }
+      else if (effect.operation === 'multiply' && token.charge === 0) { label = 'NEEDS CHARGE'; blocked = 'charge'; }
       else {
         if (effect.operation === 'multiply') token.charge -= 1;
         token.value = money(effect.operation === 'add' ? token.value + effect.value : token.value * effect.value);
@@ -217,6 +219,7 @@ export class DropSimulation {
         token.lastEffect = null;
         label = 'NEEDS 2 CHARGE';
         if (peg.tuned) { this.bank(token, slotId, this.config.baseValue * token.kinds.size, 'INSURE'); label = 'INSURED'; }
+        else blocked = 'charge';
       }
     } else if (peg.kind === 'dividend') {
       const reserve = token.reserve;
@@ -224,6 +227,7 @@ export class DropSimulation {
       token.value = money(token.value + reserve * 2);
       if (peg.tuned && reserve > 0) token.charge = Math.min(MAX_CHARGE, token.charge + 2);
       label = reserve > 0 ? `CASH +${money(reserve * 2)}` : 'NO RESERVE';
+      if (reserve === 0) blocked = 'reserve';
     } else if (peg.kind === 'junction') {
       let junction = this.junctions.get(slotId);
       if (!junction) {
@@ -231,6 +235,7 @@ export class DropSimulation {
         this.junctions.set(slotId, junction);
       }
       junction.arrivals.add(token.id);
+      arrivals = junction.arrivals.size;
       token.charge = Math.min(MAX_CHARGE, token.charge + 1);
       if (junction.arrivals.size === 2) this.bank(token, slotId, junction.firstValue + token.value, 'JOIN');
       else if (peg.tuned && junction.arrivals.size > 2) this.bank(token, slotId, token.value, 'EXCHANGE');
@@ -238,7 +243,8 @@ export class DropSimulation {
     }
     if (boosted) label = `SOCKET x2 / ${label}`;
     this.result.maxValue = Math.max(this.result.maxValue, token.value);
-    this.emit({ type: 'hit', x: slot.x, y: slot.y, label, amount: token.value - previous, tokenId: token.id, slotId, kind: peg.kind, charge: token.charge });
+    this.emit({ type: 'hit', x: slot.x, y: slot.y, label, amount: token.value - previous, tokenId: token.id, slotId, kind: peg.kind, charge: token.charge,
+      ...(blocked ? { blocked } : {}), ...(arrivals ? { arrivals } : {}) });
   }
 
   private collect(token: Token): void {

@@ -1,5 +1,61 @@
 # Pocket Cascade Balance
 
+## Recovery and Fairness Follow-up - 2026-09-23
+
+H047 approves the five-priority pass. The ten part effects, targets, prices,
+capacity curve, power track, launch budget, and deterministic physics are retained.
+Ordinary Retry no longer increases power automatically; the player explicitly
+chooses each +10% help step, capped at +30% for one commission. Actual missing
+charge, remembered effect, or deposit reserve is recorded in the optional cascade
+receipt, without predicting a layout or declaring a machine impossible.
+
+The full new report contains **48 unassisted campaign attempts** on the same
+eight seeds and six policies, with up to six earned After Hours stages. Every
+recorded help level is zero. It is separate from the older automatically assisted
+H040 comparison below; no original reference reports are overwritten.
+
+| Policy | Campaign Wins | After Hours Clears | Needed Installed Changes in 4-9 |
+| --- | ---: | ---: | ---: |
+| Passive multiplier stack | 0/8 | 0 | 0 |
+| Charge-aware recovery | 8/8 | 48 | 14 |
+| Proactive charge | 8/8 | 38 | 1 |
+| Proactive banking | 6/8 | 34 | 1 |
+| Proactive branching | 3/8 | 17 | 1 |
+| Frozen after six | 0/8 | 0 | 1 before the freeze |
+
+No recorded simulation timeouts. Every recovery seed still needs a useful
+installed change during commissions 4-9. The passive and frozen policies losing
+is not itself a balance defect: their owned inventories can often recover through
+different arrangements. Banking and especially branching remain harder for these
+particular greedy purchase/build policies; their results are not human win rates.
+
+The bounded local audit finds an unassisted recovery for every failed passive,
+frozen, and banking campaign, and two of the five branching failures. A separate
+detached nine-lane/rebuild audit checks the remaining three:
+
+| Branching Seed / Commission | Target | Existing Payout | Wider Unassisted Payout | Other Witness |
+| --- | ---: | ---: | ---: | --- |
+| 2026 / 9 | 24,000 | 3,579 | 7,839 | Four identical launches clear; 26 recorded remove/place/local actions. |
+| 7 / 12 | 75,000 | 12,317 | 26,053 | Three launches clear; 31 recorded actions. The original board also clears with explicitly accepted +30% help. |
+| 99 / 7 | 10,000 | 1,815 | 1,955, still short | Original board pays 2,032 with explicit +10% help, clearing in five launches. |
+
+The full rebuilds preserve credits, power, every owned ID/kind/tuning, and were
+settled through the real engine. They are not small human-discoverable edits or
+additional campaign wins. The seed-99 search failure is not impossibility; the
+separate help witness demonstrates recovery. Across the 23 failed campaign states,
+22 have a found unassisted owned-parts witness and one has a chosen-help witness.
+This does not establish that all possible inventories or After Hours targets are
+winnable. Shop rollback, last-generator retention, and an explicit New workshop
+exit form the recovery policy; no hidden power, free rescue parts, adaptive quota,
+or runtime solver is introduced.
+
+Evidence: ignored `roles-1790107227971.json` and
+`weak-case-audit-1790109101908.json` under artifacts/balance/experiments.
+The report CLI now records its retry policy. Default is same difficulty; pass
+`--retry-help` for a separate explicitly assisted study. Original H040 tables
+below remain historical evidence. D09/D14 retain human decision-quality follow-up
+rather than requiring further numerical changes solely to make all policies win.
+
 ## Current Rules - 2026-09-12
 
 H040 adopts the ten-part charge/tuning redesign as **normal saved gameplay**.
@@ -46,7 +102,8 @@ Full effects and tunings are in [DESIGN.md](DESIGN.md#part-tuning).
 | 12 | 75,000 | 13 |
 
 Five launches, minimum-score success, free editing, capped overdrive/spare-launch
-credit bonuses, and the +10% retry help capped at +30% remain. After Hours starts
+credit bonuses, and +10% retry help capped at +30% remain. H047 makes that help
+explicitly optional; the original measurements below used automatic help. After Hours starts
 at 97,500, grows by 1.3x per commission to the existing one-billion target cap,
 and grants 14 slots on entry. After Hours 4/7/10/13 open capacities 15/16/17/18.
 No larger physical board or increased token population is required. These are

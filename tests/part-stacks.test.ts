@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { groupSpareParts, partStackKey } from '../src/components/partStacks';
-import { placePeg, removePeg, rotatePeg, salvagePeg, newRun } from '../src/game/engine';
+import { placePeg, removePeg, rotatePeg, salvagePeg, newRun, collectCommission } from '../src/game/engine';
 import { freshSave, parseSave } from '../src/game/save';
 import type { Peg } from '../src/game/model';
 
@@ -82,7 +82,7 @@ describe('spare-part display stacks', () => {
   });
 
   it('salvaging the last copy removes its stack and awards only the existing single-part credit', () => {
-    const run = { ...newRun(42), bench: structuredClone(spares), nextId: 15 };
+    const run = collectCommission({ ...newRun(42), phase: 'review', score: 200, bench: structuredClone(spares), nextId: 15 });
     const salvaged = salvagePeg(run, 'part-14');
     expect(groupSpareParts(salvaged.bench).some((stack) => stack.key === 'relay')).toBe(false);
     expect(salvaged.brass).toBe(run.brass + 1);

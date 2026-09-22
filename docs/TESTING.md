@@ -43,6 +43,7 @@ npm run test:e2e -- tests/browser/gamepad.spec.ts
 npm run test:e2e -- tests/browser/onboarding.spec.ts
 npm run test:e2e -- tests/browser/audio-feedback.spec.ts
 npm run test:e2e -- tests/browser/restarts-inventory.spec.ts tests/browser/workflows.spec.ts
+npm run test:e2e -- tests/browser/restarts-inventory.spec.ts tests/browser/cascade-receipt.spec.ts tests/browser/part-stacks.spec.ts
 npm run test:e2e -- tests/browser/layout.spec.ts
 npm run test:e2e -- tests/browser/part-stacks.spec.ts
 npm run test:e2e -- tests/browser/gift-variety.spec.ts
@@ -51,6 +52,7 @@ npm run test:e2e -- tests/browser/board-presentation.spec.ts tests/browser/works
 npm run test:desktop -- --grep "fullscreen"
 npm run test:desktop -- --grep "unmarked false preference"
 npm run test:desktop -- --grep "exports the current save"
+npm run test:desktop -- --grep "earned tuning"
 npm run test:balance -- --quick
 ```
 
@@ -63,9 +65,9 @@ Run the controlling slice after a change, then the broader affected suites. A fo
 | Files | Scope |
 | --- | --- |
 | [tests/engine.test.ts](../tests/engine.test.ts) | Commission phases, economy, affordable actions, capacity, retries, progression. |
-| [tests/restart.test.ts](../tests/restart.test.ts) | Same-level attempt reset, live-drop cancellation and stale-settlement rejection, retained possessions/totals/profile, no additional retry bonus or duplicate rewards, version-1 save round-trip. |
+| [tests/restart.test.ts](../tests/restart.test.ts) | Same-level reset, live-drop cancellation and stale settlement rejection, separate Retry attempts and chosen help, capped explicit assistance, legacy help retention, no duplicate rewards, and save round-trip. |
 | [tests/parts.test.ts](../tests/parts.test.ts), [tests/simulation.test.ts](../tests/simulation.test.ts) | Ten part rules and tunings, charge production/spending/sharing, reserves, Junction arrivals, fixed-step determinism, split/trigger limits, scoring and simulation safety. |
-| [tests/save.test.ts](../tests/save.test.ts) | Version-1 validation and legacy-profile compatibility, malformed data, browser recovery, interrupted-drop behavior. |
+| [tests/save.test.ts](../tests/save.test.ts) | Version-1/legacy validation, browser recovery, interrupted drops, exact shop rollback without farming, bounded 24-entry practice retention, immutable entry snapshots, cross-run rejection, detached practice and profile/reward isolation. |
 | [tests/display-preferences.test.ts](../tests/display-preferences.test.ts) | Optional fullscreen marker, one-time desktop migration, untouched other preferences/run data, remembered marked windowed choices, fresh defaults, and no browser-only migration. |
 | [tests/input.test.ts](../tests/input.test.ts) | Standard gamepad input processing and navigation behavior. |
 | [tests/tutorial.test.ts](../tests/tutorial.test.ts) | Nonblocking place/launch/collect/gift/spend progression and optional guide state. |
@@ -86,7 +88,7 @@ The calculated advisor implementation, UI, and unit test were removed on 2026-09
 
 - [tests/browser/smoke.spec.ts](../tests/browser/smoke.spec.ts) checks a painted, playable first screen with 46 socket controls, no startup external runtime requests, placement/undo/redo, persistence, pause, interrupted-launch refund, backup/settings recovery, and salvage clearing edit history.
 - [tests/browser/layout.spec.ts](../tests/browser/layout.spec.ts) checks height-aware cabinet sizing, full-HD/ultrawide and mobile overflow, and painted-board screenshots, including the new machine controls and adjacent capacity indicator. Layout reserves room for the toolbar and Quick Guide. Responsive checks inspect both canvas buffer pixels and the painted canvas, compare overflow against the configured viewport width, and launch a real token. A populated internal buffer alone is not enough after resize.
-- [tests/browser/workshop.spec.ts](../tests/browser/workshop.spec.ts) has nine clockwork cases: a ready-token pixel check at every aim lane followed by exact real-cascade output; neutral-field pixels in both lighting modes; palette/launch-label contrast; three short panes; eight local mechanism images repainting; a moving real cascade and reload; and daylight/reduced-motion play. Short-pane checks verify the 320px desktop floor, not the unconfirmed browser/editor zoom setting from D11. Scenery is decorative and noninteractive. These checks do not certify human enjoyment or every possible contrast combination.
+- [tests/browser/workshop.spec.ts](../tests/browser/workshop.spec.ts) checks all ten mechanism activation/rest poses, ready-token pixels at every lane and exact real cascades, both lighting modes, palette/label contrast, short panes, all local mechanism images, and room-layer decode/registration/motion. Desktop/mobile ambient checks cover pause and reduced motion without changing scoring. Short panes verify the 320px desktop floor, not actual browser/editor zoom. Scenery remains decorative and noninteractive; these checks do not certify human enjoyment or hardware comfort.
 - [tests/browser/board-presentation.spec.ts](../tests/browser/board-presentation.spec.ts) has four cases: isolated renderer payout events check each recessed chute responds locally, returns to a quiet intake, and keeps that intake unchanged under reduced motion; a stationary idle board exposes real Relay-link pixels only in context; and full-capacity mixed-part fixtures at 1440px and 390px check distinct designs, all 46 targets, no horizontal overflow, and exact output after actual 4x UI launches. The injected payout case tests rendering, not earned scoring; separate real-cascade cases compare full simulation results. The Test Workshop task runs both board and workshop files.
 - [tests/browser/campaign.spec.ts](../tests/browser/campaign.spec.ts) plays twelve commissions plus four After Hours stages through real controls, including tuning, fusion, bounded recovery, exact payouts, rewards, and saved/reloaded state. It also verifies the retired trial query no longer selects hidden rules.
 - [tests/browser/gift-variety.spec.ts](../tests/browser/gift-variety.spec.ts) now uses an earned current-rule shop, claims Dividend, rearranges owned Mint/Vault/Dividend through actual desktop/mobile controls, verifies a real reserve cash-out and banked points, then reloads. The old gift trial remains only in archival diagnostic tooling.
@@ -94,9 +96,10 @@ The calculated advisor implementation, UI, and unit test were removed on 2026-09
 - [tests/browser/feedback-performance.spec.ts](../tests/browser/feedback-performance.spec.ts) retains the confirmed hitch regression: bounded icon encoding/palette sampling, scoped appearance invalidation, and exact current-rule payout. Timings are measured, not flaky absolute-FPS gates.
 - [tests/browser/gamepad.spec.ts](../tests/browser/gamepad.spec.ts) covers detection, Start/B menu flow and focus confinement, A/X actions, D-pad/stick and LB/RB navigation, paused focus, React-backed sliders and switches, one launch while Y is held, and disconnect/reconnect. Controller state is injected through `navigator.getGamepads`; no physical controller is exercised.
 - [tests/browser/onboarding.spec.ts](../tests/browser/onboarding.spec.ts) exercises the Quick Guide through real actions, skip/replay, Workshop-credit feedback, a free gift that disappears when claimed, and actual paid upgrades. Paid stock remains separate and spending optional.
-- [tests/browser/restarts-inventory.spec.ts](../tests/browser/restarts-inventory.spec.ts) covers quick-restart persistence, cancelling a paused live token with exactly one later settlement, New Workshop cancellation/confirmation, free and purchased duplicates placed from one group while the shop stays open, and safe spare ownership at a full cap with extra space opening only on advance. It asserts that both acquired IDs remain individually owned and placeable.
+- [tests/browser/restarts-inventory.spec.ts](../tests/browser/restarts-inventory.spec.ts) covers same-difficulty Retry versus explicit help, confirmed/canceled exact shop rollback, isolated desktop/mobile practice through completion/return/reload, quick-restart persistence, stale-drop cancellation, New Workshop confirmation, purchased duplicates, and safe spare ownership at capacity. Practice checks compare the entire campaign save/profile unchanged, not only displayed scores.
+- [tests/browser/cascade-receipt.spec.ts](../tests/browser/cascade-receipt.spec.ts) checks actual chute payouts, banked totals, and structured missing-charge observations on desktop/mobile. It rearranges owned parts and launches real drops; no calculated advice or synthetic scoring.
 - [tests/browser/part-stacks.spec.ts](../tests/browser/part-stacks.spec.ts) checks counts, selection/deselection, one-copy placement/return, undo/redo, rotation between directional groups, salvage/last-copy removal, disabled controls while dropping, save reloads, and keyboard activation. Dedicated inventory fixtures cover nine spares rendered as four icons and quantity badges separate from the Doubler's x2 at 320px, 390px, and desktop widths. These are UI/storage fixtures, not claims about earned progression; the acquisition test above uses actual campaign rewards and affordable purchases.
-- [tests/browser/workflows.spec.ts](../tests/browser/workflows.spec.ts) covers same-difficulty recovery without a relaxed-target loss prompt, Daily seed/profile preservation, browser export/import, and light/high-contrast rendering. This does not remove the existing +10%-per-retry, +30%-maximum loss tune-up; Restart level is a separate action with no additional bonus.
+- [tests/browser/workflows.spec.ts](../tests/browser/workflows.spec.ts) covers loss editing without a relaxed-target prompt, Daily seed/profile preservation, browser export/import, and light/high-contrast rendering. H047 makes +10% help explicitly optional and commission-local; ordinary Retry and Restart do not silently add it.
 - [tests/browser/audio-feedback.spec.ts](../tests/browser/audio-feedback.spec.ts) covers production mechanical feedback and music continuing on the same clock at 80% of the selected gain while paused or in the menu. Production PCM checks at **44.1 and 48 kHz** compare feedback with the legacy reference at **more than 1.6x**, alongside headroom and bounded-voice output checks. Digital gain/limiter results are not evidence that physical speakers were heard or comfortably balanced.
 
 The full campaign follows legal UI actions, while save-corruption and controller cases intentionally inject their specific fault/input conditions. Do not describe every browser test as untouched end-user play. Read-only diagnostics of Vite singleton modules must import the exact loaded resource URL, including its HMR timestamp, to avoid measuring a second module instance.
@@ -116,11 +119,18 @@ The full campaign follows legal UI actions, while save-corruption and controller
 - Settings export through the preload API, parented native-dialog options, and the complete JSON written to the confirmed path.
 - Queued writes immediately followed by quit, including preservation of the preceding valid backup.
 - Earning and buying duplicate parts through real play, rendering one counted group, closing/relaunching the app, preserving both saved IDs, and placing only one copy afterward.
-- Earning a targeted tuning, retaining the same ID through native close/relaunch, and comparing the next actual drop to the authoritative tuned simulation.
+- Earning a targeted tuning, retaining its ID/effect through native relaunch, persisting the original shop and recorded entry builds, quitting during practice without replacing the campaign, then restoring the exact pre-tuning shop/reward state.
 
 The export case substitutes the save dialog's response so it can assert file output reliably. It does not operate the physical Windows file picker; manually test selection, cancellation, overwrite confirmation, and unwritable destinations. These tests also do not launch the final portable/depot package or connect to a real Steam account.
 
 ## Evidence Snapshot
+
+**H047, 2026-09-23:** final build and **320 unit / 16 file** suite pass; final
+built Electron **13/13** passes. Final full browser run is **96/98**, with two
+reload timeouts; all four exact failure-path rechecks across the two full runs
+pass in isolation. Eighteen final presentation/performance checks pass. D19 stays
+open; do not aggregate focused passes into a claimed clean full suite. Current
+details and balance evidence are in [VERIFICATION.md](VERIFICATION.md).
 
 **H030 collector refinement, 2026-09-10:** the production build and all **13
 focused board/workshop browser tests** passed. The new collector test samples

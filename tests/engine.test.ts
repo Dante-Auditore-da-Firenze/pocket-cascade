@@ -90,7 +90,7 @@ describe('commission economy', () => {
     expect(retried.board).toEqual(lost.board);
     expect(retried.brass).toBe(2);
     expect(retried.score).toBe(0);
-    expect(baseValue(retried)).toBe(11);
+    expect(baseValue(retried)).toBe(10);
   });
 
   it('keeps relaxed targets as an initial workshop choice, not a daily setting', () => {
@@ -104,14 +104,21 @@ describe('commission economy', () => {
   });
 
   it('salvages only spare parts and cannot duplicate brass', () => {
-    const initial = newRun(42);
+    const initial = collectCommission({ ...newRun(42), phase: 'review', score: 200 });
     const salvaged = salvagePeg(initial, 'part-5');
-    expect(salvaged.brass).toBe(1);
+    expect(salvaged.brass).toBe(initial.brass + 1);
     expect(salvaged.bench).toHaveLength(0);
     expect(salvagePeg(salvaged, 'part-5')).toBe(salvaged);
     expect(salvagePeg(initial, 'part-1')).toBe(initial);
-    const dropping = launchDrop(initial);
+    const dropping = launchDrop(newRun(42));
     expect(salvagePeg(dropping, 'part-5')).toBe(dropping);
+    const lost = { ...newRun(42), phase: 'lost' as const, dropsLeft: 0 };
+    expect(salvagePeg(lost, 'part-5')).toBe(lost);
+    const lastGenerator = { ...initial, board: {}, bench: [{ id: 'part-1', kind: 'mint' as const, direction: 1 as const }] };
+    expect(salvagePeg(lastGenerator, 'part-1')).toBe(lastGenerator);
+    const legacyWithoutGenerator = { ...initial, board: {}, bench: [{ id: 'part-5', kind: 'splitter' as const, direction: 1 as const }] };
+    expect(salvagePeg(legacyWithoutGenerator, 'part-5').brass).toBe(legacyWithoutGenerator.brass + 1);
+    expect(salvagePeg({ ...initial, practice: true }, 'part-5').brass).toBe(initial.brass);
   });
 
   it('converts a full-inventory complimentary part to brass without blocking progression', () => {
@@ -198,7 +205,7 @@ describe('commission economy', () => {
   });
 
   it('audits a missed target without creating money or changing already capped retry assistance', () => {
-    const lost = { ...newRun(42), phase: 'lost' as const, dropsLeft: 0, retries: 3 };
+    const lost = { ...newRun(42), phase: 'lost' as const, dropsLeft: 0, retries: 3, retryHelp: 3 };
     const audit = auditRoleRecovery(lost)!;
     expect(audit.run.brass).toBe(lost.brass);
     expect(audit.run.power).toBe(lost.power);

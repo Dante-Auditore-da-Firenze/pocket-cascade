@@ -9,6 +9,8 @@ for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 
     await expect(page.locator('.commission-subtitle, .blueprint-mark, .idle-diagram')).toHaveCount(0);
     await expect(page.getByTestId('cascade-receipt')).toHaveCount(0);
     await page.getByRole('button', { name: '4x speed', exact: true }).click();
+    await page.locator('[data-slot="2-3"]').click();
+    await page.locator('[data-slot="0-3"]').click();
     const run = await drop(page);
     const receipt = page.getByTestId('cascade-receipt');
     await expect(receipt).toBeVisible();
@@ -21,6 +23,12 @@ for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 
       await expect(collector.locator('span')).toHaveText(`${count} ${count === 1 ? 'token' : 'tokens'}`);
     }
     await expect(receipt.getByTestId('banked-payout')).toHaveText(formatNumber(run.lastDrop!.banked));
+    const unpowered = run.lastDrop!.events.filter((event) => event.kind === 'doubler' && event.blocked === 'charge').length;
+    expect(unpowered).toBeGreaterThan(0);
+    const missed = receipt.getByRole('list', { name: 'Untriggered effects' });
+    await expect(missed).toContainText('Doubler');
+    await expect(missed).toContainText('Needed charge');
+    await expect(missed.locator('strong')).toHaveText(String(unpowered));
     expect(await readRun(page)).toEqual(run);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     await page.screenshot({ path: testInfo.outputPath('observed-collector-receipt.png'), fullPage: true });

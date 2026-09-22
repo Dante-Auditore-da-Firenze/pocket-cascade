@@ -12,6 +12,10 @@
 .cascade-facts { display: grid; gap: 5px; color: var(--cp-text-muted); font-size: 10px; }
 .cascade-facts > span { display: flex; justify-content: space-between; gap: 8px; }
 .cascade-facts strong { color: var(--cp-text-soft); font-weight: 500; }
+.missed-triggers { list-style: none; padding: 9px 0 0; margin: 10px 0 0; border-top: 1px solid var(--cp-border); }
+.missed-triggers li { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 5px 0; font-size: 11px; }
+.missed-triggers small { display: block; color: var(--cp-text-muted); margin-top: 3px; font-size: 10px; }
+.missed-triggers strong { color: var(--cp-warning); font-variant-numeric: tabular-nums; }
 .game-app .last-cascade { border: 0; padding: 0; }
 .game-app .event-feed:empty { display: none; }
 .game-app .event-feed { min-height: 0; }

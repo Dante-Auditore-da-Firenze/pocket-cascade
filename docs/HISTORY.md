@@ -2853,3 +2853,230 @@ The remote main branch is an ancestor of local HEAD, permitting a normal push
 without rewriting history. This final documentation update is restaged and the
 complete exact snapshot rescanned before commit creation. The actual commit/tree
 and remote main hash are checked afterward; no push success is asserted early.
+
+## H044 - 2026-09-14 - Discuss The Loopler as a Liveliness Reference
+
+- **Request / boundary:** Look at The Loopler's design and art and discuss whether
+  Pocket Cascade could feel similarly alive. The user explicitly means the sense
+  of life, not the other game's theme, and says they are just asking. This is
+  research and discussion, not approval to implement D16 or another redesign.
+- **Reference evidence:** Reviewed [The Loopler's official Steam page](https://store.steampowered.com/app/4150860/The_Loopler/),
+  a full gameplay screenshot, and sampled decoded frames at 1/4/8 seconds from
+  its card and gate gameplay clips. The main trailer stalled; no claim of playing
+  the game or reviewing its complete audiovisual experience. The reference shows
+  bold outlined pixel art, strong accent contrast, card presentation transitions,
+  moving cars, and localized gate/card/score feedback. The official description
+  also explicitly describes cards jumping when triggered. A frame sheet is kept
+  only in ignored research artifacts, not in shipped assets.
+- **Local evidence:** Compared the current commission-05 capture and the nearby
+  mechanism painter/activation rendering. Our game already has small triggered
+  mechanical motions, circuit flashes, and collector feedback; it is not wholly
+  static. The opportunity is to make these responses more expressive and coherent
+  with the room, not to replace a supposedly absent animation system.
+- **Recommendation, not approval:** Keep the original clockwork workshop, board
+  geometry, and visual identity. Prioritize recognizable mechanical responses to
+  actual events: a Mint stamping, Vault latch reacting to a deposit, or Junction
+  signaling the second arrival. Coordinate token/chute/score feedback, with
+  stronger emphasis for meaningful successes and calm time between them. Then
+  add a few restrained ambient mechanisms such as connected gears or a clock.
+  Targeted material/contrast refinements can help; adding background movement
+  alone will not reproduce the reference's responsive feel. Do not copy assets,
+  fonts, exact UI, pixel-art treatment, or CRT effects as a default.
+- **Constraints / next decision:** Any later pass needs bounded visual effects,
+  reduced-motion support, stable readable controls, and performance checks that
+  preserve the resolved feedback-cache fix. Animation must not change deterministic
+  simulation or earned scoring. Exact scope, motion intensity, and artwork work
+  remain unselected. D16 stays open/deferred; D20/D21/D22 and other deferred work
+  are untouched. A small in-theme motion study is a possible next approval, not
+  work started in this turn.
+- **Changes / validation scope:** Only this history and D16's discussion record
+  are updated. No game code, original artwork, player save, settings, packages,
+  or dependencies changed; no gameplay tests, build, commit, or push were run.
+  Documentation ordering, preserved history, deferred status, changed-file scope,
+  and whitespace are checked separately from any gameplay validation.
+
+## H045 - 2026-09-14 - Save the Full Liveliness Proposal in Open Items
+
+- **Request / approval:** The user asks to put the preceding liveliness proposal
+  in Open Items. This approves recording the backlog detail, not implementation.
+- **Changes:** Expand existing D16 instead of creating a duplicate item. Rename
+  it to cover machine and workshop presentation and add a dedicated four-part
+  proposal: expressive part reactions, quiet ambient motion, connected feedback,
+  and more tactile art. Retain The Loopler as a responsiveness reference without
+  adopting its theme or assets, and recommend machine reactions before ambient
+  movement. Preserve the original H036 background request and H044 discussion.
+- **Status / scope:** D16 remains open/deferred; exact scope and implementation
+  are unapproved. Keep the clockwork identity, readability, reduced-motion and
+  performance safeguards, and unchanged deterministic rules. Other open items,
+  game code, artwork, saves, dependencies, and Git publication are untouched.
+- **Validation scope:** Focused documentation checks cover the unique D16 row,
+  all four proposal areas, explicit deferred status, H045 ordering, and patch
+  whitespace. No gameplay tests or builds are needed for this record-only change.
+
+## H046 - 2026-09-14 - Rank the Current Top Five Open Priorities
+
+- **Request / boundary:** The user asks for the top five open items right now.
+  Provide a recommendation based on the current tracker and recent decisions,
+  not permission to start work or resume the postponed recovery discussion.
+- **Recommended order:** (1) D20 unwinnable states and recovery; (2) D09/D14
+  balance fairness and meaningful building, grouped as one follow-up; (3) D16
+  livelier machine/workshop presentation; (4) D21 player-controlled retry help;
+  (5) D22 practice/replay access. D20/D21 should be considered together when
+  resumed, but remain distinct recovery-policy and assistance-choice questions.
+- **Rationale:** Address the confirmed general soft-lock risk, then evaluate
+  fairness and build variety after the implemented redesign. Improve responsive
+  presentation without changing theme; retain player choice over help and make
+  experimentation easier. The prior inspected player's recovery witness is not
+  a statement about a fresh live state or all inventories. No broad rebalance
+  or recovery solution is assumed approved or proven.
+- **Other work:** D19 remains a separate intermittent reload-test investigation,
+  not a confirmed player freeze or recurrence of the resolved hit-feedback lag.
+  Endgame, Steam/Cloud, and other deferred work retain their existing statuses.
+- **Changes / validation scope:** Add the current recommendation to Open Items,
+  label the previous top three as historical, and preserve earlier discussion.
+  Check the five ranks against open tracker rows, deferred boundaries, H046
+  ordering, and whitespace. Only documentation changes; no gameplay tests,
+  implementation, live player actions, build, commit, or push in this turn.
+
+## H047 - 2026-09-23 - Approved Recovery, Practice, Balance, and Liveliness Pass
+
+- **Approval:** The user explicitly approves all five H046 priorities and
+  delegates implementation choices, including browsing for livelier presentation.
+  This supersedes the discussion-only boundaries for D20, D09/D14, D16, D21,
+  and D22. Keep our clockwork theme and original offline assets. No Git commit,
+  push, larger endgame/board, Steam/Cloud redesign, or paid asset purchase is
+  requested by this approval.
+- **Implemented checkpoint:** Retry counts attempts separately from explicit
+  +10% help capped at +30% for the current commission. Older saved retry help
+  remains effective; ordinary Retry adds none, and advance clears it. A validated
+  latest-shop snapshot restores the full earned shop before spending and reward
+  choices, with confirmation and no duplicate currency/items. Salvage is shop-only
+  and cannot remove the last Mint/Relay/Kicker. This is not a universal solvability
+  guarantee; absent legacy checkpoints are not fabricated.
+- **Practice checkpoint:** Record detached commission-entry builds in bounded
+  optional version-1 save data: campaign entries and the latest twelve After Hours
+  entries. A separate in-memory practice workspace cannot write campaign progress,
+  award completion rewards/achievements, or replace the active run. Return or reload
+  restores the untouched campaign. Old saves acquire new entries as play continues.
+- **Clarity and art checkpoint:** Actual blocked trigger reasons and Junction
+  arrival counts are bounded event metadata, with factual missed inputs retained
+  in the optional last-cascade receipt. No calculated layout advice. Stronger
+  part-specific activation poses return to quiet resting mechanisms; blocked hits
+  avoid celebratory sparks. Original room art now supplies four transparent bitmap
+  layers for meshing gears and clock hands. Transform animation respects pause,
+  hidden pages, reduced motion, and high contrast, at registered room coordinates.
+- **Research:** Consulted web.dev's high-performance animation guide and Game
+  Programming Patterns' object-pool discussion. Applied transform-based room
+  motion and retained existing bounded visual effects/caches, without copying
+  external artwork, adding runtime network dependencies, or introducing an
+  unnecessary new rendering framework.
+- **Checks so far:** Full typecheck and 318 unit tests in 16 files pass. Nineteen
+  focused browser recovery/practice/receipt/inventory cases and sixteen workshop
+  presentation cases pass. Original scoring trace hashes still match with only
+  new presentation annotations excluded; full annotated replay equality is also
+  checked. The initial retry test accidentally cleared commission 1 with an empty
+  board; fixed it to earn commission 2 before testing loss. Updated old salvage
+  fixtures to the new shop-only rule without removing their economy assertions.
+- **Balance checkpoint:** All 48 same-difficulty campaigns finished reporting in
+  ignored roles-1790107227971.json; no automatic help, no recorded timeouts.
+  Campaign wins: stack 0/8, recovery 8/8, charge 8/8, bank 6/8, branch 3/8,
+  frozen 0/8. Recovery retains fourteen needed installed changes during 4-9.
+  Wider weak-case checks and final integration/native/performance validation
+  remain in progress. No claim that every build is winnable or fun is validated.
+
+### Completion Evidence
+
+- **Final build / units / native:** Standard Verify Game build passed with the
+  known nonfatal warnings; main JS is 513.31 kB. All **320 unit tests / 16 files**
+  passed. Final built Electron suite **13/13** passed, including earned tuning,
+  persisted checkpoints, quit-during-practice isolation, relaunch, and exact shop
+  restoration. Legacy generatorless shops may sell non-generators; the guard
+  protects the final generator rather than blocking all salvage in a damaged save.
+- **Browser evidence:** Nineteen focused recovery/practice/receipt/inventory cases
+  passed; eighteen final workshop/board/performance cases passed. Initial full
+  run: **96/98**, obsolete salvage fixture plus onboarding reload timeout. Corrected
+  fixture earns a real shop and retains ownership/credit assertions. Final standard
+  full run: **96/98**, desktop practice and reward cases timed out during reload
+  after prior behavior assertions. Four focused failure-path cases subsequently
+  passed, including unchanged reload tests. No raised timeout or weakened assertion;
+  D19 remains open and neither full run is described as clean.
+- **Balance decision:** Retain scoring/targets/prices after 48 unassisted campaigns
+  and weak-case audits. All 48 end states validate as saves; no recorded timeouts.
+  Of 23 failed campaign states, 22 have a found unassisted owned-parts recovery;
+  branch seed 99's commission 7 pays 2,032 with explicitly chosen +10% help and
+  clears 10,000 in five actual settlements, with no purchases. Wider branch
+  witnesses for seeds 2026 and 7 need 26/31 actions, so they are not simple edits
+  or proof of human discoverability. Full evidence is in BALANCE; D09/D14 retain
+  human feedback rather than further speculative numerical changes.
+- **Presentation evidence:** Inspected final desktop/mobile, daylight, full-board,
+  and practice captures. A cached clean mounting surface avoids double outlines
+  behind active mechanisms. Original art layers decode and remain registered;
+  actual drop results stay exact. Final focused dense feedback uses one icon
+  encode/eight palette reads, with measured normal median/p95 frame intervals
+  28/35.2 ms and mechanism maximum 0.3 ms. These are headless observations, not
+  hardware certification or a controlled improvement claim.
+- **Outcome / handoff:** D20/D21/D22/D16 implemented and checked; D09/D14's measured
+  follow-up delivered with remaining human-quality caveats. README, DESIGN,
+  BALANCE, TESTING, VERIFICATION, and Open Items reflect current behavior while
+  preserving earlier history. The Play task is running at http://127.0.0.1:5173/.
+  No player save reset/replacement or live token launch, no commits/pushes, no new
+  runtime dependencies, and no Windows package rebuild. Existing H026 executables
+  remain older; current source browser/Electron contain this pass. Unrecorded
+  legacy checkpoints cannot be reconstructed, and rollback is not a guarantee
+  of universal solvability. Other deferred endgame/Steam work remains untouched.
+
+## H048 - 2026-09-23 - Verify and Publish the Five-Priority Checkpoint
+
+- **Request / approval:** The user asks to commit and push if the game is in
+  working condition, with all material details in the commit message. This
+  authorizes a verified source checkpoint on the existing origin/main, not a
+  release certification, new branch, force push, policy change, or package rebuild.
+- **Working-condition gate:** H047 provides a passing production build, 320 unit
+  tests, thirteen built desktop tests, focused actual-play and presentation checks,
+  and a measured balance follow-up. Its full browser run is explicitly not clean:
+  96/98 with two reload timeouts, both passing unchanged focused rechecks. Retain
+  that limitation and D19 rather than treating focused passes as 98/98. Run fresh
+  build/unit and affected workflow checks before publication; stop for a functional
+  regression or unsafe staged content.
+- **Scope / message:** Include the pending H044-H047 discussions and implementation:
+  exact shop rollback, salvage safeguards, chosen retry help with legacy retention,
+  isolated recorded-build practice, factual missing-input feedback, original
+  mechanical/ambient art, balance diagnostics, tests, tasks, and documentation.
+  The descriptive commit body must cover behavior, data boundaries, measured
+  results, caveats, unchanged scoring/physics, and work not performed. Ignore
+  generated reports, player saves, builds, packages, dependencies, and secrets.
+- **Publication procedure:** Confirm the approved origin and ordinary fast-forward
+  path, review and stage the current work, export raw staged Git blobs, verify
+  their hashes, and run Gitleaks against those exact bytes. Commit only the scanned
+  tree and push normally, then compare remote main with local HEAD. Results are
+  added below before commit; the actual published hash is verified afterward and
+  reported in the final response rather than asserted in advance.
+
+### Pre-commit Results
+
+- Fresh TypeScript/Vite production build passed, with the existing nonfatal
+  theme-script, Zod annotation, and chunk-size warnings. All **320 unit tests**
+  passed; the fresh report is in ignored security artifacts.
+- Fresh affected-browser recheck: **4/4 passed in 56.4 seconds**, covering
+  onboarding reload, practice isolation/reload, earned reward/reload, and shop
+  salvage. Fresh built Electron suite: **13/13 passed in 52.8 seconds**, including
+  security, native saves/export, actual gameplay, practice quit/relaunch, and
+  shop checkpoint recovery. No failures or skipped cases in these fresh checks.
+- Prior full-browser evidence remains **96/98**, not a clean full-suite pass.
+  D19 is unresolved; successful targeted reload checks do not establish its cause.
+  No new full browser run, balance campaign, package rebuild, or hardware/Steam
+  certification is claimed for this publication turn. The game is published as
+  a demonstrated working source checkpoint with these disclosed limitations.
+- Confirmed the previously approved public origin and current main branch,
+  fetched without merging, and found local/remote aligned before this commit.
+  No gameplay/source edits were required by the fresh verification.
+- Staged **47 changed files**. Exported all **182 files** as raw Git blobs and
+  verified every exported file hash. Gitleaks 8.30.1 found **zero leaks** with the
+  unchanged narrow project configuration. Staged whitespace and exclusion checks
+  passed; only original reference reports are retained under artifacts. This
+  final history append is restaged and the exact tree rescanned before commit.
+- The commit body records the five-feature behavior, save/recovery boundaries,
+  balance results versus human-quality limits, original art and performance
+  safeguards, fresh versus prior validation, and unrebuilt packages. Committed
+  tree equality and remote-main equality remain required post-commit/push checks;
+  no success is asserted before those operations finish.

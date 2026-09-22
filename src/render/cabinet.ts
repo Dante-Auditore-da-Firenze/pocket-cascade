@@ -62,6 +62,9 @@ interface FloatingLabel extends Point {
 interface Flash {
   age: number;
   color: EffectColor;
+  blocked?: boolean;
+  arrivals?: number;
+  banked?: boolean;
 }
 
 interface Bounds {
@@ -105,6 +108,8 @@ export class CabinetRenderer {
   private readonly context: CanvasRenderingContext2D;
   private readonly layer: HTMLCanvasElement;
   private readonly layerContext: CanvasRenderingContext2D;
+  private readonly mountingLayer: HTMLCanvasElement;
+  private readonly mountingContext: CanvasRenderingContext2D;
   private material: Materials;
   private cachedBoard: Board | null = null;
   private dirty = true;
@@ -127,10 +132,14 @@ export class CabinetRenderer {
     const context = canvas.getContext('2d', { alpha: false });
     const layer = canvas.ownerDocument.createElement('canvas');
     const layerContext = layer.getContext('2d', { alpha: false });
-    if (!context || !layerContext) throw new Error('The cabinet requires Canvas 2D support.');
+    const mountingLayer = canvas.ownerDocument.createElement('canvas');
+    const mountingContext = mountingLayer.getContext('2d', { alpha: false });
+    if (!context || !layerContext || !mountingContext) throw new Error('The cabinet requires Canvas 2D support.');
     this.context = context;
     this.layer = layer;
     this.layerContext = layerContext;
+    this.mountingLayer = mountingLayer;
+    this.mountingContext = mountingContext;
     this.material = cabinetMaterials(palette);
   }
 
@@ -144,6 +153,8 @@ export class CabinetRenderer {
     this.canvas.height = bufferHeight;
     this.layer.width = bufferWidth;
     this.layer.height = bufferHeight;
+    this.mountingLayer.width = bufferWidth;
+    this.mountingLayer.height = bufferHeight;
     this.dirty = true;
   }
 
@@ -198,7 +209,11 @@ export class CabinetRenderer {
   event(event: CascadeEvent): void {
     const color: EffectColor = event.type === 'payout' || event.type === 'bank'
       ? 'warning' : event.kind ? PARTS[event.kind].color : 'accent';
-    if (event.slotId) this.flashes.set(event.slotId, { age: 0, color });
+    if (event.slotId) {
+      const previous = this.flashes.get(event.slotId);
+      const banked = event.type === 'bank' || Boolean(previous?.banked && previous.age === 0);
+      this.flashes.set(event.slotId, { age: 0, color: banked ? 'warning' : color, blocked: Boolean(event.blocked), arrivals: event.arrivals, banked });
+    }
     if (event.type === 'payout' && event.tray !== undefined && event.tray >= 0 && event.tray < 3) {
       const tray = event.tray as 0 | 1 | 2;
       this.trayTotals[tray] += event.amount;
@@ -210,8 +225,9 @@ export class CabinetRenderer {
     const duplicate = event.type === 'hit'
       && (event.kind === 'vault' || (event.kind === 'splitter' && event.label === 'FORK'));
     if (!duplicate) this.addLabel(event, color);
-    if (this.reducedMotion || duplicate) return;
-    const count = event.type === 'payout' ? 44 : event.type === 'split' ? 24 : event.type === 'bank' ? 18 : 6;
+    if (this.reducedMotion || duplicate || event.blocked) return;
+    const count = event.type === 'payout' ? Math.min(44, 12 + Math.floor(Math.log10(Math.max(1, event.amount))) * 7)
+      : event.type === 'split' ? 24 : event.type === 'bank' ? 18 : 6;
     for (let index = 0; index < count; index += 1) {
       const angle = index * 2.399963 + event.tokenId * 0.7 + event.tick * 0.11;
       const velocity = 24 + (index % 7) * (event.type === 'payout' ? 15 : 7);
@@ -307,6 +323,10 @@ export class CabinetRenderer {
 
   draw(view: CabinetView, interpolation: number): void {
     this.setReducedMotion(view.reducedMotion);
+    if (this.dirty) {
+      this.mountingContext.setTransform(this.mountingLayer.width / BOARD_WIDTH, 0, 0, this.mountingLayer.height / BOARD_HEIGHT, 0, 0);
+      paintCabinet(this.mountingContext, this.palette, {});
+    }
     if (this.dirty || this.cachedBoard !== view.board) {
       this.layerContext.setTransform(this.layer.width / BOARD_WIDTH, 0, 0, this.layer.height / BOARD_HEIGHT, 0, 0);
       paintCabinet(this.layerContext, this.palette, view.board);
@@ -322,8 +342,8 @@ export class CabinetRenderer {
     context.lineCap = 'round';
     context.lineJoin = 'round';
     this.drawAim(view);
-    this.drawCircuits(view);
     this.drawMechanisms(view);
+    this.drawCircuits(view);
     this.drawSelections(view);
     if (view.trails) this.drawTrails(view.dropping);
     this.drawCollectors();
@@ -412,8 +432,8 @@ export class CabinetRenderer {
       const slot = SLOT_MAP[slotId];
       if (!slot) continue;
       const progress = flash.age / 650;
-      circle(context, slot.x, slot.y, this.reducedMotion ? 20 : 17 + progress * 15);
-      context.strokeStyle = ink(this.palette[flash.color], (1 - progress) * 0.75);
+      circle(context, slot.x, slot.y, this.reducedMotion || flash.blocked ? 21 : 20 + progress * (flash.banked ? 18 : 11));
+      context.strokeStyle = ink(flash.blocked ? this.palette.border : this.palette[flash.color], (1 - progress) * (flash.blocked ? 0.4 : 0.85));
       context.lineWidth = 2 * (1 - progress) + 0.5;
       context.stroke();
     }
@@ -425,15 +445,15 @@ export class CabinetRenderer {
     for (const [slotId, flash] of this.flashes) {
       const slot = SLOT_MAP[slotId];
       const peg = view.board[slotId];
-      if (!slot || !peg) continue;
+      if (!slot || !peg || flash.blocked) continue;
       const progress = Math.min(1, flash.age / 650);
       context.save();
       context.beginPath();
-      context.rect(slot.x - 24, slot.y - 23, 48, 44);
+      context.rect(slot.x - 27, slot.y - 26, 54, 52);
       context.clip();
-      context.drawImage(this.layer, 0, 0, BOARD_WIDTH, BOARD_HEIGHT);
+      context.drawImage(this.mountingLayer, 0, 0, BOARD_WIDTH, BOARD_HEIGHT);
       context.translate(slot.x, slot.y);
-      paintMechanism(context, peg, this.palette, this.material, progress);
+      paintMechanism(context, peg, this.palette, this.material, progress, flash.arrivals);
       context.restore();
     }
   }
@@ -665,5 +685,7 @@ export class CabinetRenderer {
     this.cachedBoard = null;
     this.layer.width = 0;
     this.layer.height = 0;
+    this.mountingLayer.width = 0;
+    this.mountingLayer.height = 0;
   }
 }

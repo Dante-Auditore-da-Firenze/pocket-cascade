@@ -18,13 +18,14 @@ function cog(centerX, centerY, radius, teeth, fill, stroke) {
   return `<g><polygon points="${points}" fill="${fill}" stroke="${stroke}" stroke-width="2"/><circle cx="${centerX}" cy="${centerY}" r="${radius * 0.7}" fill="url(#steel)" stroke="${stroke}" stroke-width="3"/><g stroke="${fill}" stroke-width="${radius * 0.17}">${spokes}</g><circle cx="${centerX}" cy="${centerY}" r="${radius * 0.2}" fill="${fill}" stroke="${stroke}" stroke-width="2"/><circle cx="${centerX}" cy="${centerY}" r="${radius * 0.07}" fill="#182d2e"/></g>`;
 }
 
-function dial(centerX, centerY, radius, angle = -0.8) {
+function dial(centerX, centerY, radius, angle = -0.8, moving = false) {
   const ticks = Array.from({ length: 36 }, (_, index) => {
     const theta = index * Math.PI / 18;
     const inside = radius * (index % 3 ? 0.84 : 0.75);
     return `<path d="M${centerX + Math.sin(theta) * inside} ${centerY - Math.cos(theta) * inside}L${centerX + Math.sin(theta) * radius * 0.91} ${centerY - Math.cos(theta) * radius * 0.91}"/>`;
   }).join('');
-  return `<g><circle cx="${centerX}" cy="${centerY + 6}" r="${radius + 9}" fill="#132625" opacity=".6"/><circle cx="${centerX}" cy="${centerY}" r="${radius + 6}" fill="url(#brass)" stroke="#655939" stroke-width="3"/><circle cx="${centerX}" cy="${centerY}" r="${radius}" fill="#ececd9" stroke="#244643" stroke-width="4"/><g stroke="#375350" stroke-width="2">${ticks}</g><path d="M${centerX - 8} ${centerY + 14}L${centerX + Math.sin(angle) * radius * 0.68} ${centerY - Math.cos(angle) * radius * 0.68}" stroke="#bf4d42" stroke-width="5" stroke-linecap="round"/><circle cx="${centerX}" cy="${centerY}" r="7" fill="#244643"/><circle cx="${centerX}" cy="${centerY}" r="3" fill="#ddc38a"/></g>`;
+  const needle = moving ? '' : `<path d="M${centerX - 8} ${centerY + 14}L${centerX + Math.sin(angle) * radius * 0.68} ${centerY - Math.cos(angle) * radius * 0.68}" stroke="#bf4d42" stroke-width="5" stroke-linecap="round"/>`;
+  return `<g><circle cx="${centerX}" cy="${centerY + 6}" r="${radius + 9}" fill="#132625" opacity=".6"/><circle cx="${centerX}" cy="${centerY}" r="${radius + 6}" fill="url(#brass)" stroke="#655939" stroke-width="3"/><circle cx="${centerX}" cy="${centerY}" r="${radius}" fill="#ececd9" stroke="#244643" stroke-width="4"/><g stroke="#375350" stroke-width="2">${ticks}</g>${needle}<circle cx="${centerX}" cy="${centerY}" r="7" fill="#244643"/><circle cx="${centerX}" cy="${centerY}" r="3" fill="#ddc38a"/></g>`;
 }
 
 function screw(centerX, centerY) {
@@ -62,7 +63,7 @@ function room(dark) {
   <path d="M-66 679H285V707H-66Z" fill="#2b4942"/><path d="M-66 677H285" stroke="#a1b6a0" stroke-width="5"/>
   <g transform="translate(86 873) rotate(-7)"><rect x="-35" y="-77" width="215" height="198" rx="4" fill="#173a48" stroke="#c0c3a7" stroke-width="8"/><rect x="-31" y="-72" width="207" height="187" fill="url(#blueprint)"/>
     <g fill="none" stroke="#b7d1ba" stroke-width="1.8"><circle cx="52" cy="4" r="41"/><circle cx="52" cy="4" r="30"/><circle cx="52" cy="4" r="8"/><path d="M11 4H93M52-37V45M93 4L129 75M-15 81H161M-15 91H92"/><circle cx="129" cy="75" r="22"/><path d="M-11-49H115M-11-45v-9m126 9v-9M143-42V40"/></g>${screw(-18, -56)}${screw(161, 98)}</g>
-  <g transform="translate(2255 250)">${cog(0, 0, 121, 30, '#ba955d', '#756344')}${dial(0, 0, 83, 0.9)}<path d="M0-11L-27 30" stroke="#35514c" stroke-width="5" stroke-linecap="round"/></g>
+  <g transform="translate(2255 250)">${cog(0, 0, 121, 30, '#ba955d', '#756344')}${dial(0, 0, 83, 0.9, true)}</g>
   <path d="M2090 458H2400V886H2090Z" fill="${panel}" stroke="${seam}" stroke-width="6"/>${pegboard}
   <g transform="translate(2188 542) rotate(8)"><path d="M0 10V153" stroke="#192e2c" stroke-width="15"/><path d="M0 0V125" stroke="#aab6a0" stroke-width="12"/><path d="M0 38V-3M0-3L-16-19M0-3L16-19" fill="none" stroke="#b8c5ae" stroke-width="9"/><rect x="-11" y="92" width="22" height="85" rx="5" fill="#b95044" stroke="#632e2b" stroke-width="3"/></g>
   <g transform="translate(2285 547) rotate(-9)"><path d="M0 8V177" stroke="#aab6a0" stroke-width="8"/><rect x="-14" y="53" width="28" height="111" rx="7" fill="#325b50" stroke="#203e38" stroke-width="4"/><path d="M-5 70V145M5 70V145" stroke="#6d9380" stroke-width="2"/></g>
@@ -72,7 +73,8 @@ function room(dark) {
   <g stroke="#b7b795" stroke-width="2" opacity=".65">${measurement}</g>
   <path d="M0 1404H2400" stroke="#102c28" stroke-width="14"/>
   <path d="M30 1425H280V1585H30ZM2120 1425H2370V1585H2120Z" fill="#29483f" stroke="#172e29" stroke-width="5"/>
-  <g transform="translate(36 1076) rotate(13)">${cog(0, 0, 50, 16, '#baa072', '#5f604b')}${cog(91, 51, 35, 12, '#c1b084', '#5f604b')}<path d="M-45 116L98 88L107 128L-36 156Z" fill="#bd5645" stroke="#733931" stroke-width="3"/><path d="M-12 134L197 87" stroke="#bcc5b1" stroke-width="8"/><path d="M160 96L191 86" stroke="#eee2b8" stroke-width="3"/></g>
+  <g><rect x="12" y="1006" width="202" height="142" rx="5" fill="url(#steel)" stroke="#839689" stroke-width="3"/><path d="M20 1012H206" stroke="#bec1a1" opacity=".5"/><circle cx="74" cy="1068" r="48" fill="#152a28"/><circle cx="150" cy="1094" r="33" fill="#152a28"/>${screw(21, 1016)}${screw(204, 1016)}${screw(21, 1138)}${screw(204, 1138)}</g>
+  <g transform="translate(36 1076) rotate(13)"><path d="M-45 116L98 88L107 128L-36 156Z" fill="#bd5645" stroke="#733931" stroke-width="3"/><path d="M-12 134L197 87" stroke="#bcc5b1" stroke-width="8"/><path d="M160 96L191 86" stroke="#eee2b8" stroke-width="3"/></g>
   <g>${drawers}<path d="M2093 1008H2410V1026H2093Z" fill="#d07558" stroke="#6e3831" stroke-width="3"/><path d="M2132 989V966Q2245 938 2364 966V989" fill="none" stroke="#223c37" stroke-width="13"/>${screw(2130, 1016)}${screw(2370, 1016)}</g>
   <g transform="translate(2100 900)"><ellipse cx="0" cy="0" rx="88" ry="14" fill="#102c2a" opacity=".35"/><path d="M-63-7Q-50-37 33-36L58-7Z" fill="url(#shade)" stroke="#1e3631" stroke-width="3"/><path d="M0-35L-77-193L15-335" fill="none" stroke="#142f2e" stroke-width="22"/><path d="M0-35L-77-193L15-335" fill="none" stroke="#799885" stroke-width="10"/><path d="M18-44L-55-193L32-325" fill="none" stroke="#a5b29a" stroke-width="5"/>${dial(-76, -193, 15)}<path d="M-56-321Q-44-403 43-370L104-307Z" fill="url(#shade)" stroke="#1e3c35" stroke-width="4"/><ellipse cx="24" cy="-312" rx="79" ry="13" fill="#e1d8a2" stroke="#3c5d47" stroke-width="5"/></g>
   <rect width="2400" height="1600" fill="url(#grain)"/>
@@ -95,6 +97,26 @@ for (const lighting of ['light', 'dark']) {
   assert.ok(statistics.channels.slice(0, 3).every((channel) => channel.stdev > 12));
   generated.push({ source, output, width: WIDTH, height: HEIGHT });
 }
+const layers = [
+  { name: 'gear-large', size: 104, content: cog(52, 52, 50, 16, '#baa072', '#5f604b') },
+  { name: 'gear-small', size: 74, content: cog(37, 37, 35, 12, '#c1b084', '#5f604b') },
+  { name: 'clock-minute', size: 166, content: '<path d="M83 97V22" stroke="#35514c" stroke-width="6" stroke-linecap="round"/><circle cx="83" cy="83" r="6" fill="#35514c"/>' },
+  { name: 'clock-second', size: 166, content: '<path d="M83 99V24" stroke="#bf4d42" stroke-width="3.5" stroke-linecap="round"/><circle cx="83" cy="83" r="4" fill="#ddc38a" stroke="#35514c" stroke-width="2"/>' },
+];
+for (const layer of layers) {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${layer.size}" height="${layer.size}" viewBox="0 0 ${layer.size} ${layer.size}"><defs><linearGradient id="steel" x2="1" y2="1"><stop stop-color="#5d7d78"/><stop offset=".48" stop-color="#345551"/><stop offset="1" stop-color="#1c3433"/></linearGradient></defs>${layer.content}</svg>`;
+  const source = `assets/workshop/${layer.name}-source.svg`;
+  const output = `public/workshop/${layer.name}.webp`;
+  await writeFile(source, svg);
+  await sharp(Buffer.from(svg), { density: 144 }).webp({ lossless: true }).toFile(output);
+  const metadata = await sharp(output).metadata();
+  const pixels = await sharp(output).ensureAlpha().raw().toBuffer();
+  assert.equal(metadata.width, layer.size * 2);
+  assert.ok(metadata.hasAlpha);
+  assert.ok(pixels.some((value, index) => index % 4 === 3 && value > 200));
+  assert.ok(pixels.some((value, index) => index % 4 === 3 && value === 0));
+  generated.push({ source, output, width: metadata.width, height: metadata.height });
+}
 await writeFile('assets/workshop/manifest.json', JSON.stringify({
   title: 'Pocket Cascade clockwork workshop',
   origin: 'Original project artwork authored in scripts/generate-workshop.mjs',
@@ -103,4 +125,4 @@ await writeFile('assets/workshop/manifest.json', JSON.stringify({
   rightsNote: 'Project-original source and exports; no third-party artwork license or attribution dependency added. Not a legal clearance opinion.',
   files: generated,
 }, null, 2));
-console.log(`Generated and pixel-checked ${generated.length} original ${WIDTH}x${HEIGHT} workshop backgrounds.`);
+console.log(`Generated and pixel-checked two original ${WIDTH}x${HEIGHT} workshop backgrounds and ${layers.length} transparent motion layers.`);

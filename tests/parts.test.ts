@@ -18,6 +18,18 @@ function sequence(kinds: PegKind[], tunedIndex = -1): Board {
 }
 
 describe('interdependent part rules', () => {
+  it('reports actual missing inputs separately from successful triggers without changing points', () => {
+    for (const [kind, reason] of [['doubler', 'charge'], ['crown', 'charge'], ['echo', 'memory'], ['dividend', 'reserve']] as const) {
+      const result = single(kind);
+      expect(result.events.find((event) => event.type === 'hit')?.blocked).toBe(reason);
+      expect(result.events.find((event) => event.type === 'hit')?.amount).toBe(0);
+    }
+    expect(single('mint').events.every((event) => !event.blocked)).toBe(true);
+    expect(single('junction').events.find((event) => event.type === 'hit')?.arrivals).toBe(1);
+    const insured = simulateDrop({ board: { '0-3': { id: 'part-1', kind: 'crown', direction: 1, tuned: true } }, seed: 42, lane: 4, baseValue: 10 });
+    expect(insured.events.every((event) => !event.blocked)).toBe(true);
+  });
+
   it('Mint adds 140% of base before collection', () => {
     expect(single('mint').events.find((event) => event.type === 'hit')?.amount).toBe(14);
   });
