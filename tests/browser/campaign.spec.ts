@@ -11,6 +11,8 @@ test('plays the reworked campaign with earned tuning, fusion, recovery and After
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
   await openGame(page);
+  expect((await readRun(page)).lane).toBe(0);
+  await page.getByRole('button', { name: 'Aim lane 5', exact: true }).click();
   await page.getByRole('button', { name: '4x speed', exact: true }).click();
   await page.getByRole('button', { name: 'Skip guide', exact: true }).click();
   const evaluator = createTrialEvaluator('baseline');

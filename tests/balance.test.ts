@@ -23,8 +23,9 @@ describe('legal-play balance checks', () => {
     expect(report.bestDrop).toBeGreaterThan(100);
   }, 30_000);
 
-  it('completes a fresh role-aware run with earned tuning and needed middle-campaign edits', () => {
-    const result = playRoleCampaign(42, 'recovery', 12, 0);
+  it('replays the centered-opening recovery campaign with earned tuning and needed middle-campaign edits', () => {
+    const result = playRoleCampaign(42, 'recovery', 12, 0, false, 4);
+    expect(result.openingLane).toBe(4);
     expect(result.won).toBe(true);
     expect(result.cleared).toBe(12);
     expect(result.records.map((stage) => stage.stage)).toEqual(Array.from({ length: 12 }, (_, index) => index + 1));
@@ -44,6 +45,13 @@ describe('legal-play balance checks', () => {
     expect(result.builds.every((build) => build.after >= build.before)).toBe(true);
     expect(result.shops.some((shop) => shop.actions.some((action) => action.type === 'fuse' || action.type === 'gift-tune'))).toBe(true);
   }, 90_000);
+
+  it('uses the real new-run lane unless a diagnostic explicitly chooses another opening', () => {
+    const result = playRoleCampaign(42, 'recovery', 1, 0);
+    expect(result.openingLane).toBe(0);
+    expect(result.cleared).toBe(1);
+    expect(() => playRoleCampaign(42, 'recovery', 1, 0, false, 9)).toThrow();
+  });
 
   it('diagnostic hooks preserve the default campaign and cannot mutate observations into currency', () => {
     const baseline = playCampaign(42, 'conservative', 3);

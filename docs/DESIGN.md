@@ -17,7 +17,7 @@ active player mechanics. No permanent old/new balance profiles are maintained.
 
 ## Play Loop
 
-1. Arrange the machine and choose one of nine launch lanes. The starting machine has three Mints and a Doubler installed, with a Fork on the worktable.
+1. Arrange the machine and choose one of nine launch lanes. New runs start at lane 1 before any play; subsequent aiming, launches, retries, restarts, and commission advances retain the chosen lane. Saved runs and practice entries keep their recorded aim. The starting machine has three Mints and a Doubler installed, with a Fork on the worktable.
 2. Launch from a five-drop commission budget. Parts change token value or route; the outer collectors pay x1 and the center pays x2, subject to the numeric cap.
 3. Reach the minimum target to collect Workshop credits. Unused drops and excess payout each add a bounded bonus. Unspent score does not carry into the next commission.
 4. Choose one complimentary part, tune a matching owned part, or take two credits. Buy optional stock, token power, or targeted tuning; fuse matching spares and rearrange before advancing. The first eleven shops lead to the next commission; the twelfth ends the campaign.

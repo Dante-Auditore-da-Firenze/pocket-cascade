@@ -128,6 +128,7 @@ describe('versioned save boundary', () => {
   it('retains a valid backup and recovers it after corruption', () => {
     const store = storage();
     const save = freshSave(42);
+    save.run.lane = 4;
     writeBrowserSave(store, save);
     writeBrowserSave(store, { ...save, run: { ...save.run, lane: 2 } });
     expect(parseSave(store.getItem(BACKUP_KEY)!)?.run.lane).toBe(4);

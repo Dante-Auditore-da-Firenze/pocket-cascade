@@ -1,0 +1,28 @@
+{
+  "generatedAt": "2026-09-23T20:36:20.621Z",
+  "results": [
+    {
+      "id": "press",
+      "file": "curio-press.webp",
+      "width": 2400,
+      "height": 1500,
+      "slots": 46,
+      "largestScore": 27,
+      "texts": 48,
+      "croppedText": []
+    },
+    {
+      "id": "glass",
+      "file": "glass-engine.webp",
+      "width": 2400,
+      "height": 1500,
+      "slots": 46,
+      "largestScore": 25,
+      "texts": 44,
+      "croppedText": []
+    }
+  ],
+  "errors": [],
+  "storage": "blocked",
+  "boundary": "Original art-first stills; not a playable game or mobile layout proposal."
+}

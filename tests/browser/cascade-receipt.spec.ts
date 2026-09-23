@@ -9,6 +9,7 @@ for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 
     await expect(page.locator('.commission-subtitle, .blueprint-mark, .idle-diagram')).toHaveCount(0);
     await expect(page.getByTestId('cascade-receipt')).toHaveCount(0);
     await page.getByRole('button', { name: '4x speed', exact: true }).click();
+    await page.getByRole('button', { name: 'Aim lane 5', exact: true }).click();
     await page.locator('[data-slot="2-3"]').click();
     await page.locator('[data-slot="0-3"]').click();
     const run = await drop(page);

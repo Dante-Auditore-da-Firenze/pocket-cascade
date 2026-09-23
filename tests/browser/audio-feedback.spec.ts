@@ -159,6 +159,7 @@ test('a real launch forwards every contact once without changing the score trace
     };
   }, { audioModuleUrl: audioUrl, simulationModuleUrl: simulationUrl });
   try {
+    await page.getByRole('button', { name: 'Aim lane 5', exact: true }).click();
     const run = await drop(page);
     await page.evaluate(() => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
     const feedback = await page.evaluate(() => {

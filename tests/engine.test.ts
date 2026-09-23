@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   baseValue, buyPart, claimPart, collectCommission, commission, commissionReward,
   dropConfig, launchDrop, newRun, nextCommission, placePeg, recoverInterruptedDrop,
-  removePeg, retryCommission, settleDrop, upgradePower, claimPart as claimReward,
+  removePeg, retryCommission, restartCommission, setLane, settleDrop, upgradePower, claimPart as claimReward,
   MAX_OWNED_PARTS, salvagePeg, parseMachineSeed, dailySeed, claimTuning, claimCredits, tunePeg, fusePeg,
 } from '../src/game/engine';
 import { tuningPrice } from '../src/game/content';
@@ -11,6 +11,28 @@ import { simulateDrop } from '../src/game/simulation';
 import { auditRoleRecovery, planRoleShop, playRoleCampaign } from '../scripts/roles-balance';
 
 describe('commission economy', () => {
+  it.each(['workshop', 'daily', 'endless'] as const)('starts a new %s at lane one before any play', (mode) => {
+    const run = newRun(42, mode);
+    expect(run.lane).toBe(0);
+    expect(run.totalDrops).toBe(0);
+    expect(run.score).toBe(0);
+    expect(dropConfig(run).lane).toBe(0);
+  });
+
+  it('keeps a chosen or saved lane through play instead of resetting it to the initial lane', () => {
+    const chosen = setLane(newRun(42), 6);
+    const save = { ...freshSave(42), run: chosen };
+    expect(parseSave(JSON.stringify(save))?.run.lane).toBe(6);
+    expect(parseSave(JSON.stringify({ ...save, run: { ...chosen, lane: 4 } }))?.run.lane).toBe(4);
+    const dropping = launchDrop(chosen);
+    expect(dropping.activeDrop?.lane).toBe(6);
+    expect(recoverInterruptedDrop(dropping).lane).toBe(6);
+    expect(restartCommission(dropping).lane).toBe(6);
+    expect(retryCommission({ ...chosen, phase: 'lost', dropsLeft: 0 }).lane).toBe(6);
+    const shop = collectCommission({ ...chosen, phase: 'review', score: commission(chosen).target });
+    expect(nextCommission(claimCredits(shop)).lane).toBe(6);
+  });
+
   it('replays displayed numeric seeds exactly and hashes text seeds consistently', () => {
     expect(parseMachineSeed('42')).toBe(42);
     expect(parseMachineSeed(' 0 ')).toBe(0);

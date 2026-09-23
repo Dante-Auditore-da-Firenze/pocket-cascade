@@ -1,5 +1,26 @@
 # Pocket Cascade Balance
 
+## Starting Lane Follow-up - 2026-09-23
+
+H050 changes only the new-run starting aim from lane 5 to lane 1. Saved aim and
+later player choices are not reset. This changes the initial trajectory, not
+part effects, targets, prices, power, physics, or automatic difficulty.
+
+The H047/H040 campaign counts below were measured with the earlier centered
+opening. Do not apply them unchanged to the new lane-1 opening. The historical
+seed-42 recovery regression now explicitly aims at lane 5 through the normal
+aim control, including in the browser. Diagnostic runs default to the actual
+new-run lane; `--opening-lane=5` explicitly reproduces the earlier opening, and
+each result records zero-based `openingLane`. Its route-specific assertions
+remain intact. No fresh full eight-seed study is claimed for this small change.
+
+The user asks whether the recent game became easier. H047 did not reduce targets
+or strengthen parts; it made recovery more forgiving and assistance a choice.
+Opening targets remain 100/300/550, rising to 1,500/3,000/6,000 on commissions
+4-6. Familiarity and an early commission are plausible explanations for the
+reported feeling, not conclusions about an uninspected live run. Chosen help
+or relaxed targets can also affect the experience. No rebalance was requested.
+
 ## Recovery and Fairness Follow-up - 2026-09-23
 
 H047 approves the five-priority pass. The ten part effects, targets, prices,

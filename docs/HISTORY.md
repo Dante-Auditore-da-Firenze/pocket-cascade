@@ -3080,3 +3080,331 @@ and remote main hash are checked afterward; no push success is asserted early.
   safeguards, fresh versus prior validation, and unrebuilt packages. Committed
   tree equality and remote-main equality remain required post-commit/push checks;
   no success is asserted before those operations finish.
+
+## H049 - 2026-09-23 - Explain Local Playtesting
+
+- **Request:** Explain how to run the current game locally for testing.
+- **Confirmed:** The existing server responds successfully with Pocket Cascade
+  at http://127.0.0.1:5173/. No additional server, install, or save reset is needed.
+- **Guidance:** Open that URL now. Later, use the VS Code Pocket Cascade: Play
+  task or run `npm.cmd run dev -- --port 5173 --strictPort` from the project root;
+  keep the terminal running and stop it with Ctrl+C. Use the same browser origin
+  to retain its save. For the desktop source build, run `npm.cmd run build`, then
+  `npm.cmd run desktop`; browser and desktop saves are separate. Existing packaged
+  executables are older and are not the current implementation.
+- **Scope / validation:** Read the current launch documentation and checked the
+  server over HTTP without opening player storage or launching a token. Only
+  this history entry changes; open-item statuses, gameplay, settings, packages,
+  Git publication, and existing verification outcomes are untouched.
+
+## H050 - 2026-09-23 - Start New Runs at Lane One and Discuss Early Difficulty
+
+- **Request / boundary:** Start the dropper at lane 1 instead of 5 on the first
+  commission before play, then retain wherever the player moves it. The user
+  separately asks whether the game became easier or whether this is the earlier
+  commission. Implement the starting aim; discuss difficulty without a rebalance.
+- **Implementation:** Change the authoritative newRun lane from zero-based 4 to
+  0 for fresh Workshop/Daily/Endless runs. No load-time override, per-drop reset,
+  first-commission watcher, or live-save migration. Existing saved aim and actual
+  practice entry builds stay intact, including a deliberately selected lane 5.
+  Preserve the earlier H049 history entry; no commit or push is authorized here.
+- **Tests / diagnostic correction:** New engine checks cover the initial lane
+  and chosen aim across saves, launches, interrupted-drop recovery, retries,
+  restarts, and advancement. The backup fixture now explicitly saves lane 5 to
+  verify it is not overwritten. The seed-42 historical recovery campaign changed
+  outcome when its implicit opening changed; make that test's lane-5 aim explicit
+  instead of changing targets or weakening its completion/economy assertions.
+  Add optional diagnostic opening-lane input with recorded actual opening; its
+  default still uses the real new-run lane. Route-specific browser receipt and
+  dense-feedback fixtures similarly select their intended aim explicitly.
+- **Difficulty answer:** The published H047 changes leave targets, part effects,
+  prices, capacities, and physics unchanged. Ordinary Retry no longer adds power
+  automatically; chosen help and relaxed targets remain explicit. Recovery is
+  more forgiving. The opening targets are 100/300/550 before 1,500/3,000/6,000,
+  so early progression and greater familiarity plausibly explain the feeling.
+  No browser page was shared and no player save was inspected; do not assert the
+  current commission, help level, or the cause of subjective ease as fact.
+- **Validation checkpoint:** All **325 unit tests in 16 files passed** after the
+  backup and historical campaign fixture corrections. The real drop-head browser
+  check passed in 6.1 seconds: lane 1 before play, all lane positions/pixels, an
+  exact settled drop after moving, and preserved lane 9 after reload. Six affected
+  campaign/receipt/performance browser regressions also passed, with no failures,
+  skips, or retries (324.3 seconds). The campaign explicitly selects lane 5 before
+  testing twelve commissions and four After Hours stages; it is not a claim that
+  the lane-1 opening reproduces the earlier strategy's campaign. Final TypeScript
+  and patch-whitespace checks passed. The terminal initially omitted completion;
+  the saved JSON report confirms the actual six-case outcome. No full balance
+  study, production package rebuild, native test rerun, commit/push, or live player
+  action is implied by these focused checks.
+
+## H051 - 2026-09-23 - Research Interface Character Before Another Design Pass
+
+- **Request / boundary:** The user says the UI still looks similar with only
+  small changes and asks to discuss the distinctive charm of Balatro and other
+  successful games, explicitly without copying Balatro or changing the game now.
+  Research and conversation only; no new visual implementation approval.
+- **Assessment:** H047 added mechanical/ambient motion, tactile details, and
+  feedback while retaining the overall composition, typography, and visual
+  identity. The user's impression is consistent with that limited scope. The
+  completed D16 implementation does not establish satisfaction with the broader
+  art direction. The current screenshot still combines a themed cabinet with
+  restrained dashboard-like side panels, small parts, and substantial interface
+  chrome; more ambient movement alone will not change that first impression.
+- **Research evidence:** Compared the existing H047 desktop capture with official
+  gameplay screenshots for [Balatro](https://store.steampowered.com/app/2379780/Balatro/),
+  [Peglin](https://store.steampowered.com/app/1296610/Peglin/),
+  [ROUNDS](https://store.steampowered.com/app/1557740/ROUNDS/), and
+  [Luck be a Landlord](https://store.steampowered.com/app/1404850/Luck_be_a_Landlord/).
+  Read LocalThunk's [development timeline](https://localthunk.com/blog/balatro-timeline-3aarh)
+  and [Playing Cards](https://localthunk.com/blog/playing-cards). The timeline
+  directly describes custom card art, commissioned sound, player feedback, and
+  a friend's suggestion that became the flaming-score effect. The playing-card
+  essay concerns their personal/social meaning and merchandise, not a formal UI
+  specification. Steam video did not decode in this browser; do not claim new
+  hands-on play, a complete trailer review, or audio evaluation.
+- **Interpretation, not causal proof:** Recognizable objects, deliberate visual
+  hierarchy, consistent shape/type/color treatment, and a legible satisfying
+  payoff can give relatively simple art strong personality. Balatro emphasizes
+  cards and contrasting scoring values; Peglin uses a cohesive illustrated
+  setting/interface; ROUNDS shows expressive simple shapes and prominent choices;
+  Luck be a Landlord puts recognizable symbols and its machine at the center.
+  These are design observations, not proof that a particular UI causes virality.
+  Mechanics, discovery, audience, iteration, and distribution also matter.
+- **Proposed direction:** Retain the clockwork game but consider a more expressive
+  mechanical-toy interface across the entire screen: a dominant cabinet, integrated
+  score/launch controls, a tangible parts tray, larger distinctive gadget art in
+  selection/reward views, stronger purposeful color/type hierarchy, and a signature
+  cascade/collection rhythm. Quiet planning and an emphatic earned payoff should
+  contrast; avoid continuous noise, copied CRT/pixel/casino styling, or ornamental
+  movement as a substitute for composition. These are options for discussion,
+  not selected layout, assets, new mechanics, or implementation scope.
+- **Art/tool conclusion:** The current rendering stack can support expressive
+  motion and UI. The bottleneck is coherent art direction and iteration, not a
+  hard code-only ceiling. Original authored illustrations/textures may help once
+  their style is chosen; extra detail alone does not solve hierarchy or identity.
+  Recommend agreeing on the emotional direction and then, only if approved,
+  comparing a few visibly different still-screen concepts before another code pass.
+- **Scope / validation:** Only this required history entry is appended. The game,
+  artwork, open-item statuses, current uncommitted H050 lane work, player save,
+  tasks, and server remain untouched. No tests, build, asset generation, commit,
+  or push run for this discussion. Check the history entry's ordering and explicit
+  non-approval; previous verification evidence is not presented as a new result.
+
+## H052 - 2026-09-23 - Build Four Isolated Visual Concepts for Selection
+
+- **Request / approval:** The user asks to see three or four possible concepts,
+  permits original/code-based or sourced art and an exploratory tool folder, and
+  wants to decide which looks good. This approves previews, not replacing the
+  production game or adopting any direction. Preserve the pending H050 lane work.
+- **Delivered:** A separate Vite-served tools/concepts entry with four directions:
+  (1) Tin Toy, tactile red/green enamel and molded parts; (2) Signal Arcade,
+  graphic yellow/coral/cyan emphasis; (3) Field Notes, blue/red printed linework
+  and serif typography; (4) Precision Instrument, light machined surfaces and an
+  inset register. Composition, type, object treatment, and materials vary rather
+  than using color swaps alone. Machine/reward views, desktop/mobile captures,
+  and two four-way comparison PNGs are provided for the user's decision.
+- **Interaction / honesty:** The same authored commission-6 sample and physical
+  board geometry are used in every concept. Aim, spare placement, reset, speed,
+  and actual preview cascades use local component state; DropSimulation supplies
+  the latter's real payout at the normal fixed step. Initial score/history/reward
+  scenes are visual fixtures, not earned campaign claims. There is no complete
+  shop, campaign, save flow, or audio/controller prototype. Controls and sample
+  state never access browser or native saves; no live player action is performed.
+- **Art / licenses:** Authored original canvas mechanism/cabinet illustrations.
+  No game-reference artwork is reused. Existing local DM Sans/Barlow Condensed
+  and Lucide are reused. Downloaded preview-only Fraunces and Space Grotesk from
+  the official Google Fonts repository, checked font headers and OFL license
+  text, and retained both licenses locally. No paid purchase, package/lockfile
+  change, external runtime assets, or text-to-image service. The preview guide
+  records source URLs, reproduction commands, and limitations.
+- **Iteration / actual validation:** Concept-only TypeScript check passed. The
+  isolated Playwright capture script passed **12 concept/viewport combinations**:
+  four concepts at 1440x1040, 390x844, and 320x740. It blocks all Storage reads
+  and writes, checks local-only requests and browser errors, nonblank board
+  pixels, fixed board proportions, horizontal/text bounds, score/target overlap,
+  aiming, real cascade scoring, placement, and reset. Reward layouts also checked.
+  Fixed first-pass mobile grid specificity, repainted canvas type after font
+  loading, removed machine controls from reward scenes, tightened console widths,
+  and corrected narrow-screen score fit. Final PNGs and comparison sheets were
+  visually inspected. Mobile views scroll intentionally; this is not hardware,
+  complete-game, production-layout, or broad accessibility certification.
+- **Handoff / open decision:** Viewer at http://127.0.0.1:5173/tools/concepts/;
+  files and captures under tools/concepts. D23 tracks the user's choice, distinct
+  from implemented D16 polish. No direction selected automatically; Tin Toy and
+  Signal Arcade offer the clearest tactile-versus-energetic contrast for discussion.
+  Production UI/source/artwork, user saves, server configuration, dependencies,
+  earlier pending lane edits, and other deferred items remain unchanged. No game
+  tests/build/package regeneration, commit, or push performed in this concept turn.
+
+## H053 - 2026-09-24 - Restart the Concept Viewer
+
+- **Request:** The environment restarted; the user asks to run the previews again.
+- **Action / validation:** Port 5173 was free. Started the existing Pocket Cascade:
+  Play task; Vite reported ready at http://127.0.0.1:5173/. Opened
+  http://127.0.0.1:5173/tools/concepts/ and confirmed all four concept selectors
+  and the Tin Toy machine view loaded.
+- **Scope:** No game, concept, artwork, save, or configuration changes. Only this
+  history entry is appended. D23 still awaits the user's design choice; no tests,
+  builds, installs, commits, or pushes were required for this restart.
+
+## H054 - 2026-09-24 - Concepts Need More Character and Smaller Display Type
+
+- **Feedback:** The user finds the concepts okay but none compelling yet. Text
+  and score feel too large, with Signal Arcade named as an example. This is not
+  a selection, approval to adopt a concept, or a request to change game rules.
+- **Assessment:** Revisited the saved Signal Arcade desktop capture. Its bright
+  oversized score dominates the smaller board while supporting labels are tiny.
+  Reducing the display-type scale is a concrete correction for a later iteration,
+  not a reason to shrink all text. The broader concern is artistic identity:
+  the studies vary typography, color, and layout but retain similar schematic
+  objects and orderly interface structure. Technical layout checks do not establish
+  the distinctive charm or desire to interact that the user wants.
+- **Recommendation, not implementation:** Reconsider the screen as one compelling
+  machine rather than a board surrounded by styled information. Put expressive
+  original object art/materials and the main interaction first, with compact
+  score/target controls integrated into it. A few art-first still compositions
+  would test that larger change before building more interactive variants. Keep
+  the clockwork premise without assuming the current cabinet shape or framing
+  must be retained. Do not use giant numbers, copied game assets, or more ambient
+  animation as substitutes for a coherent visual direction.
+- **Scope / record:** Update existing D23 with the actual feedback and leave it
+  open; none of the four directions is selected. No concept code, artwork,
+  screenshots, game source, saves, server, or earlier pending lane work changed.
+  Only the tracker/history notes are edited. Documentation validation covers
+  chronology, unique D23, and explicit unselected status; no game tests, builds,
+  asset generation, commits, or pushes are performed for this discussion.
+
+## H055 - 2026-09-24 - Explore Two Art-First Machine Directions
+
+- **Approval / boundary:** The user approves the next exploration proposed in
+  H054: two art-first stills, with more distinctive machines and compact display
+  typography. This is approval to create options for feedback, not to select one,
+  replace the production UI, change rules, or alter existing concept previews.
+- **Delivered:** A separate tools/concepts/studies.html viewer with (A) The Curio
+  Press, a sculpted red-enamel countertop machine with a physical score register,
+  exposed flywheel and attached parts drawer; and (B) The Glass Engine, an oval
+  glass/metal instrument with perimeter winding gears, a base register and fold-out
+  parts rack. Both provide original 2400x1500 PNGs, gadget detail crops, and a
+  two-image comparison sheet under tools/concepts/previews/round-two.
+- **Visual approach:** The machine silhouette and mounted controls carry the
+  composition, rather than a large score beside a small rectangular board. New
+  gadget artwork depicts stamps, paired rollers, branching levers, and vault
+  doors with material shading, contact shadows, texture, and hardware. Persistent
+  score/target type is 24-25 logical pixels; commission number 27. Revised the
+  cramped multiplier marking and moved prominent glass-engine gears to the
+  perimeter so they do not compete with the pegs. No extra animation is used to
+  substitute for still-image identity.
+- **Provenance / isolation:** Newly authored Canvas2D illustrations using the
+  already licensed local preview fonts. No third-party illustration, game art,
+  paid asset, new font/download, image-generation service, or dependency added.
+  Both use the same authored commission-6/2,480-of-6,000 sample, spare inventory,
+  and 46-socket arrangement. They do not simulate play or read/write game saves.
+  Curved framing and hardware are proposed art, not validated collision changes.
+- **Actual validation:** The isolated capture script rendered and pixel-checked
+  both stills, confirmed 46 drawn sockets per image and maximum score-class type
+  of 27/25 logical pixels, checked text stays inside image bounds, and exercised
+  both selectors at 1440px and 390px viewer widths without horizontal overflow.
+  Storage reads/writes were blocked; no external requests or browser errors were
+  observed. Full images, comparison sheet, and close-up art were visually inspected.
+  Editor diagnostics reported no errors in the new source files. These checks
+  establish image/viewer integrity, not subjective charm, full accessibility,
+  finished mobile UI, gameplay geometry, or a new production regression result.
+- **Handoff / open decision:** Viewer at
+  http://127.0.0.1:5173/tools/concepts/studies.html; D23 remains open for feedback
+  on A/B or neither. The concept guide links both full-size images and explains
+  their still-only scope. Production game/source/assets, previous four previews,
+  existing uncommitted H050 work, saves, dependencies, and server configuration
+  remain unchanged. No game tests/build, package work, commits, or pushes.
+
+## H056 - 2026-09-24 - Favor Curio Press and Clarify Its Machine Identity
+
+- **Feedback / question:** The user says Curio Press looks nice, asks whether it
+  is a gambling machine or a vending machine, and says streamlining it would be
+  good. This establishes a favored exploration direction, not final production
+  adoption or approval for new game mechanics.
+- **Assessment:** Revisited the Curio Press still. Coin-like launch indicators,
+  the lever, numeric register, and separate lower collector openings resemble a
+  vintage pachinko/arcade cabinet more than a vending machine. Calling it a press
+  does not by itself remove that ambiguity. The current game is a machine-building
+  score challenge with deterministic launches, earned commission credits, no
+  wager, and no cash-out; it does not dispense purchased goods.
+- **Proposed streamlining:** Keep the sculpted red enamel body, compact integrated
+  register, recognizable gadgets, and attached parts tray. Make the main board
+  dominant, mount the launch action naturally into the base, reduce decorative
+  gears/tags and duplicate brand/commission labels, use beads or indicator lamps
+  for remaining launches rather than coin-like icons, and unify the lower return
+  assembly while retaining visible x1/x2/x1 scoring. Do not hide essential costs,
+  targets, or launch counts, globally shrink text, or change rules to fit the art.
+- **Recommended identity, not a decision:** A hand-built, marble-powered workshop
+  toy or contraption communicates experimentation and chain reactions without
+  needing a casino or retail-vending story. Arcade-like tactility is useful; the
+  question does not imply that the user has rejected all coin-operated visual
+  references. Recommend refining A before exploring another unrelated direction.
+- **Scope / validation:** Update D23 to record Curio Press as favored with
+  simplification pending, preserving the earlier unselected studies in history.
+  No concept illustration, code, screenshot, production UI, player save, task,
+  server, or pending H050 work changes. Only tracker/history notes are edited;
+  validate entry ordering and the still-unapproved production boundary. No game
+  tests, builds, asset generation, commits, or pushes performed for this discussion.
+
+## H057 - 2026-09-24 - Commit the Current Tree and Start the Visual Rework
+
+- **Request / approval:** "ok, lets commit what is there in tree (feel free to
+  remove if you don't want to commit something). Then push. Then let's start on
+  this full visual rework." This authorizes one descriptive commit of the current
+  working tree, with discretion over what to exclude, and a normal push to the
+  approved origin/main. It then approves starting the production visual rework in
+  the favored Curio Press direction, streamlined as proposed in H056. The rework
+  is not part of this commit, and publishing it later will need separate approval.
+  No force push, branch, policy change, package rebuild, or release claim.
+- **Commit scope:** H050's fresh-run lane-1 aim, its tests and diagnostic
+  opening-lane option, and the documentation from H049-H057. Also includes the
+  tools/concepts preview source: four interactive concepts, two art-first stills,
+  detail crops, comparison sheets, validation JSON, and the two preview-only OFL
+  fonts with their licenses.
+- **Excluded / reduced:** New .gitignore rules keep the regenerable concept
+  screenshots out of Git: 20 per-concept viewport/reward captures and four
+  art-viewer screenshots (24 files, 4.7 MB). The capture scripts recreate them. The
+  two 2400x1500 art stills are now written as WebP quality 90 (133 KB and 165 KB,
+  down from 2.9 MB and 3.6 MB PNGs). The viewer links and guide were updated, and
+  the superseded PNG copies were deleted. The 22 committed concept files total
+  3.4 MB; the whole untracked folder had been 14.2 MB. Rerunning capture-studies.mjs
+  revalidated both stills (46 sockets, bounded score type, text in bounds, local
+  resources only, no storage access) and the viewer at 1440 px and 390 px.
+- **Full verification:** The standard Verify Game task passed the production
+  build and **325 unit tests in 16 files**. Its full browser run had **94
+  passed / 4 failed / 98 total** in 13.9 minutes using two workers. One failure
+  came from the lane change: the audio-contact case now launched from lane 1,
+  hit no part, and recorded no scored contact. Like the other H050 fixtures, it
+  now aims at lane 5 before launching; its assertions are unchanged. The other
+  three timed out in page.reload after their gameplay steps: the onboarding
+  reduced-motion, reward-fusion, and smoke move/undo/redo cases. This matches the
+  D19 pattern.
+- **Rechecks:** An unresponsive terminal accidentally ran the first recheck at
+  the same time as a duplicate run. The two runs shared an output directory, and
+  two cases failed with trace-file ENOENT errors that did not come from the game.
+  The duplicate was stopped, and that result is not counted. A clean recheck of
+  every case in the four affected files passed **28/28** with two workers and no
+  retries in 94 seconds. The built Electron suite then passed **13/13** in
+  40.8 seconds, and a separate unit rerun passed 325/325. D19 remains open: the
+  full run had three reload timeouts this time, up from one or two before, and
+  their cause is still unconfirmed. No timeouts were raised and no assertions
+  were weakened. There is no new balance report, package rebuild, or
+  Steam/hardware claim.
+- **Publication procedure:** Stage the tree, check whitespace and exclusions,
+  export the exact staged blobs, verify their hashes, and scan them with the
+  project Gitleaks configuration before committing. Then push normally and check
+  that the remote main matches local HEAD. The final response reports the
+  published hash after that check; this entry records nothing in advance.
+- **Pre-commit results:** Fetched origin; local main and origin/main were both
+  at d4ca018 before committing. The first staged whitespace check flagged one
+  trailing space in each preview-font OFL text. It was removed without changing
+  any wording. The check then passed with **39 changed files** staged. All
+  **204 tree files** were exported as raw Git blobs, and every hash was verified.
+  Gitleaks 8.30.1 found **zero leaks** with the unchanged project configuration.
+  The only files under artifacts are the two original balance reports. This
+  entry is restaged, and the exact final tree is rescanned before committing.
+- **Rework start:** Phase 1 follows this publication. It works in the production
+  UI and canvas art and keeps game rules, physics, saves, accessible names, and
+  test hooks intact. D23 records the approved direction; the finished design and
+  its evaluation remain open.

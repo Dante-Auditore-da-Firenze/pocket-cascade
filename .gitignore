@@ -35,6 +35,14 @@ playwright-report/
 /tests/native/.results/
 /handoff/
 
+# Regenerable concept screenshots; comparison sheets, stills, and detail crops stay versioned.
+/tools/concepts/previews/*.png
+!/tools/concepts/previews/machine-comparison.png
+!/tools/concepts/previews/reward-comparison.png
+/tools/concepts/previews/round-two/*.png
+!/tools/concepts/previews/round-two/comparison.png
+!/tools/concepts/previews/round-two/*-detail.png
+
 # Local credentials, environment files, and signing material
 .env
 .env.*

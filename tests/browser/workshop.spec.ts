@@ -34,6 +34,8 @@ test('every mechanism has a bounded activation pose and returns to its mounted i
 
 test('the drop head carries one ready token to each selected lane and releases a real cascade', async ({ page }, testInfo) => {
   await openGame(page);
+  expect((await readRun(page)).lane).toBe(0);
+  await expect(page.getByRole('button', { name: 'Aim lane 1', exact: true })).toHaveAttribute('aria-pressed', 'true');
   for (let lane = 0; lane < 9; lane += 1) {
     await page.getByRole('button', { name: `Aim lane ${lane + 1}`, exact: true }).click();
     expect((await readRun(page)).lane).toBe(lane);
@@ -57,7 +59,12 @@ test('the drop head carries one ready token to each selected lane and releases a
   const run = await readRun(page);
   const settled = await drop(page);
   expect(settled.lastDrop).toEqual(simulateDrop(dropConfig(run)));
+  expect(settled.lane).toBe(8);
   await page.screenshot({ path: testInfo.outputPath('collector-payout.png'), fullPage: true });
+  await page.reload();
+  await expect(page.getByTestId('game-ready')).toHaveAttribute('data-save-ready', 'true');
+  expect((await readRun(page)).lane).toBe(8);
+  await expect(page.getByRole('button', { name: 'Aim lane 9', exact: true })).toHaveAttribute('aria-pressed', 'true');
 });
 
 test('playfield stays neutral in daylight and evening without hiding physical pegs', async ({ page }) => {

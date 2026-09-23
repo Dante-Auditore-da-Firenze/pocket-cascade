@@ -1,5 +1,41 @@
 # Candidate Verification
 
+## Commit Checkpoint - 2026-09-24
+
+H057 verifies the tree before its commit: H050's lane-1 opening, the concept
+tooling, and the documentation. There are no rule, physics, save, or artwork changes.
+
+| Check | Actual Outcome |
+| --- | --- |
+| Production build | TypeScript/Vite passed through the standard Verify Game task. The existing nonfatal warnings remain. |
+| Unit suite | **325 passed in 16 files**, in Verify Game and again in a separate JSON-reported rerun. |
+| Full browser suite | **94 passed / 4 failed / 98 total**, two workers, 13.9 minutes. Not a clean full pass. |
+| Lane-dependent fixture | The audio-contact case had launched from the old centered lane. From lane 1 it hit no part, so no scored contact was recorded. It now aims at lane 5 before launching, with unchanged assertions. |
+| Reload timeouts | The onboarding reduced-motion, reward-fusion, and smoke move/undo/redo cases timed out in `page.reload` after their gameplay steps (the D19 pattern). |
+| Clean affected-file recheck | **28/28 passed**: every case in the audio-feedback, onboarding, rewards, and smoke files. Two workers, no retries, 94 seconds. An earlier overlapping run shared the output directory and hit trace-file ENOENT errors; it is excluded. |
+| Built Electron | **13 passed in 40.8 seconds.** |
+| Concept stills | The capture script revalidated both WebP stills and the viewer at 1440 px and 390 px, with local resources only and no storage access. |
+
+D19 remains open, with three reload timeouts in this full run. No timeouts were
+raised and no assertions were weakened. There is no new balance report, package
+rebuild, or Steam, hardware, controller, or Deck claim. Existing packages remain
+the H026 builds. The reports are in the ignored `artifacts/security`
+(`recheck-h057-b.json`, `units-h057.json`), `artifacts/playwright-report`, and
+`artifacts/playwright`.
+
+## Starting Lane - 2026-09-23
+
+H050 changes only fresh-run aim to player-facing lane 1. **325 unit tests in
+16 files passed**, including chosen/saved aim through launches, interrupted
+recovery, Retry, Restart, and advance. The dedicated drop-head browser test
+passed: initial lane-1 selection, painted token at every chosen lane, exact
+settlement, and lane-9 persistence after reload. Six affected campaign/receipt/
+performance browser cases passed with zero failures/skips/retries; the historical
+campaign explicitly aims at lane 5. TypeScript and whitespace checks passed.
+Saved aim is never overwritten. Older full-study counts retain their original
+centered-opening scope; no new full balance report, native suite, production
+package, or Git publication is claimed. Difficulty values remain unchanged.
+
 ## Recovery, Practice, and Liveliness - 2026-09-23
 
 H047 explicitly authorizes the five H046 priorities. Implemented exact last-shop

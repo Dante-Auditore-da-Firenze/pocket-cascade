@@ -5,7 +5,7 @@ import path from 'node:path';
 import { parseArgs } from 'node:util';
 import {
   buyPart, claimPart, claimTuning, collectCommission, commission, enterEndless,
-  fusePeg, launchDrop, newRun, nextCommission, retryCommission, retryHelpLevel, settleDrop, tunePeg, tuningTargets, upgradePower,
+  fusePeg, launchDrop, newRun, nextCommission, retryCommission, retryHelpLevel, setLane, settleDrop, tunePeg, tuningTargets, upgradePower,
   type RunState,
 } from '../src/game/engine';
 import { SLOTS, type PegKind } from '../src/game/model';
@@ -92,8 +92,13 @@ export function planRoleBuild(input: RunState, policy: RolePolicy, contacts: str
   return { run, actions };
 }
 
-export function playRoleCampaign(seed: number, policy: RolePolicy, stages = 12, afterHours = 6, acceptRetryHelp = false) {
+export function playRoleCampaign(seed: number, policy: RolePolicy, stages = 12, afterHours = 6, acceptRetryHelp = false, openingLane?: number) {
   let run = newRun(seed);
+  if (openingLane !== undefined) {
+    assert.ok(Number.isInteger(openingLane) && openingLane >= 0 && openingLane <= 8);
+    run = setLane(run, openingLane);
+  }
+  const startingLane = run.lane;
   let contacts: string[] = [];
   const evaluator = createTrialEvaluator('baseline');
   const records: { stage: number; target: number; capacity: number; won: boolean; drops: number; retries: number; retryHelp: number; power: number; credits: number; best: number; board: RunState['board']; bench: RunState['bench']; banked: number; joins: number; starved: number }[] = [];
@@ -154,7 +159,7 @@ export function playRoleCampaign(seed: number, policy: RolePolicy, stages = 12, 
     run = nextCommission(run);
   }
   const recoveryAudit = run.phase === 'lost' ? auditRoleRecovery(run, evaluator.evaluate) : null;
-  return { seed, policy, won: records.filter((stage) => stage.stage <= 12 && stage.won).length === 12,
+  return { seed, policy, openingLane: startingLane, won: records.filter((stage) => stage.stage <= 12 && stage.won).length === 12,
     cleared: records.filter((stage) => stage.stage <= 12 && stage.won).length,
     afterHours: records.filter((stage) => stage.stage > 12 && stage.won).length,
     timeouts, totalDrops: run.totalDrops, bestDrop: run.bestDrop, records, builds, shops, recoveryAudit, finalRun: run, statistics: evaluator.statistics() };
@@ -185,20 +190,23 @@ async function main() {
     policies: { type: 'string', default: ROLE_POLICIES.join(',') },
     continuation: { type: 'string', default: '6' },
     'retry-help': { type: 'boolean', default: false },
+    'opening-lane': { type: 'string' },
   } });
   const seeds = values.seeds.split(',').map(Number);
   const policies = values.policies.split(',') as RolePolicy[];
   const continuation = Number(values.continuation);
+  const openingLane = values['opening-lane'] === undefined ? undefined : Number(values['opening-lane']) - 1;
   assert.ok(seeds.every((seed) => Number.isInteger(seed) && seed >= 0 && seed <= 0xffffffff));
   assert.ok(policies.every((policy) => ROLE_POLICIES.includes(policy)));
   assert.ok(Number.isInteger(continuation) && continuation >= 0 && continuation <= 12);
+  if (openingLane !== undefined) assert.ok(Number.isInteger(openingLane) && openingLane >= 0 && openingLane <= 8);
   await mkdir('artifacts/balance/experiments', { recursive: true });
   const stem = `artifacts/balance/experiments/roles-${Date.now()}`;
   const runs: ReturnType<typeof playRoleCampaign>[] = [];
   await writeFile(`${stem}.jsonl`, '', { flag: 'wx' });
   for (const policy of policies) {
     for (const seed of seeds) {
-      const result = playRoleCampaign(seed, policy, 12, continuation, values['retry-help']);
+      const result = playRoleCampaign(seed, policy, 12, continuation, values['retry-help'], openingLane);
       runs.push(result);
       await appendFile(`${stem}.jsonl`, `${JSON.stringify(result)}\n`);
       console.log(`${policy.padEnd(8)} seed=${String(seed).padEnd(6)} campaign=${result.cleared}/12 AH=${result.afterHours}/${continuation} drops=${result.totalDrops} earlyChanges=${result.builds.filter((build) => build.stage >= 4 && build.stage <= 9 && build.needed && build.changedInstalled).length} best=${result.bestDrop}`);

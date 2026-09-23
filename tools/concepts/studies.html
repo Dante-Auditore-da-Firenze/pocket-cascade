@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#e6e9e4" />
+  <title>Pocket Cascade - Art Studies</title>
+  <style>
+    @font-face { font-family: 'Space Grotesk'; src: url('./SpaceGrotesk.ttf') format('truetype'); font-weight: 300 700; font-display: swap; }
+    @font-face { font-family: 'Fraunces'; src: url('./Fraunces.ttf') format('truetype'); font-weight: 100 900; font-display: swap; }
+    * { box-sizing: border-box; }
+    body { margin: 0; color: #263937; background: #e6e9e4; font: 400 14px/1.5 'Space Grotesk', sans-serif; }
+    header { display: flex; align-items: center; gap: 24px; padding: 12px 22px; border-bottom: 1px solid #bac7c1; background: #f3f4ef; }
+    header strong { font-size: 14px; font-weight: 600; }
+    header small { display: block; color: #61706a; font-size: 11px; }
+    nav { display: flex; gap: 4px; margin: 0 auto; }
+    button { font: inherit; cursor: pointer; border: 1px solid transparent; padding: 9px 13px; color: #455e58; background: transparent; border-radius: 4px; letter-spacing: 0; }
+    button[aria-pressed='true'] { background: #263f38; color: #f7f8ef; }
+    button:focus-visible, a:focus-visible { outline: 3px solid #c45740; outline-offset: 3px; }
+    a { color: #294f47; text-underline-offset: 3px; }
+    main { max-width: 1660px; margin: auto; padding: 16px 22px 24px; }
+    figure { margin: 0; }
+    canvas { display: block; width: 100%; height: auto; aspect-ratio: 8 / 5; }
+    [hidden] { display: none !important; }
+    footer { display: flex; align-items: start; justify-content: space-between; gap: 24px; margin-top: 14px; }
+    h1 { font: 550 24px/1.25 'Fraunces', serif; margin: 0 0 6px; }
+    p { margin: 0; max-width: 720px; font-size: 13px; color: #536760; }
+    .study-links { display: flex; gap: 18px; flex-wrap: wrap; justify-content: end; font-size: 12px; }
+    .boundary { padding-top: 13px; margin-top: 16px; border-top: 1px solid #bbc8c0; font-size: 11px; }
+    .status { color: #99442e; padding: 10px 0; }
+    @media (max-width: 720px) { header { flex-wrap: wrap; gap: 8px 12px; padding: 10px 12px; } header > a { margin-left: auto; font-size: 12px; } nav { width: 100%; order: 3; margin: 0; } nav button { flex: 1; font-size: 12px; padding: 8px; } main { padding: 12px; } footer { display: block; } .study-links { justify-content: start; margin-top: 12px; } h1 { font-size: 22px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <div><strong>Pocket Cascade</strong><small>Art direction / round two</small></div>
+    <nav aria-label="Art study">
+      <button type="button" data-study="press" aria-pressed="true">A / The Curio Press</button>
+      <button type="button" data-study="glass" aria-pressed="false">B / The Glass Engine</button>
+    </nav>
+    <a href="./">Earlier concepts</a>
+  </header>
+  <main>
+    <p class="status" id="status" role="status">Preparing the illustrations...</p>
+    <figure id="press-study">
+      <canvas id="press-canvas" width="2400" height="1500" role="img" aria-label="The Curio Press: a sculpted red enamel machine, exposed flywheel, compact score register, and attached parts drawer on a green workbench."></canvas>
+      <footer><div><h1>A / The Curio Press</h1><p>A weighty, slightly eccentric countertop machine. Worn enamel, cast-metal feet, a working-looking flywheel, and gadgets that sit in a physical drawer.</p></div><div class="study-links"><a href="./previews/round-two/curio-press.webp" target="_blank" rel="noopener">Full-size image</a><a href="./previews/round-two/curio-press-detail.png" target="_blank" rel="noopener">Object details</a></div></footer>
+    </figure>
+    <figure id="glass-study" hidden>
+      <canvas id="glass-canvas" width="2400" height="1500" role="img" aria-label="The Glass Engine: a tall oval glass mechanism with brass ribs, a compact score rail, and a hinged tool rack integrated into a clockwork tabletop instrument."></canvas>
+      <footer><div><h1>B / The Glass Engine</h1><p>An open, jewel-like mechanism. A glass face, visible metal ribs, and a fold-out tool rack make the whole machine the focal point.</p></div><div class="study-links"><a href="./previews/round-two/glass-engine.webp" target="_blank" rel="noopener">Full-size image</a><a href="./previews/round-two/glass-engine-detail.png" target="_blank" rel="noopener">Object details</a></div></footer>
+    </figure>
+    <p class="boundary">Still-image studies, not playable interfaces. Same illustrative commission and part layout; no game or save access. Neither direction is selected.</p>
+  </main>
+  <script type="module" src="./studies.mjs"></script>
+</body>
+</html>

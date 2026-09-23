@@ -66,7 +66,7 @@ export function newRun(seed = Date.now() >>> 0, mode: RunMode = 'workshop', assi
       '2-3': { id: 'part-4', kind: 'doubler', direction: 1 },
     },
     bench: [{ id: 'part-5', kind: 'splitter', direction: 1 }],
-    lane: 4, score: 0, dropsLeft: 5, brass: 0, power: 0, retries: 0, retryHelp: 0,
+    lane: 0, score: 0, dropsLeft: 5, brass: 0, power: 0, retries: 0, retryHelp: 0,
     totalDrops: 0, totalScore: 0, bestDrop: 0, nextId: 6, assisted: mode === 'daily' ? false : assisted,
     rewardChoices: [], rewardClaimed: false, offers: [], rerolls: 0,
     lastDrop: null, activeDrop: null, lastReward: 0, discovered: ['mint', 'doubler', 'splitter'],

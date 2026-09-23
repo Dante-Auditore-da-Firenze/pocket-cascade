@@ -37,7 +37,9 @@ Desktop launch loads the built files and does not require Vite or Steam. Fresh a
 
 The nonblocking **Quick Guide** introduces placing a part, launching, collecting, choosing a free gift, and optional spending. Skip it or replay it from Settings. Highlights identify the next action, never an optimal route; there is no calculated advisor, automatic solution, or extra currency.
 
-Select a part, choose a socket, and aim one of nine lanes. Mint, Relay, and Kicker
+Select a part, choose a socket, and aim one of nine lanes. New runs start at
+lane 1; subsequent play and reloads retain your chosen lane. Existing saves keep
+their recorded aim. Mint, Relay, and Kicker
 generate charge; Doubler, Echo multiplication, and Crown spend it. Each token
 holds three charge, shown beside its value. Vault banks spare charge into extra
 points and a reserve for Dividend. Junction rewards branches meeting at the same

@@ -76,6 +76,7 @@ test('profiles dense opening feedback on the reported machine without changing i
   save.settings.speed = 1;
   save.run.mode = 'endless';
   save.run.stage = 15;
+  save.run.lane = 4;
   save.run.power = 8;
   save.run.nextId = 22;
   save.run.board = {
